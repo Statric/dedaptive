@@ -1,0 +1,23 @@
+Package: dedaptive
+Type: Package
+Title: R package for DEcision-oriented aDAPTIVE (dedaptive) testing
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "Patric", "Wyss",
+      email = "patric.wyss@fhnw.ch",
+      role = c("aut", "cre")
+    ),
+    person(
+      "Markus", "Steiner",
+      email = "markus.steiner@fhnw.ch",
+      role = "ctb"
+    )
+  )
+Description: More about what it does (maybe more than one line).
+    Continuation lines should be indented.
+License: GPL (>= 3)
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/Statric/dedaptive
+BugReports: https://github.com/Statric/dedaptive/issues
