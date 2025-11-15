@@ -21,3 +21,6 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/Statric/dedaptive
 BugReports: https://github.com/Statric/dedaptive/issues
+Imports: 
+    mirt
+RoxygenNote: 7.3.3
