@@ -51,12 +51,9 @@
 #'   \code{respName} and, if \code{formula} is not \code{NULL}, all predictor
 #'   variables referenced in \code{formula}. Each row typically corresponds to
 #'   one person.
-#' @param model Specification of the latent structure passed to \code{mirt::mirt()}.
-#'   This can be a single integer (number of dimensions), a character string with
-#'   \code{mirt} model syntax, or an object created by \code{mirt::mirt.model()}.
-#'   By default, a unidimensional model (\code{model = 1}) is fitted.
-#' @param ... Additional arguments passed to \code{mirt::mirt()}, such as \code{model},
-#'   \code{technical} options, starting values, or convergence settings. The
+#' @param ... Additional arguments passed to \code{mirt::mirt()}, such as \code{model}
+#' (latent structure passed to \code{mirt::mirt()} e.g., an object created by
+#' \code{mirt::mirt.model()}), \code{technical} options, starting values, or convergence settings. The
 #'   estimation algorithm is currently fixed to the EM algorithm within
 #'   \code{fitIrt()}; other methods supported by \code{mirt} may be made
 #'   available in future versions.
