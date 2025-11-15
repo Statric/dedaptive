@@ -22,5 +22,8 @@ LazyData: true
 URL: https://github.com/Statric/dedaptive
 BugReports: https://github.com/Statric/dedaptive/issues
 Imports: 
-    mirt
+    MASS,
+    mirt,
+    mvtnorm,
+    plyr
 RoxygenNote: 7.3.3
