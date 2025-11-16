@@ -23,9 +23,9 @@ URL: https://github.com/Statric/dedaptive
 BugReports: https://github.com/Statric/dedaptive/issues
 Imports: 
     MASS,
-    mirt,
     mvtnorm,
     plyr
 RoxygenNote: 7.3.3
 Depends: 
-    R (>= 3.5)
+    R (>= 3.5),
+    mirt
