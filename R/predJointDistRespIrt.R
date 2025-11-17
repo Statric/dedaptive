@@ -56,6 +56,7 @@
 #' }
 #'
 #' @import mirt
+#' @export
 #'
 #' @references
 #' Wyss, P., Steiner, D., Lopes, R., M., Sipka, Berger, T., & Krause, A. (2025).

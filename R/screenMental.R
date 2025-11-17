@@ -73,12 +73,11 @@
 #' disorder: a randomized full factorial trial. \emph{Psychotherapy and Psychosomatics},
 #' 94(1), 40–59.
 #'
-#' Wyss, P., Steiner, D., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2025).
+#' Wyss, P., Steiner, M., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2025).
 #' Decision-oriented adaptive testing for efficient screening across mental disorders.
 #' Manuscript in preparation.
 #'
 #' @examples
 #' data(screenMental)
 #' str(screenMental)
-#'
 "screenMental"

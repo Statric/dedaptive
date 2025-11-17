@@ -76,6 +76,7 @@
 #' )
 #' }
 #' @import mirt
+#' @export
 
 
 fitIrt <- function(respName, formula = NULL, data, ...) {

@@ -75,7 +75,6 @@ response categories can be found in the official PHQ-9 and GAD-7 forms.
 \examples{
 data(screenMental)
 str(screenMental)
-
 }
 \references{
 Šipka, D., Lopes, R., Krieger, T., Klein, J. P., & Berger, T. (2025).
@@ -83,7 +82,7 @@ Active components in internet-based cognitive-behavioral therapy for social anxi
 disorder: a randomized full factorial trial. \emph{Psychotherapy and Psychosomatics},
 94(1), 40–59.
 
-Wyss, P., Steiner, D., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2025).
+Wyss, P., Steiner, M., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2025).
 Decision-oriented adaptive testing for efficient screening across mental disorders.
 Manuscript in preparation.
 }
