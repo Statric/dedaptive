@@ -55,6 +55,8 @@
 #'     frequency (probability).}
 #' }
 #'
+#' @import mirt
+#'
 #' @references
 #' Wyss, P., Steiner, D., Lopes, R., M., Sipka, Berger, T., & Krause, A. (2025).
 #' Decision-Oriented Adaptive Testing for Efficient Screening Across Mental Disorders.

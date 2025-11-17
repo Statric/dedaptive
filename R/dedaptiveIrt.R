@@ -69,6 +69,7 @@
 #'     after the last selected item.}
 #' }
 #'
+#' @import mirt
 #' @export
 
 dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thres,
@@ -87,7 +88,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
 
   # Generate individual seeds
   set.seed(seed)
-  seeds <- round(10000 * runif(nResp))
+  seeds <- round(10000 * stats::runif(nResp))
 
   # Extract cost parameters
   cFp <- costs[[1]]  # false positive costs for each decision
@@ -337,6 +338,11 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   # Add joint distribution of not chosen items and latent distribution
   out$distItems <- predJointSubTemp
   out$distTheta <- distThetaPast
+
+  # Add the score functions, thresholds and costs as meta-data
+  out$funOfItems<- funOfItems
+  out$thres<- thres
+  out$costs<- costs
 
   return(out)
 }

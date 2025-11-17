@@ -57,6 +57,7 @@
 #'     selected items (i.e. \code{givenVar}).}
 #' }
 #'
+#' @import mirt
 #' @export
 fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
                             dataSub, thres, funOfItems = sum, givenVar = NULL,
@@ -92,57 +93,56 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
         nSimItem  = nSimItem,
         seed      = seed,
         givenVal  = givenVal
-      )$jointDist
-
+      )
+      predJointDistSub<- predJointSub$jointDist
     } else {
       # Use provided joint distribution before conditioning on givenVar
-      predJointSub <- predJointSub$jointDist
+      predJointDistSub <- predJointSub$jointDist
 
       if (!is.null(givenVar) & length(givenVar) > 0) {
 
         # Sequentially condition the joint distribution on all givenVar values
         for (i in seq_along(givenVal)) {
-          predJointSub <- .multiMultinomCondFromJoint(
-            jointDist = predJointSub,
+          predJointDistSub <- .multiMultinomCondFromJoint(
+            jointDist = predJointDistSub,
             varName   = names(givenVal)[i],
             varValue  = givenVal[i]
           )$cond
         }
 
         # Make sure the conditioned items have the correct observed values
-        predJointSub[, givenVar] <- as.numeric(dataSub[, givenVar, drop = FALSE])
+        predJointDistSub[, givenVar] <- as.numeric(dataSub[, givenVar, drop = FALSE])
 
         # Reorder columns to have all responses and the frequency column
-        predJointSub <- predJointSub[, c(respNames, "freq")]
+        predJointDistSub <- predJointDistSub[, c(respNames, "freq")]
       }
     }
 
   } else {
     # Use fully precomputed joint distribution conditional on givenVar
-    predJointSub <- predJointSubCond$jointDist
+    predJointDistSub <- predJointSubCond$jointDist
   }
 
   # (3) Apply score functions and thresholds
 
   for (f in 1:length(funOfItems)) {
     # Scores (functions of item responses)
-    predJointSub[[paste0("fun_", f)]] <-
-      apply(predJointSub[, colnames(predJointSub) != "freq", drop = FALSE],
+    predJointDistSub[[paste0("fun_", f)]] <-
+      apply(predJointDistSub[, colnames(predJointDistSub) != "freq", drop = FALSE],
             1, funOfItems[[f]])
 
     # Binary decisions based on thresholds
-    predJointSub[[paste0("diag_", f)]] <-
-      ifelse(predJointSub[[paste0("fun_", f)]] >= thres[f], 1, 0)
+    predJointDistSub[[paste0("diag_", f)]] <-
+      ifelse(predJointDistSub[[paste0("fun_", f)]] >= thres[f], 1, 0)
   }
 
   # (4) Compute predictions from the joint distribution
 
   # Predict distribution of scores: relative frequencies, means and
   # probabilities P(score >= threshold)
-  out <- .predFromJoint(predJointSub, thres)
+  out <- .predFromJoint(predJointDistSub, thres)
 
   # True values and decisions based on all items
-
   for (f in 1:length(funOfItems)) {
     # True score computed from all responses in dataSub
     out$pred[[paste0("trueMean_", f)]] <-
@@ -154,7 +154,6 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
   }
 
   # Add number and names of selected items
-
   out$pred$nItems <- if (is.null(givenVar)) 0L else length(givenVar)
 
   if (is.null(givenVar)) {
@@ -165,11 +164,19 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
     out$pred$combItems    <- paste(givenVar, collapse = ", ")
   }
 
+
   # Runtime information
 
   timeStamp2              <- Sys.time()
   out$pred$runTime        <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
   out$pred$runTimePerItem <-  out$pred$runTime / out$pred$nItems
 
+  # Add joint distribution of not chosen items and latent variables
+  out$distItems <- predJointSub$jointDist
+  out$distTheta <- predJointSub$postDistTheta
+
+  # Add the score functions and thresholds
+  out$funOfItems<- funOfItems
+  out$thres<- thres
   return(out)
 }
