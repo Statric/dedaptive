@@ -31,13 +31,13 @@ This workflow demonstrates:
 6. Performing adaptive, cost-sensitive testing (`dedaptiveIrt`)
 
 
-# 1. Load and prepare the example data
+## 1. Load and prepare the example data
 We load the `dedaptive` library and then the included data set `screenMental`
 
 ```{r}
 library(dedaptive)
 data(screenMental)
-head(screenMental, 10)
+head(screenMental, 3)
 ```
 
 The data set `screenMental`is a simulated data set based on statistical methods applied to the data set with item responses of real individuals that was used in the publication of Wyss et al. (2025) (introducing the dedaptive testing framework). For the data simulation the functions `fitIrt` and `predJointDistRespIrt` were used, more information can be accessed with `?screenMental`. The data set contains the sex and age as well as 16 responses of the nine items of the Patient Health Questionnaire 0 (PHQ-9) and the seven items of the Generalized Anxiety Disorder-7 (GAD-7) scale.
@@ -90,7 +90,7 @@ dataSub   <- screenMental[screenMental$id == idPred, ]
 
 
 
-# 2. Fit a multidimensional IRT model
+## 2. Fit a multidimensional IRT model
 
 With the function *fitIrt* muldimensional IRT models can be fitted. The functions is wrapper that uses the function *mirt* from the package *mirt*. However, in case we want to use an IRT model to make predictions or item selections with the package *dedaptive* models have to be fitted with *fitIrt*. 
 
@@ -129,7 +129,7 @@ coef(modelTrain$fit)$lr.betas
 For more details, see the help page of the function (`?fitIrt`) and the documentation of the function `mirt`. 
 
 
-# 3. Approximate joint item distributions
+## 3. Approximate joint item distributions
 The function `predJointDistRespIrt`performs probabilistic predictions of item responses based on an IRT model fitted with `fitIrt`. The method can incorporate predictors (via a latent regression, if specified) and optionally already observed responses for a subset of items. Prediction are based on`nSimTheta`simulations of latent variables and `nSimItem` simulations of response patterns for every draw of latent variables (`nSimTheta*nSimItem` simulated response pattern). More information can be found in Wyss et al. (2025).
 
 We try out the function for 19 years old women (as the chosen hold-out `dataSub`) assuming that no item responses are known;
@@ -143,7 +143,7 @@ predJointPrior <- predJointDistRespIrt(
   nSimItem  = 10,
   seed      = 123
 )
-head(predJointPrior$jointDist, 10)
+head(predJointPrior$jointDist, 3)
 ```
 The output`predJointPrior` contains a table with all `nSimTheta*nSimItem` simulated response patterns (`predJointPrior$sim`) and a table with the relative frequencies of specific response panels (`predJointPrior$jointDist`). 
 
@@ -185,7 +185,7 @@ plot(predJointCond2$postDistTheta$dist[, 2],
      xlab="", ylab="Frequency", main="F2, phq1=3, gad1=0") 
 ```
 
-# 4. Probabilistic predictions with fixed and adaptive item selections
+## 4. Fixed and dedaptive item selections
 
 With the function `fixSelectionIrt` probabilistic predictions can be performed for a subject based on known values for a subset of items.
 
@@ -223,7 +223,7 @@ predShortVersion <- fixSelectionIrt(
 
 ```
 
-In `predShortVersion$pred` is a summary of the predictions (e.g., the predicted mean and true scores, predicted probabilities and true decisions). In `predShortVersion$distFun` we have the approximated joint distribution of the scores and corresponding decisions. For two scores and decision probabilistic predictions based on `predShortVersion$distFun` can be visualized with the function `plotScoresItemSelection`. The results are: 
+In `predShortVersion$pred` is a summary of the predictions (e.g., the predicted mean and true scores, predicted probabilities and true decisions). In `predShortVersion$distFun` we have the approximated joint distribution of the scores and corresponding decisions. For two scores and decisions probabilistic predictions based on `predShortVersion$distFun` can be visualized with the function `plotScoresItemSelection`. The results are: 
 
 ```{r, fig.width=7,fig.height=7}
 # Plot the results
@@ -262,3 +262,116 @@ predDedaptive$pred[, 1:8]
 # Show the responses of the selected items
 dataSub[, predDedaptive$chosen]
 ```
+
+## 5. Simulate a data set
+The function  `simResponsesIrt`can used to simulate item responses based on predictor variables from the latent regression and a trained IRT model (using the functions `fitIrt` and `predJointDistRespIrt`). The function was used to generate the data set `screenMental`of the package `dedaptive` based on a data set with item responses from real persons. In the following the same procedure was applied to generate a new simulated data set based on `screenMental`
+
+First, we train a multidimensional IRT model on the whole data set `screenMental` (same model structure as the model in section 2): 
+
+```{r}
+# Fit the model
+modelAllData <- fitIrt(
+  model    = whichLatentStructure,
+  respName = itemsAll,
+  formula  = whichFormula,
+  data     = screenMental
+)
+```
+With this model we can now generate item response patterns for a given age and sex, e.g., 
+
+```{r}
+# woman with age mean-1SD, man with age mean+1SD
+simResponsesIrt(modelAllData, data.frame(ageStand=c(-1, 1), sex=c(1, 0)))
+```
+
+
+We want to generate a data set with the same relations as between variables as in `screenMental` without using any real data (also not the age and sex). Consequently, we first have to simulate sex and age values. To this end, we compute estimates for the portions of women and men (distribution of sex) and sex-specific kernel-densities (distribution of age conditional on the sex) using the data `screenMental`. Given these estimations first sex and then age values are simulated. These procedure can be performed with the function `simulateSexAge` below: 
+
+```{r}
+simulateSexAge <- function(data, nSim,
+                           sexVar = "sex",
+                           ageVar = "age", ...) {
+  # 1) Prepare 
+  sex <- data[[sexVar]]
+  age <- data[[ageVar]]
+  
+  # Remove missing
+  okCases <- stats::complete.cases(sex, age)
+  sex <- sex[okCases]
+  age <- age[okCases]
+  
+  # 2) Estimate distribution P(sex), f(age | sex)
+  
+  # Marginal distribution of sex
+  sexTab  <- table(sex)
+  sexProb <- prop.table(sexTab)
+  sexVals <- sort(unique(sex))
+  
+  # Kernel densities for age within each sex
+  densityList <- lapply(sexVals, function(s) {
+    stats::density(age[sex == s], ...)
+  })
+  #names(densityList) <- sexVals
+  
+  # helper: sample from a 1D kernel density estimate
+  sampleFromDensity <- function(d, n) {
+    cdf <- cumsum(d$y)
+    cdf <- cdf / max(cdf)
+    u <- stats::runif(n)
+    idx <- findInterval(u, vec = c(0, cdf), rightmost.closed = TRUE)
+    d$x[pmax(1, idx)]
+  }
+  
+  # 3) Simulate from estimated joint distribution
+  # Simulate sex from its marginal
+  simSexChar <- sample(sexVals, size = nSim, replace = TRUE, prob = sexProb)
+  
+  # Simulate age conditional on sex
+  simAge <- numeric(nSim)
+  for (s in 1:length(sexVals)) {
+    idx <- which(simSexChar == sexVals[s])
+    if (length(idx) > 0) {
+      simAge[idx] <- sampleFromDensity(densityList[[s]], length(idx))
+    }
+  }
+  
+  simData <- data.frame(
+    sex = simSexChar,
+    age = simAge
+  )
+  
+  # Return simulations plus estimated components
+  list(
+    sim = simData,
+    sexProb = sexProb,
+    ageDensities = densityList
+  )
+}
+```
+
+So we first generated a data set with estimated sex and age values: 
+```{r}
+# Apply the function simulateSexAge
+# (includes distribution estimates besides the simulated data)
+listSim<- simulateSexAge(screenMental, nrow(screenMental), "sex", "age")
+
+# Extract simulated data
+dataSim<- listSim$sim
+
+# Round the age to a resolution of one year
+dataSim$age<- round(dataSim$age)
+
+# Show first rows
+head(dataSim, 3)
+```
+
+Given the predictor values we can now simulate item responses with the function `simResponsesIrt`. First we also standardize the age values using the mean and standard deviation of the age in `screenMental`). 
+```{r}
+# Standardize the age (mean and SD from screenMental)
+dataSim$ageStand<- (dataSim$age-mean(screenMental$age))/sd(screenMental$age)
+
+# Simulate response patterns given sex and age
+dataSim<- simResponsesIrt(modelAllData, dataSim, seed=13)
+head(dataSim,3)
+```
+

@@ -73,6 +73,8 @@ simResponsesIrt <- function(model,
   respMat <- do.call(rbind, listSim)
   rownames(respMat) <- NULL
   respMat$idSim<- NULL
+  dataPred$idSim<- NULL
+
   # 4) Combine predictors and simulated responses
   dataOut <- cbind(dataPred, respMat)
 
