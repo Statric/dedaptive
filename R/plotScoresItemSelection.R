@@ -165,7 +165,7 @@ plotScoresItemSelection <- function(result,
   ySpan <- yRange[2] - yRange[1]
 
   xText1 <- thresUsed[1] + 0.05 * xSpan
-  yText1 <- yRange[2] - 0.05 * ySpan
+  yText1 <- yRange[1] + 0.05 * ySpan
   text(xText1, yText1,
        labels = paste0("P(", scoreNames[1], " \u2265 ", thresUsed[1], ") = ",
                        formatC(prob1, digits = 3, format = "f")),
