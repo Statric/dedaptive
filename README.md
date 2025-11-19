@@ -356,8 +356,8 @@ plotScoresItemSelection(predShortVersion, main="", xlab="PHQ-9 sum score (Score 
 predShortVersion$pred
 #>   predMean_1 predMean_2  prob_1  prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1   15.18373   13.43699 0.98256 0.97779         11      1          9      0
-#>   nItems              combItems  runTime runTimePerItem
-#> 1      4 phq1, phq2, gad1, gad2 1.989185      0.4972962
+#>   nItems              combItems runTime runTimePerItem
+#> 1      4 phq1, phq2, gad1, gad2 2.10678       0.526695
 ```
 
 We know perform the same steps with the function `dedaptiveIrt`that
@@ -434,12 +434,12 @@ age and sex, e.g.,
 ``` r
 # woman with age mean-1SD, man with age mean+1SD
 simResponsesIrt(modelAllData, data.frame(ageStand=c(-1, 1), sex=c(1, 0)))
-#>   ageStand sex idSim phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1 gad2
-#> 1       -1   1     1    1    1    2    2    1    1    3    0    0    2    1
-#> 2        1   0     2    0    0    2    1    1    0    2    0    0    1    0
-#>   gad3 gad4 gad5 gad6 gad7
-#> 1    2    1    0    1    0
-#> 2    1    1    0    1    1
+#>   ageStand sex phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1 gad2 gad3 gad4
+#> 1       -1   1    1    1    2    2    1    1    3    0    0    2    1    2    1
+#> 2        1   0    0    0    2    1    1    0    2    0    0    1    0    1    1
+#>   gad5 gad6 gad7
+#> 1    0    1    0
+#> 2    0    1    1
 ```
 
 We want to generate a data set with the same relations as between
@@ -546,41 +546,12 @@ dataSim$ageStand<- (dataSim$age-mean(screenMental$age))/sd(screenMental$age)
 # Simulate response patterns given sex and age
 dataSim<- simResponsesIrt(modelAllData, dataSim, seed=13)
 head(dataSim,3)
-#>   sex age   ageStand idSim phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1
-#> 1   1  28 -0.3404312     1    2    2    1    3    2    2    1    2    1    3
-#> 2   1  19 -1.1216787     2    1    1    0    1    0    3    1    0    0    3
-#> 3   0  42  0.8748428     3    0    1    1    1    0    2    2    2    0    1
-#>   gad2 gad3 gad4 gad5 gad6 gad7
-#> 1    2    1    2    1    2    0
-#> 2    3    2    3    0    0    1
-#> 3    1    2    1    0    1    1
+#>   sex age   ageStand phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1 gad2
+#> 1   1  28 -0.3404312    2    2    1    3    2    2    1    2    1    3    2
+#> 2   1  19 -1.1216787    1    1    0    1    0    3    1    0    0    3    3
+#> 3   0  42  0.8748428    0    1    1    1    0    2    2    2    0    1    1
+#>   gad3 gad4 gad5 gad6 gad7
+#> 1    1    2    1    2    0
+#> 2    2    3    0    0    1
+#> 3    2    1    0    1    1
 ```
-
-for the agelThis predictor values are simulated using the relative
-frequency of the ages The dataset was simulated as follows:
-
-Training on the original data (652 persons):
-
-Estimate the relative frequencies of male and female participants.
-
-Fit kernel density estimates for the age distribution separately for
-male and female individuals.
-
-Fit a multidimensional IRT model on PHQ-9 and GAD-7 item responses using
-fitIrt.
-
-Simulation of a synthetic dataset of 652 persons:
-
-Simulate sex according to the estimated frequencies from step 1(a).
-
-For each simulated sex, draw ages from the corresponding kernel density
-estimates from step 1(b).
-
-Given sex and age, simulate PHQ-9 and GAD-7 item responses from sex- and
-age-specific joint distributions using the model from step 1(c) and
-predJointDistRespIrt.
-
-All PHQ-9 and GAD-7 items are ordinal with possible values 0, 1, 2, and
-3, corresponding to increasing symptom frequency. English item labels
-and response categories can be found in the official PHQ-9 and GAD-7
-forms. First we train
