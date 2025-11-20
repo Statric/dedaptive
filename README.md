@@ -27,7 +27,7 @@ This workflow demonstrates:
     training and prediction data sets  
 2.  Fitting a multidimensional IRT model (`fitIrt`)
 3.  Simulation-based predictions of joint item distributions
-    (`predJointDistRespIrt`
+    (`predJointDistRespIrt`)
 4.  Performing probabilistic predictions with fixed-item panels
     (`fixSelectionIrt`) and adaptive, decision-oriented and
     cost-sensitive testing (`dedaptiveIrt`)
@@ -60,8 +60,8 @@ The dataset `screenMental` is a fully simulated data set that mimics
 PHQ-9 and GAD-7 item responses observed in a real sample. Simulations
 were based on models trained on the original data set used in the
 publication of Wyss et al. (2025). The exact procedure for the data
-generation is described in the section *Simulate a data set* below. The
-data set contains sex and age as well as 16 item responses: the nine
+generation is described in the section 5 (*Simulate a data set*) below.
+The data set contains sex and age as well as 16 item responses: the nine
 items of the Patient Health Questionnaire-9 (PHQ-9) and the seven items
 of the Generalized Anxiety Disorder-7 (GAD-7) scale.
 
@@ -95,8 +95,8 @@ screenMental$phq_dec<- ifelse(screenMental$phq_score>=thresModSev[1], 1, 0)
 screenMental$gad_dec<- ifelse(screenMental$gad_score>=thresModSev[2], 1, 0)
 ```
 
-We standardize the age and prepare prepare train and prediction (one
-person) sets
+We standardize the age and prepare train and prediction (one person)
+sets
 
 ``` r
 screenMental$ageStand<- (screenMental$age-mean(screenMental$age))/sd(screenMental$age)
@@ -114,7 +114,7 @@ dataSub   <- screenMental[screenMental$id == idPred, ]
 ```
 
 To illustrate the predictions we chose a female, 35 years old person
-with a PHQ-9 sum score of 12 and a GAD-7 sum score of 8.
+with a PHQ-9 sum score of 10 and a GAD-7 sum score of 8.
 
 ## 2. Fit a multidimensional IRT model
 
@@ -157,7 +157,7 @@ modelTrain <- fitIrt(
 ```
 
 The IRT model itself is saved in *modelTrain\$fit*. We can inspect the
-loadings and regression:M
+loadings and regression:
 
 ``` r
 # loadings
@@ -213,7 +213,7 @@ response patterns for each draw of the latent variables, resulting in
 details on this approximation strategy can be found in Wyss et
 al. (2025).
 
-## Prior predictions
+### Prior predictions
 
 We first illustrate the function for the held-out individual in
 `dataSub`, assuming that no item responses are known (i.e., prior
@@ -251,7 +251,7 @@ These prior distributions summarize the uncertainty about all item
 responses given only the predictors (sex and age) and the fitted IRT
 model.
 
-## Conditional predictions
+### Conditional predictions
 
 The function can also be used to predict distributions conditional on
 known responses for a subset of items. Below, we perform predictions for
@@ -329,7 +329,7 @@ subset** of items.
 With the function `dedaptiveIrt`, items are **adaptively selected** and
 their responses are dynamically incorporated into the probabilistic
 predictions. The function also returns predictions based on the final,
-subject-specific set of selected items.
+individualized set of selected items.
 
 Both functions provide probabilistic predictions for
 
@@ -389,7 +389,7 @@ item.
 prescribedCosts<- list(c(0.5, 0.5), # costs FP for every decision
                        c(0.5, 0.5), # costs FN for everyl decision
                        0.05) # measurement costs of one item)
-# Perform predictions
+# Perform dedaptive selections and predictions
 predDedaptive <- dedaptiveIrt(
   model      = modelTrain,
   dataSub    = dataSub,
@@ -429,7 +429,7 @@ predShortVersion$pred
 #>   predMean_1 predMean_2  prob_1  prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1    9.20833    9.25697 0.43435 0.42447         10      1          8      0
 #>   nItems              combItems  runTime runTimePerItem
-#> 1      4 phq1, phq2, gad1, gad2 2.940213      0.7350532
+#> 1      4 phq1, phq2, gad1, gad2 1.773665      0.4434162
 ```
 
 ``` r
@@ -524,16 +524,6 @@ simResponsesIrt(modelAllData, data.frame(ageStand=c(-1, 1), sex=c(1, 0)))
 #> 1    0    1    0
 #> 2    0    1    1
 ```
-
-We want to generate a data set with the same relations as between
-variables as in `screenMental` without using any real data (also not the
-age and sex). Consequently, we first have to simulate sex and age
-values. To this end, we compute estimates for the portions of women and
-men (distribution of sex) and sex-specific kernel-densities
-(distribution of age conditional on the sex) using the data
-`screenMental`. Given these estimations first sex and then age values
-are simulated. These procedure can be performed with the function
-`simulateSexAge` below:
 
 Our goal, however, is to create an entire data set that reflects the
 same relationships between variables as in `screenMental`, without
