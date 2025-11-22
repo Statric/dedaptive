@@ -429,7 +429,7 @@ predShortVersion$pred
 #>   predMean_1 predMean_2  prob_1  prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1    9.20833    9.25697 0.43435 0.42447         10      1          8      0
 #>   nItems              combItems  runTime runTimePerItem
-#> 1      4 phq1, phq2, gad1, gad2 1.773665      0.4434162
+#> 1      4 phq1, phq2, gad1, gad2 1.802076       0.450519
 ```
 
 ``` r
