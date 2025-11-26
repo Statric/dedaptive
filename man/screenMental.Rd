@@ -10,7 +10,7 @@ A data frame with 652 rows (persons) and 19 variables:
   \item{\code{id}}{Integer person identifier.}
   \item{\code{sex}}{Sex (numeric; 0 = male, 1 = female).}
   \item{\code{age}}{Age in years (numeric).}
-  \item{\code{phq1}}{PHQ-9 item 1 (loss of interest / pleasure).}
+  \item{\code{phq1}}{PHQ-9 item 1 responses $\in \{0;1;2;3\}$ (loss of interest / pleasure).}
   \item{\code{phq2}}{PHQ-9 item 2 (depressed mood).}
   \item{\code{phq3}}{PHQ-9 item 3 (sleep problems).}
   \item{\code{phq4}}{PHQ-9 item 4 (fatigue / low energy).}
@@ -32,11 +32,12 @@ A data frame with 652 rows (persons) and 19 variables:
 data(screenMental)
 }
 \description{
-\code{screenMental} is a simulated data set based on statistical methods applied to
-the data set used in the publication introducing the dedaptive testing framework
-(Wyss et al., 2025). It can be used to demonstrate the functions \code{\link{fitIrt}},
-\code{\link{predJointDistRespIrt}}, \code{\link{dedaptiveIrt}}, and
-\code{\link{fixSelectionIrt}}.
+\code{screenMental} is a fully simulated data set with sex, age, and PHQ-9/GAD-7
+item responses that follow the dependency structure learned from the data set
+used in the publication introducing the dedaptive testing framework (Wyss et al., 2025).
+
+This data set can be used to demonstrate the functions \code{\link{fitIrt}},
+\code{\link{predJointDistRespIrt}}, \code{\link{fixSelectionIrt}} and \code{\link{dedaptiveIrt}}.
 }
 \details{
 The original data stems from a study investigating internet-based cognitive
@@ -47,30 +48,26 @@ scale. The model assumed two latent variables (all items loading on both
 latent variables) and a latent regression with effects of sex and age on the
 means of the two latent variables (see Wyss et al., 2025).
 
-The dataset was simulated as follows:
+The data set was simulated as follows:
 \enumerate{
   \item Training on the original data (652 persons):
-    \enumerate{
-      \item Estimate the relative frequencies of male and female participants.
-      \item Fit kernel density estimates for the age distribution separately
+    \itemize{
+      \item a) Estimate the relative frequencies of male and female participants.
+      \item b)  Fit kernel density estimates for the age distribution separately
         for male and female individuals.
-      \item Fit a multidimensional IRT model on PHQ-9 and GAD-7 item responses
+      \item c)  Fit a multidimensional IRT model on PHQ-9 and GAD-7 item responses
         using \code{\link{fitIrt}}.
     }
-  \item Simulation of a synthetic dataset of 652 persons:
-    \enumerate{
-      \item Simulate sex according to the estimated frequencies from step 1(a).
-      \item For each simulated sex, draw ages from the corresponding
-        kernel density estimates from step 1(b).
-      \item Given sex and age, simulate PHQ-9 and GAD-7 item responses from
-        sex- and age-specific joint distributions using the model from step 1(c)
-        and \code{\link{predJointDistRespIrt}}.
+  \item Simulation of a synthetic data set of 652 persons:
+    \itemize{
+      \item a) Simulate sex according to the estimated frequencies from step 1a).
+      \item b) For each simulated sex, draw ages from the corresponding
+        kernel density estimates from step 1b).
+      \item c) Given sex and age from 2a) and 2b), simulate PHQ-9 and GAD-7 item responses from
+        sex- and age-specific joint distributions using the model from step 1c)
+        and the function \code{\link{simResponsesIrt}}.
     }
 }
-
-All PHQ-9 and GAD-7 items are ordinal with possible values 0, 1, 2, and 3,
-corresponding to increasing symptom frequency. English item labels and
-response categories can be found in the official PHQ-9 and GAD-7 forms.
 }
 \examples{
 data(screenMental)

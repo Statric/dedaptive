@@ -21,15 +21,19 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 <!-- Logo -->
-<p align="center">
-  <img src="man/figures/logo.png" width="300">
-</p>
+
+<div style="text-align: center;">
+  <img src="man/figures/logo.png" width="300"><br>
+  <em> Logo of the <code>dedaptive</code> R package (image generated with ChatGPT, OpenAI).</em>
+</div>
+
+
+
 
 `dedaptive` provides tools for **DEcision-oriented aDAPTIVE testing** based on  
 **multidimensional item response theory (IRT)**.  The framework is described in Wyss et al. (2025). 
 
 To install the development version, you need the package `remotes`. The package `dedaptive`can be installed with `remotes::install_github("Statric/dedaptive")`
-
 
 This workflow demonstrates:
 
