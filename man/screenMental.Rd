@@ -10,23 +10,26 @@ A data frame with 652 rows (persons) and 19 variables:
   \item{\code{id}}{Integer person identifier.}
   \item{\code{sex}}{Sex (numeric; 0 = male, 1 = female).}
   \item{\code{age}}{Age in years (numeric).}
-  \item{\code{phq1}}{PHQ-9 item 1 responses $\in \{0;1;2;3\}$ (loss of interest / pleasure).}
-  \item{\code{phq2}}{PHQ-9 item 2 (depressed mood).}
-  \item{\code{phq3}}{PHQ-9 item 3 (sleep problems).}
-  \item{\code{phq4}}{PHQ-9 item 4 (fatigue / low energy).}
-  \item{\code{phq5}}{PHQ-9 item 5 (changes in appetite).}
-  \item{\code{phq6}}{PHQ-9 item 6 (feelings of worthlessness or failure).}
-  \item{\code{phq7}}{PHQ-9 item 7 (concentration problems).}
-  \item{\code{phq8}}{PHQ-9 item 8 (psychomotor changes: slowed or restless).}
-  \item{\code{phq9}}{PHQ-9 item 9 (suicidal / self-harm thoughts).}
-  \item{\code{gad1}}{GAD-7 item 1 (nervousness / anxiety).}
-  \item{\code{gad2}}{GAD-7 item 2 (uncontrollable worrying).}
-  \item{\code{gad3}}{GAD-7 item 3 (excessive worry about different things).}
-  \item{\code{gad4}}{GAD-7 item 4 (difficulty relaxing).}
-  \item{\code{gad5}}{GAD-7 item 5 (restlessness / difficulty sitting still).}
-  \item{\code{gad6}}{GAD-7 item 6 (irritability / becoming easily annoyed).}
-  \item{\code{gad7}}{GAD-7 item 7 (fear that something awful might happen).}
+  \item{\code{phq1}}{PHQ-9 item 1 responses (loss of interest / pleasure).}
+  \item{\code{phq2}}{PHQ-9 item 2 responses (depressed mood).}
+  \item{\code{phq3}}{PHQ-9 item 3 responses (sleep problems).}
+  \item{\code{phq4}}{PHQ-9 item 4 responses (fatigue / low energy).}
+  \item{\code{phq5}}{PHQ-9 item 5 responses (changes in appetite).}
+  \item{\code{phq6}}{PHQ-9 item 6 responses (feelings of worthlessness or failure).}
+  \item{\code{phq7}}{PHQ-9 item 7 responses (concentration problems).}
+  \item{\code{phq8}}{PHQ-9 item 8 responses (psychomotor changes: slowed or restless).}
+  \item{\code{phq9}}{PHQ-9 item 9 responses (suicidal / self-harm thoughts).}
+  \item{\code{gad1}}{GAD-7 item 1 responses (nervousness / anxiety).}
+  \item{\code{gad2}}{GAD-7 item 2 responses (uncontrollable worrying).}
+  \item{\code{gad3}}{GAD-7 item 3 responses (excessive worry about different things).}
+  \item{\code{gad4}}{GAD-7 item 4 responses (difficulty relaxing).}
+  \item{\code{gad5}}{GAD-7 item 5 responses (restlessness / difficulty sitting still).}
+  \item{\code{gad6}}{GAD-7 item 6 responses (irritability / becoming easily annoyed).}
+  \item{\code{gad7}}{GAD-7 item 7 responses (fear that something awful might happen).}
 }
+All PHQ-9 and GAD-7 items are ordinal with possible values 0, 1, 2, and 3,
+corresponding to increasing symptom frequency. English item labels and
+response categories can be found in the official PHQ-9 and GAD-7 forms.
 }
 \usage{
 data(screenMental)
@@ -35,6 +38,7 @@ data(screenMental)
 \code{screenMental} is a fully simulated data set with sex, age, and PHQ-9/GAD-7
 item responses that follow the dependency structure learned from the data set
 used in the publication introducing the dedaptive testing framework (Wyss et al., 2025).
+The data set was generated using the function \code{\link{simResponsesIrt}}
 
 This data set can be used to demonstrate the functions \code{\link{fitIrt}},
 \code{\link{predJointDistRespIrt}}, \code{\link{fixSelectionIrt}} and \code{\link{dedaptiveIrt}}.

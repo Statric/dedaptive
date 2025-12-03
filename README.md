@@ -26,8 +26,8 @@ package `dedaptive`can be installed with
 
 This workflow demonstrates:
 
-1.  Loading the data set integrated in the package and preparing
-    training and prediction data sets  
+1.  Loading the data (`screenMental`) set integrated in the package and
+    preparing training and prediction data sets  
 2.  Fitting a multidimensional IRT model (`fitIrt`)
 3.  Simulation-based predictions of joint item distributions
     (`predJointDistRespIrt`)
@@ -165,23 +165,23 @@ loadings and regression:
 ``` r
 # loadings
 summary(modelTrain$fit)
-#>           F1    F2    h2
-#> phq1  0.1971 0.715 0.551
-#> phq2  0.4064 0.670 0.614
-#> phq3  0.2635 0.526 0.346
-#> phq4  0.2640 0.671 0.519
-#> phq5  0.0652 0.591 0.354
-#> phq6  0.3950 0.526 0.433
-#> phq7  0.3014 0.519 0.361
-#> phq8  0.1708 0.567 0.351
-#> phq9 -0.0170 0.499 0.249
-#> gad1  0.5916 0.402 0.511
-#> gad2  0.8136 0.428 0.845
-#> gad3  0.8188 0.407 0.836
-#> gad4  0.5901 0.500 0.598
-#> gad5  0.4016 0.371 0.299
-#> gad6  0.3115 0.400 0.257
-#> gad7  0.4730 0.461 0.437
+#>          F1    F2    h2
+#> phq1  0.197 0.715 0.551
+#> phq2  0.406 0.670 0.614
+#> phq3  0.263 0.526 0.346
+#> phq4  0.264 0.671 0.519
+#> phq5  0.065 0.591 0.354
+#> phq6  0.395 0.526 0.433
+#> phq7  0.301 0.519 0.361
+#> phq8  0.171 0.567 0.351
+#> phq9 -0.017 0.499 0.249
+#> gad1  0.592 0.402 0.511
+#> gad2  0.814 0.428 0.845
+#> gad3  0.819 0.407 0.836
+#> gad4  0.590 0.500 0.598
+#> gad5  0.402 0.371 0.299
+#> gad6  0.312 0.400 0.257
+#> gad7  0.473 0.461 0.437
 #> 
 #> SS loadings:  3.136 4.424 
 #> Proportion Var:  0.196 0.276 
@@ -432,7 +432,7 @@ predShortVersion$pred
 #>   predMean_1 predMean_2  prob_1  prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1    9.20833    9.25697 0.43435 0.42447         10      1          8      0
 #>   nItems              combItems  runTime runTimePerItem
-#> 1      4 phq1, phq2, gad1, gad2 3.802971      0.9507427
+#> 1      4 phq1, phq2, gad1, gad2 2.664567      0.6661417
 ```
 
 ``` r
@@ -604,15 +604,49 @@ simulateSexAge <- function(data, nSim,
 }
 ```
 
-We first generate a data set with simulated sex and age values:
+We first generate a data set with simulated sex and age values and
+visualize and the underlying distribution estimates:
 
 ``` r
 # Apply the function simulateSexAge
 # (includes distribution estimates besides the simulated data)
 listSim<- simulateSexAge(screenMental, nrow(screenMental), "sex", "age")
 
+# Extract densities and sex distribution
+densList <- listSim$ageDensities
+probFemale<- as.numeric(listSim$sexProb[2])
+
 # Extract simulated data
 dataSim<- listSim$sim
+
+# Visualize the distribution estimates
+plot(densList[[2]],
+     xlab = "Age",
+     ylab = "Density", 
+     main="",
+     lwd  = 2, 
+     lty=1)
+
+lines(densList[[1]], lwd = 2, lty = 2)
+legend("topright",
+       legend = c(paste0("sex = female (",round(probFemale*100), "%)"), 
+                  paste0("sex = male (",round((1-probFemale)*100), "%)")), 
+       lty    = c(1, 2),
+       lwd    = 2,
+       bty    = "n")
+```
+
+<div class="figure">
+
+<img src="man/figures/README-unnamed-chunk-17-1.png" alt="Fig. 4 Estimated age distributions by sex" width="100%" />
+<p class="caption">
+
+Fig. 4 Estimated age distributions by sex
+</p>
+
+</div>
+
+``` r
 
 # Round the age to a resolution of one year
 dataSim$age<- round(dataSim$age)

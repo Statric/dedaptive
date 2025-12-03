@@ -4,6 +4,7 @@
 #' \code{screenMental} is a fully simulated data set with sex, age, and PHQ-9/GAD-7
 #' item responses that follow the dependency structure learned from the data set
 #' used in the publication introducing the dedaptive testing framework (Wyss et al., 2025).
+#' The data set was generated using the function \code{\link{simResponsesIrt}}
 #'
 #' This data set can be used to demonstrate the functions \code{\link{fitIrt}},
 #' \code{\link{predJointDistRespIrt}}, \code{\link{fixSelectionIrt}} and \code{\link{dedaptiveIrt}}.
