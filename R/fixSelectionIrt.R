@@ -128,7 +128,7 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
   for (f in 1:length(funOfItems)) {
     # Scores (functions of item responses)
     predJointDistSub[[paste0("fun_", f)]] <-
-      apply(predJointDistSub[, colnames(predJointDistSub) != "freq", drop = FALSE],
+      apply(predJointDistSub[, respNames, drop = FALSE],
             1, funOfItems[[f]])
 
     # Binary decisions based on thresholds
@@ -154,6 +154,11 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
   }
 
   # Add number and names of selected items
+  if (is.null(givenVar)){
+    out$pred$nItems <- 0
+  } else {
+    out$pred$nItems <-length(givenVar)
+  }
   out$pred$nItems <- if (is.null(givenVar)) 0L else length(givenVar)
 
   if (is.null(givenVar)) {
@@ -167,9 +172,9 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
 
   # Runtime information
 
-  timeStamp2              <- Sys.time()
-  out$pred$runTime        <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
-  out$pred$runTimePerItem <-  out$pred$runTime / out$pred$nItems
+  timeStamp2 <- Sys.time()
+  out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
+  out$pred$runTimePerItem <-  out$pred$runTime
 
   # Add joint distribution of not chosen items and latent variables
   out$distItems <- predJointSub$jointDist

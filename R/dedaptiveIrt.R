@@ -73,7 +73,7 @@
 #' @export
 
 dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thres,
-                         funOfItems = sum, nSimTheta = 500, nSimItem = 2,
+                         funOfItems = list(sum), nSimTheta = 500, nSimItem = 2,
                          seed = 131820) {
 
   # (1) Preparation
@@ -84,11 +84,11 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   # Extract information from the IRT model
   respNames <- model$respName
   varLabels <- model$varLabels  # stored for potential future use
-  nResp     <- length(respNames)
+  nResp <- length(respNames)
 
   # Generate individual seeds
   set.seed(seed)
-  seeds <- round(10000 * stats::runif(nResp))
+  seeds <- sample.int(.Machine$integer.max, nResp)
 
   # Extract cost parameters
   cFp <- costs[[1]]  # false positive costs for each decision
@@ -97,13 +97,12 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
 
   # Compute the initial joint distribution if not provided
   if (is.null(predJointSub)) {
-    set.seed(seed)
     predJointSub <- predJointDistRespIrt(
-      model     = model,
-      dataSub   = dataSub,
+      model = model,
+      dataSub = dataSub,
       nSimTheta = nSimTheta,
-      nSimItem  = nSimItem,
-      seed      = seed
+      nSimItem = nSimItem,
+      seed = seed
     )
   }
 
@@ -114,7 +113,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   for (f in 1:length(funOfItems)) {
     # Scores (functions of item responses)
     predJointSub[[paste0("fun_", f)]] <-
-      apply(predJointSub[, colnames(predJointSub) != "freq", drop = FALSE],
+      apply(predJointSub[, respNames, drop = FALSE],
             1, funOfItems[[f]])
 
     # Binary decisions based on thresholds
@@ -123,12 +122,18 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   }
 
   # Initialize quantities for the sequential selection procedure
-  predJointSubTemp <- predJointSub       # current joint distribution given selected items
-  itemsChosen      <- NULL               # vector of selected item names
-  costRed          <- TRUE               # indicator whether adding an item reduces costs
-  respNamesLeft    <- respNames          # set of remaining (not yet selected) items
-  distThetaPast    <- NULL               # latent distribution from the last step
-  nImpossibleComb  <- 0                  # counter for theoretically impossible combinations
+  ## current joint distribution given selected items
+  predJointSubTemp <- predJointSub
+  ## vector of selected item names
+  itemsChosen <- NULL
+  ## indicator whether adding an item reduces costs
+  costRed <- TRUE
+  ## set of remaining (not yet selected) items
+  respNamesLeft <- respNames
+  ## latent distribution from the last step
+  distThetaPast <- NULL
+  ## counter for theoretically impossible combinations
+  nImpossibleComb <- 0
 
   c <- 0
   while (costRed & length(respNamesLeft) > 0) {
@@ -163,7 +168,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
         levelM <- sort(unique(predJointSub[[m]]))
 
         expCostM <- NULL  # expected costs conditional on each level of item m
-        probM    <- NULL  # probabilities P(Y_m = l)
+        probM <- NULL  # probabilities P(Y_m = l)
 
         for (l in levelM) {
 
@@ -174,7 +179,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
 
             # Conditional joint distribution given Y_m = l
             jointMlCond <- .multiMultinomCondFromJoint(predJointSubTemp, m, l)
-            probMl      <- jointMlCond$probValue
+            probMl <- jointMlCond$probValue
             jointMlCond <- jointMlCond$cond
 
             # Joint distribution of diagnoses conditional on Y_m = l
@@ -196,7 +201,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
             expCostsMl <- 0
           }
           # Add P(Ym=l) to vector
-          probM    <- c(probM,    probMl)
+          probM <- c(probM,    probMl)
           expCostM <- c(expCostM, expCostsMl)
         }
 
@@ -205,7 +210,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
         rownames(costTabM) <- levelM
 
         # Expected total cost when measuring item m (including measurement cost)
-        exCostsM    <- sum(costTabM[, 1] * costTabM[, 2]) + cM
+        exCostsM <- sum(costTabM[, 1] * costTabM[, 2]) + cM
         expCostPros <- c(expCostPros, exCostsM)
       }
 
@@ -214,9 +219,9 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
       # (4) Termination and item selection rules
 
       # Identify the item with minimal expected costs
-      itemMinCosts    <- which(expCostPros <= min(expCostPros))
-      itemMinCosts    <- itemMinCosts[1]
-      minExpCost      <- as.numeric(expCostPros[itemMinCosts])
+      itemMinCosts <- which(expCostPros <= min(expCostPros))
+      itemMinCosts <- itemMinCosts[1]
+      minExpCost <- as.numeric(expCostPros[itemMinCosts])
       itemNameMinCost <- names(expCostPros)[itemMinCosts]
 
       # Difference between expected cost with and without selecting another item
@@ -225,7 +230,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
     } else {
       # If only one item is left, we compare its measurement cost to the current costs
       itemNameMinCost <- respNamesLeft
-      diffExpCost     <- cM - expCostsPast
+      diffExpCost <- cM - expCostsPast
     }
 
     # Termination condition: stop if no cost reduction is achieved
@@ -236,7 +241,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
       # (5) Update distributions after selecting the best item
 
       # Add the selected item to the list of chosen items
-      itemsChosen   <- c(itemsChosen, itemNameMinCost)
+      itemsChosen <- c(itemsChosen, itemNameMinCost)
       respNamesLeft <- setdiff(respNames, itemsChosen)
 
       # Values of all selected items (not used further here, but kept for clarity)
@@ -248,14 +253,13 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
       names(valItemLast) <- itemNameMinCost
 
       # Update the joint distribution of remaining items conditional on the last item
-      set.seed(seeds[c])
       predJointSubTemp <- predJointDistRespIrt(
-        model     = model,
-        dataSub   = dataSub,
+        model = model,
+        dataSub = dataSub,
         nSimTheta = nSimTheta,
-        nSimItem  = nSimItem,
-        seed      = seed,
-        givenVal  = valItemLast,
+        nSimItem = nSimItem,
+        seed = seeds[c],
+        givenVal = valItemLast,
         priorGrid = distThetaPast
       )
 
@@ -266,7 +270,7 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
       # Recompute scores and diagnoses for the remaining items
       for (f in 1:length(funOfItems)) {
         predJointSubTemp[[paste0("fun_", f)]] <-
-          apply(predJointSubTemp[, colnames(predJointSubTemp) != "freq",
+          apply(predJointSubTemp[, respNames,
                                  drop = FALSE],
                 1, funOfItems[[f]])
 
@@ -275,8 +279,8 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
       }
 
       # Remove columns of already selected items from the joint distribution
-      predJointSubTemp <- predJointSubTemp[
-        , -which(colnames(predJointSubTemp) %in% itemsChosen),
+      predJointSubTemp <- predJointSubTemp[, -which(colnames(predJointSubTemp)
+                                                    %in% itemsChosen),
         drop = FALSE
       ]
     }
@@ -326,23 +330,27 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   }
 
   # Add number of selected items and the item combination to the output
-  out$pred$nItems    <- length(itemsChosen)
+  out$pred$nItems <- length(itemsChosen)
   out$pred$combItems <- paste(itemsChosen, collapse = ", ")
-  out$chosen         <- itemsChosen
+  out$chosen <- itemsChosen
 
   # Add runtime information
-  timeStamp2              <- Sys.time()
-  out$pred$runTime        <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
-  out$pred$runTimePerItem <- out$pred$runTime / out$pred$nItems
+  timeStamp2 <- Sys.time()
+  out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
+  if(length(itemsChosen) < length(respNames)) {
+    out$pred$runTimePerItem <- out$pred$runTime / (out$pred$nItems + 1)
+  } else{
+    out$pred$runTimePerItem <- out$pred$runTime / out$pred$nItems
+  }
 
   # Add joint distribution of not chosen items and latent distribution
   out$distItems <- predJointSubTemp
   out$distTheta <- distThetaPast
 
   # Add the score functions, thresholds and costs as meta-data
-  out$funOfItems<- funOfItems
-  out$thres<- thres
-  out$costs<- costs
+  out$funOfItems <- funOfItems
+  out$thres <- thres
+  out$costs <- costs
 
   return(out)
 }
