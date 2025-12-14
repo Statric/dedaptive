@@ -10,10 +10,11 @@ dedaptiveIrt(
   dataSub,
   costs,
   thres,
-  funOfItems = sum,
+  funOfItems = list(sum),
   nSimTheta = 500,
   nSimItem = 2,
-  seed = 131820
+  seed = 131820,
+  saveSteps = F
 )
 }
 \arguments{
@@ -56,6 +57,10 @@ length of \code{thres}, \code{costs[[1]]}, and \code{costs[[2]]}.}
 
 \item{seed}{Integer seed used to make the sequential selection procedure and
 simulations reproducible.}
+
+\item{saveSteps}{Logical; if \code{TRUE}, the output from each step of
+the sequential selection procedure  is saved. If \code{FALSE} (default),
+only the final results are returned.}
 }
 \value{
 A list with components:
@@ -73,6 +78,8 @@ A list with components:
     end of the procedure.}
   \item{\code{distTheta}}{Approximation of the latent variable distribution
     after the last selected item.}
+  \item{\code{outSteps}}{...}
+
 }
 }
 \description{

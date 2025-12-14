@@ -51,6 +51,9 @@
 #'   \code{\link{predJointDistRespIrt}}.
 #' @param seed Integer seed used to make the sequential selection procedure and
 #'   simulations reproducible.
+#' @param saveSteps Logical; if \code{TRUE}, the output from each step of
+#'   the sequential selection procedure  is saved. If \code{FALSE} (default),
+#'   only the final results are returned.
 #'
 #' @return A list with components:
 #' \describe{
@@ -67,14 +70,23 @@
 #'     end of the procedure.}
 #'   \item{\code{distTheta}}{Approximation of the latent variable distribution
 #'     after the last selected item.}
+#'   \item{\code{outSteps}}{...}
+#'
 #' }
 #'
 #' @import mirt
 #' @export
 
-dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thres,
-                         funOfItems = list(sum), nSimTheta = 500, nSimItem = 2,
-                         seed = 131820) {
+dedaptiveIrt <- function(model = NULL,
+                         predJointSub = NULL,
+                         dataSub,
+                         costs,
+                         thres,
+                         funOfItems = list(sum),
+                         nSimTheta = 500,
+                         nSimItem = 2,
+                         seed = 131820,
+                         saveSteps =F) {
 
   # (1) Preparation
 
@@ -134,6 +146,8 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   distThetaPast <- NULL
   ## counter for theoretically impossible combinations
   nImpossibleComb <- 0
+  ## output from every step
+  if(saveSteps){outSteps<- list()}
 
   c <- 0
   while (costRed & length(respNamesLeft) > 0) {
@@ -162,6 +176,9 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
       # Vector of expected total costs for each candidate item
       expCostPros <- NULL
 
+      if(saveSteps){
+        expCostProsPerLevel<- list()
+      }
       for (m in respNamesLeft) {
 
         # Extract possible response levels for item m
@@ -208,6 +225,9 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
         # Table with probabilities and expected costs for item m
         costTabM <- cbind(probM, expCostM)
         rownames(costTabM) <- levelM
+        if(saveSteps){
+          expCostProsPerLevel[[m]]<- costTabM
+        }
 
         # Expected total cost when measuring item m (including measurement cost)
         exCostsM <- sum(costTabM[, 1] * costTabM[, 2]) + cM
@@ -235,7 +255,14 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
 
     # Termination condition: stop if no cost reduction is achieved
     costRed <- diffExpCost < 0
-
+    if(saveSteps){
+      outSteps[[c]]<- list(dist=predJointSubTemp,
+                           expCostsPast=expCostsPast,
+                           expCostPros=expCostPros,
+                           expCostProsPerLevel=expCostProsPerLevel,
+                           itemNameMinCost=itemNameMinCost,
+                           diffExpCost=diffExpCost)
+    }
     if (costRed) {
 
       # (5) Update distributions after selecting the best item
@@ -351,6 +378,9 @@ dedaptiveIrt <- function(model = NULL, predJointSub = NULL, dataSub, costs, thre
   out$funOfItems <- funOfItems
   out$thres <- thres
   out$costs <- costs
+
+  # Add output from every step
+  if(saveSteps){out$outSteps<- outSteps}
 
   return(out)
 }
