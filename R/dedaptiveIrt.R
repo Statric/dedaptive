@@ -315,7 +315,7 @@ dedaptiveIrt <- function(model = NULL,
 
   # (6) Final predictions based on the selected item set
 
-  if (nrow(predJointSubTemp) > 0) {
+  if (length(itemsChosen) == length(respNames)) {
     # Predict distribution of score functions and summary measures
     out <- .predFromJoint(predJointSubTemp, thres)
   } else {
