@@ -315,11 +315,11 @@ dedaptiveIrt <- function(model = NULL,
 
   # (6) Final predictions based on the selected item set
 
-  if (length(itemsChosen) == length(respNames)) {
+  if (length(itemsChosen) != length(respNames)) {
     # Predict distribution of score functions and summary measures
     out <- .predFromJoint(predJointSubTemp, thres)
   } else {
-    # Degenerate case: no remaining patterns in the joint distribution
+    # In case all items are selected, we prepare to fill in the true values
     distFun <- matrix(NA, nrow = 1, ncol = length(funOfItems) + 1)
     distFun <- data.frame(distFun)
     colnames(distFun) <- c(paste("fun", 1:length(funOfItems), sep = "_"), "freq")
@@ -343,8 +343,8 @@ dedaptiveIrt <- function(model = NULL,
     out$pred[[paste0("diag_", f)]] <-
       ifelse(out$pred[[paste0("trueMean_", f)]] >= thres[f], 1, 0)
 
-    # In the degenerate case, fill predicted quantities with true values
-    if (nrow(predJointSubTemp) <= 0) {
+    # if all items are assessed compute true values
+    if (length(itemsChosen) == length(respNames)) {
       out$pred[[paste0("predMean_", f)]] <-
         out$pred[[paste0("trueMean_", f)]]
       out$pred[[paste0("prob_", f)]] <-
@@ -364,6 +364,9 @@ dedaptiveIrt <- function(model = NULL,
   # Add runtime information
   timeStamp2 <- Sys.time()
   out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
+  denomRunTime<- out$pred$nItems+1
+  if(is.null(predJointSub)==F){denomRunTime<- denomRunTime - 1}
+  if(length(itemsChosen) >= length(respNames)) {denomRunTime<- denomRunTime - 1}
   if(length(itemsChosen) < length(respNames)) {
     out$pred$runTimePerItem <- out$pred$runTime / (out$pred$nItems + 1)
   } else{
