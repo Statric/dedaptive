@@ -97,6 +97,7 @@ dedaptiveIrt <- function(model = NULL,
   respNames <- model$respName
   varLabels <- model$varLabels  # stored for potential future use
   nResp <- length(respNames)
+  startJoint<- is.null(predJointSub)==FALSE
 
   # Generate individual seeds
   set.seed(seed)
@@ -364,14 +365,9 @@ dedaptiveIrt <- function(model = NULL,
   # Add runtime information
   timeStamp2 <- Sys.time()
   out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
-  denomRunTime<- out$pred$nItems+1
-  if(is.null(predJointSub)==F){denomRunTime<- denomRunTime - 1}
+  denomRunTime<- out$pred$nItems + 1 - startJoint
   if(length(itemsChosen) >= length(respNames)) {denomRunTime<- denomRunTime - 1}
-  if(length(itemsChosen) < length(respNames)) {
-    out$pred$runTimePerItem <- out$pred$runTime / (out$pred$nItems + 1)
-  } else{
-    out$pred$runTimePerItem <- out$pred$runTime / out$pred$nItems
-  }
+  out$pred$runTimePerItem <- out$pred$runTime / denomRunTime
 
   # Add joint distribution of not chosen items and latent distribution
   out$distItems <- predJointSubTemp
