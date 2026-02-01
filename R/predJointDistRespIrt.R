@@ -178,10 +178,10 @@ predJointDistRespIrt <- function(model, dataSub,
     # Likelihood of given responses conditional on thetaGrid
 
     ## item parameter objects
-    items <- model$fit@ParObjects$pars[1:model$fit@Data$nitems]
+    itemsMirt <- model$fit@ParObjects$pars[1:model$fit@Data$nitems]
 
     ## probabilities of item values for all theta values in the grid
-    itemProbs <- lapply(items, function(item) mirt::probtrace(item, thetaGrid))
+    itemProbs <- lapply(itemsMirt, function(item) mirt::probtrace(item, thetaGrid))
 
     ## initialize likelihood
     likelihood <- rep(1, nrow(thetaGrid))
