@@ -177,7 +177,7 @@ dedaptiveIrt <- function(model = NULL,
     )
 
     # Expected misclassification costs given the current state (no new item)
-    expCostsPast <- .classMultBinDiag(probDiagPast, costs[[1]], costs[[2]])$expCost
+    expCostsPast <- classMultBinDiag(probDiagPast, costs[[1]], costs[[2]])$expCost
 
     # (3) Expected costs when adding each of the remaining items
 
@@ -205,7 +205,7 @@ dedaptiveIrt <- function(model = NULL,
           if (probMl > 0) {
 
             # Conditional joint distribution given Y_m = l
-            jointMlCond <- .multiMultinomCondFromJoint(predJointSubTemp, m, l)
+            jointMlCond <- multiMultinomCondFromJoint(predJointSubTemp, m, l)
             probMl <- jointMlCond$probValue
             jointMlCond <- jointMlCond$cond
 
@@ -221,7 +221,7 @@ dedaptiveIrt <- function(model = NULL,
             )
 
             # Expected misclassification costs in this conditional distribution
-            expCostsMl <- .classMultBinDiag(probDiagMl, costs[[1]], costs[[2]])$expCost
+            expCostsMl <- classMultBinDiag(probDiagMl, costs[[1]], costs[[2]])$expCost
 
           } else {
             # If P(Y_m = l) = 0, the corresponding cost contribution is 0
@@ -327,7 +327,7 @@ dedaptiveIrt <- function(model = NULL,
 
   if (length(itemsChosen) != length(items)) {
     # Predict distribution of score functions and summary measures
-    out <- .predFromJoint(predJointSubTemp, thres)
+    out <- predFromJoint(predJointSubTemp, thres)
   } else {
     # In case all items are selected, we prepare to fill in the true values
     distFun <- matrix(NA, nrow = 1, ncol = length(funOfItems) + 1)

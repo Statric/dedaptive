@@ -66,7 +66,7 @@ A list with components:
     total runtime in seconds (\code{runTime}) and runtime per selected item
     (\code{runTimePerItem}).}
   \item{\code{distFun}}{Distribution of score functions used for prediction,
-    as returned by the internal helper \code{.predFromJoint}.}
+    as returned by the internal helper \code{predFromJoint}.}
   \item{\code{chosen}}{Character vector with the names of the fixed
     selected items (i.e. \code{givenVar}).}
 }

@@ -1,5 +1,16 @@
-# internal: cost-based binary classifier
-.fcClassFct <- function(prob, missCosts, class1, class2) {
+#' Cost-based binary classifier (helping function)
+#'
+#' @param prob Probability of higher class
+#' @param missCosts Vector of misclassification costs (costs for false positive, costs for false negative)
+#' @param class1 Name of lower class
+#' @param class2 name of higher class
+#'
+#' @returns classifier
+#' @export
+#'
+#' @examples # no example, since it is only a helping function
+#'
+fcClassFct <- function(prob, missCosts, class1, class2) {
   zHat <- ifelse(
     prob < missCosts[1] / (missCosts[1] + missCosts[2]),
     class1,
@@ -8,8 +19,18 @@
   return(zHat)
 }
 
-# internal: condition joint distribution on Y_m = l
-.multiMultinomCondFromJoint <- function(jointDist, varName, varValue, nameFreq = "freq") {
+#' Compute conditional joint distribution (helping function)
+#'
+#' @param jointDist table of the joint distribution
+#' @param varName Name of variable we want to condition
+#' @param varValue Given value of 'varName'
+#' @param nameFreq Name of column that contains the frequency
+#'
+#' @returns conditional joint distribution
+#' @export
+#'
+#' @examples # no example, since it is only a helping function
+multiMultinomCondFromJoint <- function(jointDist, varName, varValue, nameFreq = "freq") {
 
   # Filter probabilities with Y_m = l
   jointMl <- jointDist[jointDist[[varName]] == varValue, ]
@@ -25,8 +46,17 @@
   return(list(probValue = probMl, cond = jointMlCond))
 }
 
-# internal: compute predictions from joint distribution of fun/diag
-.predFromJoint <- function(jointDistFun, thres) {
+
+#' Make predictions based on joint distribution of items and corresponding scores (helping function)
+#'
+#' @param jointDistFun Joint distribution that also contains the scores as columns
+#' @param thres thresholds for decisions based on the scores
+#'
+#' @returns table of predictions based on the joint distribution
+#' @export
+#'
+#' @examples # no example, since it is only a helping function
+predFromJoint <- function(jointDistFun, thres) {
 
   # Create table with frequencies of function values
   ## formula for aggregation
@@ -59,8 +89,18 @@
   return(list(distFun = distFun, pred = dPred))
 }
 
-# internal: cost-based classification for multiple binary diagnoses
-.classMultBinDiag <- function(probDiag, cFp, cFn, probName = "freq") {
+#' Title cost-based classification for multiple binary decisions (helping function)
+#'
+#' @param probDiag table of probabilities for the decisions
+#' @param cFp vector of costs of false positives (for every decision)
+#' @param cFn vector of costs of false negatives (for every decisions)
+#' @param probName Name of columns containing the probabilities
+#'
+#' @returns classifications and expected costs of classifications
+#' @export
+#'
+#' @examples # no example, since it is only a helping function
+classMultBinDiag <- function(probDiag, cFp, cFn, probName = "freq") {
   # Define diagnosis and classifiers names
   diagNames     <- colnames(probDiag)[colnames(probDiag) != probName]
   predDiagNames <- paste("predDiag", 1:length(cFp), sep = "_")

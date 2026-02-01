@@ -52,7 +52,7 @@
 #'     total runtime in seconds (\code{runTime}) and runtime per selected item
 #'     (\code{runTimePerItem}).}
 #'   \item{\code{distFun}}{Distribution of score functions used for prediction,
-#'     as returned by the internal helper \code{.predFromJoint}.}
+#'     as returned by the internal helper \code{predFromJoint}.}
 #'   \item{\code{chosen}}{Character vector with the names of the fixed
 #'     selected items (i.e. \code{givenVar}).}
 #' }
@@ -110,7 +110,7 @@ fixSelectionIrt <- function(model,
 
         # Sequentially condition the joint distribution on all givenVar values
         for (i in seq_along(givenVal)) {
-          predJointDistSub <- .multiMultinomCondFromJoint(
+          predJointDistSub <- multiMultinomCondFromJoint(
             jointDist = predJointDistSub,
             varName   = names(givenVal)[i],
             varValue  = givenVal[i]
@@ -147,7 +147,7 @@ fixSelectionIrt <- function(model,
 
   # Predict distribution of scores: relative frequencies, means and
   # probabilities P(score >= threshold)
-  out <- .predFromJoint(predJointDistSub, thres)
+  out <- predFromJoint(predJointDistSub, thres)
 
   # True values and decisions based on all items
   for (f in 1:length(funOfItems)) {
