@@ -59,9 +59,16 @@
 #'
 #' @import mirt
 #' @export
-fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
-                            dataSub, thres, funOfItems = sum, givenVar = NULL,
-                            nSimTheta = 500, nSimItem = 2, seed = 131820) {
+fixSelectionIrt <- function(model,
+                            predJointSub = NULL,
+                            predJointSubCond = NULL,
+                            dataSub,
+                            thres,
+                            funOfItems = sum,
+                            givenVar = NULL,
+                            nSimTheta = 500,
+                            nSimItem = 2,
+                            seed = 131820) {
 
   # (1) Preparation
 
@@ -69,7 +76,7 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
   timeStamp1 <- Sys.time()
 
   # Extract names of response variables from the model
-  respNames <- model$respName
+  items <- model$items
 
   # Extract given values (if any) from dataSub
   if (!is.null(givenVar)) {
@@ -114,7 +121,7 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
         predJointDistSub[, givenVar] <- as.numeric(dataSub[, givenVar, drop = FALSE])
 
         # Reorder columns to have all responses and the frequency column
-        predJointDistSub <- predJointDistSub[, c(respNames, "freq")]
+        predJointDistSub <- predJointDistSub[, c(items, "freq")]
       }
     }
 
@@ -128,7 +135,7 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
   for (f in 1:length(funOfItems)) {
     # Scores (functions of item responses)
     predJointDistSub[[paste0("fun_", f)]] <-
-      apply(predJointDistSub[, respNames, drop = FALSE],
+      apply(predJointDistSub[, items, drop = FALSE],
             1, funOfItems[[f]])
 
     # Binary decisions based on thresholds
@@ -146,7 +153,7 @@ fixSelectionIrt <- function(model, predJointSub = NULL, predJointSubCond = NULL,
   for (f in 1:length(funOfItems)) {
     # True score computed from all responses in dataSub
     out$pred[[paste0("trueMean_", f)]] <-
-      funOfItems[[f]](dataSub[, respNames])
+      funOfItems[[f]](dataSub[, items])
 
     # True decision based on the true score and threshold
     out$pred[[paste0("diag_", f)]] <-

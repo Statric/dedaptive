@@ -31,7 +31,7 @@
 #' @param seed Integer seed for reproducibility of all simulations.
 #' @param givenVal Optional named numeric vector of already observed item
 #'   responses for a subset of items (e.g., \code{c(PHQ1 = 2, PHQ3 = 1)}). Names
-#'   must match item names in \code{model$respName}. If \code{NULL}, no
+#'   must match item names in \code{model$items}. If \code{NULL}, no
 #'   responses are conditioned on and predictions are based on the prior
 #'   distribution of the latent variables.
 #' @param priorGrid Optional list representing an approximated distribution of
@@ -67,10 +67,10 @@ predJointDistRespIrt <- function(model, dataSub,
                                  givenVal  = NULL, priorGrid = NULL) {
 
   # extract information from model
-  respNames <- model$respName
+  items <- model$items
   formula   <- model$formula
   varLabels <- model$varLabels
-  nResp     <- length(respNames)
+  nResp     <- length(items)
 
   # Initialize output list
   outList <- list()
@@ -138,8 +138,8 @@ predJointDistRespIrt <- function(model, dataSub,
 
     ## (2b) Known responses: approximate posterior of latent variables on a grid
     # matrix with given response pattern (NA for unknown items)
-    givenRespPattern <- matrix(NA, ncol = length(respNames), nrow = 1)
-    colnames(givenRespPattern) <- respNames
+    givenRespPattern <- matrix(NA, ncol = length(items), nrow = 1)
+    colnames(givenRespPattern) <- items
     givenRespPattern[, names(givenVal)] <- as.numeric(givenVal)
 
     # Approximation of the prior distribution of latent variables (via grid)
@@ -263,7 +263,7 @@ predJointDistRespIrt <- function(model, dataSub,
   respSim <- mirt::simdata(slopesItems, intItems,
                            Theta    = thetaSimRep,
                            itemtype = "graded")
-  colnames(respSim) <- respNames
+  colnames(respSim) <- items
 
   # Consider the known values (if any)
   for (i in 1:length(outList$postDistTheta$givenVal)) {
@@ -277,7 +277,7 @@ predJointDistRespIrt <- function(model, dataSub,
   freqTable <- plyr::count(respComb)
   freqTable$freq <- freqTable$freq / sum(freqTable$freq)
 
-  colnames(freqTable) <- c(respNames, "freq")
+  colnames(freqTable) <- c(items, "freq")
 
   # Make item values numeric
   facToNumeric <- function(x) as.numeric(as.character(x))

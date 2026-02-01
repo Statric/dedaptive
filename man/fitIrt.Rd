@@ -4,10 +4,10 @@
 \alias{fitIrt}
 \title{Fit multidimensional graded IRT models for use with \code{dedaptive}}
 \usage{
-fitIrt(respName, formula = NULL, data, ...)
+fitIrt(items, formula = NULL, data, ...)
 }
 \arguments{
-\item{respName}{Character vector with the names of the item/response columns
+\item{items}{Character vector with the names of the item/response columns
 in \code{data}. These columns are treated as ordered responses and used to
 fit the graded IRT model.}
 
@@ -17,7 +17,7 @@ containing only the right-hand side of a regression formula
 specifying the predictors for the latent regression.}
 
 \item{data}{A data frame containing the item responses specified in
-\code{respName} and, if \code{formula} is not \code{NULL}, all predictor
+\code{items} and, if \code{formula} is not \code{NULL}, all predictor
 variables referenced in \code{formula}. Each row typically corresponds to
 one person.}
 
@@ -31,9 +31,9 @@ one person.}
 \value{
 A list with the following elements:
 \describe{
-  \item{\code{respName}}{Meta-data (character vector with the item names used in the model).}
+  \item{\code{items}}{Meta-data (character vector with the item names used in the model).}
   \item{\code{formula}}{Meta-data (The original \code{formula} argument as supplied by the user=.}
-  \item{\code{varLabels}}{MA list of length \code{length(respName)}, where each
+  \item{\code{varLabels}}{MA list of length \code{length(items)}, where each
     element contains the sorted unique response categories for the corresponding item.}
   \item{\code{fit}}{The fitted \code{mirt} model object returned by
     \code{mirt::mirt()}. This object is used by \code{dedaptive} for prediction
@@ -54,7 +54,7 @@ it via \code{fitIrt()} rather than calling \code{mirt::mirt()} directly.
 \details{
 The function expects a set of item responses and, optionally, predictors for a
 latent regression (e.g., age, sex). The names of the item columns are given
-in \code{respName}, and the predictors are specified via \code{formula}.
+in \code{items}, and the predictors are specified via \code{formula}.
 
 The argument \code{formula} can be supplied either as
 \itemize{

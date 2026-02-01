@@ -45,6 +45,8 @@
 #'   }
 #'   The lengths of \code{costs[[1]]} and \code{costs[[2]]} must match the
 #'   length of \code{funOfItems}.
+#' @param itemsExclude Character vector of item names that can not be selected.
+#'   If \code{NULL} (default), all items are eligible for selection.
 #' @param nSimTheta Number of latent variable draws used internally in
 #'   \code{\link{predJointDistRespIrt}}.
 #' @param nSimItem Number of response patterns simulated per latent draw in
@@ -83,6 +85,7 @@ dedaptiveIrt <- function(model = NULL,
                          costs,
                          thres,
                          funOfItems = list(sum),
+                         itemsExclude=NULL,
                          nSimTheta = 500,
                          nSimItem = 2,
                          seed = 131820,
@@ -94,9 +97,15 @@ dedaptiveIrt <- function(model = NULL,
   timeStamp1 <- Sys.time()
 
   # Extract information from the IRT model
-  respNames <- model$respName
+  items <- model$items
+
+  if(is.null(itemsExclude)) {
+    itemsAllowed<- setdiff(items, itemsExclude)
+  } else {
+    itemsAllowed<- items
+  }
   varLabels <- model$varLabels  # stored for potential future use
-  nResp <- length(respNames)
+  nResp <- length(itemsAllowed)
   startJoint<- is.null(predJointSub)==FALSE
 
   # Generate individual seeds
@@ -126,7 +135,7 @@ dedaptiveIrt <- function(model = NULL,
   for (f in 1:length(funOfItems)) {
     # Scores (functions of item responses)
     predJointSub[[paste0("fun_", f)]] <-
-      apply(predJointSub[, respNames, drop = FALSE],
+      apply(predJointSub[, items, drop = FALSE],
             1, funOfItems[[f]])
 
     # Binary decisions based on thresholds
@@ -142,7 +151,7 @@ dedaptiveIrt <- function(model = NULL,
   ## indicator whether adding an item reduces costs
   costRed <- TRUE
   ## set of remaining (not yet selected) items
-  respNamesLeft <- respNames
+  itemsLeft <- itemsAllowed
   ## latent distribution from the last step
   distThetaPast <- NULL
   ## counter for theoretically impossible combinations
@@ -151,7 +160,7 @@ dedaptiveIrt <- function(model = NULL,
   if(saveSteps){outSteps<- list()}
 
   c <- 0
-  while (costRed & length(respNamesLeft) > 0) {
+  while (costRed & length(itemsLeft) > 0) {
     c <- c + 1
 
     # (2) Expected costs given past measurements
@@ -172,7 +181,7 @@ dedaptiveIrt <- function(model = NULL,
 
     # (3) Expected costs when adding each of the remaining items
 
-    if (length(respNamesLeft) > 1) {
+    if (length(itemsLeft) > 1) {
 
       # Vector of expected total costs for each candidate item
       expCostPros <- NULL
@@ -180,7 +189,7 @@ dedaptiveIrt <- function(model = NULL,
       if(saveSteps){
         expCostProsPerLevel<- list()
       }
-      for (m in respNamesLeft) {
+      for (m in itemsLeft) {
 
         # Extract possible response levels for item m
         levelM <- sort(unique(predJointSub[[m]]))
@@ -235,7 +244,7 @@ dedaptiveIrt <- function(model = NULL,
         expCostPros <- c(expCostPros, exCostsM)
       }
 
-      names(expCostPros) <- respNamesLeft
+      names(expCostPros) <- itemsLeft
 
       # (4) Termination and item selection rules
 
@@ -246,11 +255,11 @@ dedaptiveIrt <- function(model = NULL,
       itemNameMinCost <- names(expCostPros)[itemMinCosts]
 
       # Difference between expected cost with and without selecting another item
-      diffExpCost <- min(c(minExpCost, length(respNamesLeft) * cM)) - expCostsPast
+      diffExpCost <- min(c(minExpCost, length(itemsLeft) * cM)) - expCostsPast
 
     } else {
       # If only one item is left, we compare its measurement cost to the current costs
-      itemNameMinCost <- respNamesLeft
+      itemNameMinCost <- itemsLeft
       diffExpCost <- cM - expCostsPast
     }
 
@@ -270,7 +279,7 @@ dedaptiveIrt <- function(model = NULL,
 
       # Add the selected item to the list of chosen items
       itemsChosen <- c(itemsChosen, itemNameMinCost)
-      respNamesLeft <- setdiff(respNames, itemsChosen)
+      itemsLeft <- setdiff(itemsAllowed, itemsChosen)
 
       # Values of all selected items (not used further here, but kept for clarity)
       valItemsChosen <- as.numeric(dataSub[, itemsChosen, drop = FALSE])
@@ -298,7 +307,7 @@ dedaptiveIrt <- function(model = NULL,
       # Recompute scores and diagnoses for the remaining items
       for (f in 1:length(funOfItems)) {
         predJointSubTemp[[paste0("fun_", f)]] <-
-          apply(predJointSubTemp[, respNames,
+          apply(predJointSubTemp[, items,
                                  drop = FALSE],
                 1, funOfItems[[f]])
 
@@ -316,7 +325,7 @@ dedaptiveIrt <- function(model = NULL,
 
   # (6) Final predictions based on the selected item set
 
-  if (length(itemsChosen) != length(respNames)) {
+  if (length(itemsChosen) != length(items)) {
     # Predict distribution of score functions and summary measures
     out <- .predFromJoint(predJointSubTemp, thres)
   } else {
@@ -339,13 +348,13 @@ dedaptiveIrt <- function(model = NULL,
   # Compute true score values and decisions based on all item responses
   for (f in 1:length(funOfItems)) {
     out$pred[[paste0("trueMean_", f)]] <-
-      funOfItems[[f]](dataSub[, respNames])
+      funOfItems[[f]](dataSub[, items])
 
     out$pred[[paste0("diag_", f)]] <-
       ifelse(out$pred[[paste0("trueMean_", f)]] >= thres[f], 1, 0)
 
     # if all items are assessed compute true values
-    if (length(itemsChosen) == length(respNames)) {
+    if (length(itemsChosen) == length(items)) {
       out$pred[[paste0("predMean_", f)]] <-
         out$pred[[paste0("trueMean_", f)]]
       out$pred[[paste0("prob_", f)]] <-
@@ -366,7 +375,7 @@ dedaptiveIrt <- function(model = NULL,
   timeStamp2 <- Sys.time()
   out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
   denomRunTime<- out$pred$nItems + 1 - startJoint
-  if(length(itemsChosen) >= length(respNames)) {denomRunTime<- denomRunTime - 1}
+  if(length(itemsChosen) >= length(itemsAllowed)) {denomRunTime<- denomRunTime - 1}
   out$pred$runTimePerItem <- out$pred$runTime / denomRunTime
 
   # Add joint distribution of not chosen items and latent distribution

@@ -11,6 +11,7 @@ dedaptiveIrt(
   costs,
   thres,
   funOfItems = list(sum),
+  itemsExclude = NULL,
   nSimTheta = 500,
   nSimItem = 2,
   seed = 131820,
@@ -48,6 +49,9 @@ function).}
 responses (e.g., \code{list(sum)} for a sum score, or several functions
 for multiple decisions). The length of \code{funOfItems} must match the
 length of \code{thres}, \code{costs[[1]]}, and \code{costs[[2]]}.}
+
+\item{itemsExclude}{Character vector of item names that can not be selected.
+If \code{NULL} (default), all items are eligible for selection.}
 
 \item{nSimTheta}{Number of latent variable draws used internally in
 \code{\link{predJointDistRespIrt}}.}

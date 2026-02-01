@@ -32,7 +32,7 @@ response patterns are generated).}
 
 \item{givenVal}{Optional named numeric vector of already observed item
 responses for a subset of items (e.g., \code{c(PHQ1 = 2, PHQ3 = 1)}). Names
-must match item names in \code{model$respName}. If \code{NULL}, no
+must match item names in \code{model$items}. If \code{NULL}, no
 responses are conditioned on and predictions are based on the prior
 distribution of the latent variables.}
 
