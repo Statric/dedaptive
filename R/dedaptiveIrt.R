@@ -99,7 +99,7 @@ dedaptiveIrt <- function(model = NULL,
   # Extract information from the IRT model
   items <- model$items
 
-  if(is.null(itemsExclude)) {
+  if(is.null(itemsExclude) == FALSE) {
     itemsAllowed<- setdiff(items, itemsExclude)
   } else {
     itemsAllowed<- items
