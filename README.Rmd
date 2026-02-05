@@ -20,28 +20,29 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
+
+# Dedaptive Testing
+
+
+The R package `dedaptive` provides tools for **DEcision-oriented aDAPTIVE testing** based on  
+**multidimensional Item Response Theory (IRT)**.  The framework is described in Wyss et al. (2026). 
+
+To install the development version, you need the package `remotes`. The package `dedaptive`can be installed with `remotes::install_github("Statric/dedaptive")`
+
+This workflow demonstrates:
+
+1. Loading the data set (`screenMental`) integrated in the package and preparing training and prediction data sets  
+3. Fitting a multidimensional IRT model (`fitIrt`) 
+4. Simulation-based predictions of joint item distributions (`predJointDistRespIrt`)
+5. Performing probabilistic predictions with fixed-item panels (`fixSelectionIrt`) and adaptive, decision-oriented and cost-sensitive testing (`dedaptiveIrt`)
+6. Simulating new item responses given predictor values (`simResponsesIrt`)  
+
 <!-- Logo -->
 
 <div style="text-align: center;">
   <img src="man/figures/logo.png" width="300"><br>
   <em> Logo of the <code>dedaptive</code> R package (image generated with ChatGPT, OpenAI).</em>
 </div>
-
-
-
-
-`dedaptive` provides tools for **DEcision-oriented aDAPTIVE testing** based on  
-**multidimensional item response theory (IRT)**.  The framework is described in Wyss et al. (2025). 
-
-To install the development version, you need the package `remotes`. The package `dedaptive`can be installed with `remotes::install_github("Statric/dedaptive")`
-
-This workflow demonstrates:
-
-1. Loading the data (`screenMental`) set integrated in the package and preparing training and prediction data sets  
-3. Fitting a multidimensional IRT model (`fitIrt`) 
-4. Simulation-based predictions of joint item distributions (`predJointDistRespIrt`)
-5. Performing probabilistic predictions with fixed-item panels (`fixSelectionIrt`) and adaptive, decision-oriented and cost-sensitive testing (`dedaptiveIrt`)
-6. Simulating new item responses given predictor values (`simResponsesIrt`)  
 
 ## 1. Load and prepare the example data
 
@@ -54,8 +55,7 @@ head(screenMental, 3)
 ```
 
 
-
-The dataset `screenMental` is a fully simulated data set that mimics PHQ-9 and GAD-7 item responses observed in a real sample. Simulations were based on models trained on the original data set used in the publication of Wyss et al. (2025). The exact procedure for the data generation is described in the section 5 (*Simulate a data set*) below. The data set contains sex and age as well as 16 item responses: the nine items of the Patient Health Questionnaire-9 (PHQ-9) and the seven items of the Generalized Anxiety Disorder-7 (GAD-7) scale.
+The dataset `screenMental` is a fully simulated data set that mimics PHQ-9 and GAD-7 item responses observed in a real sample. Simulations were based on models trained on the original data set used in the publication of Wyss et al. (2026). The exact procedure for the data generation is described in the section 5 (*Simulate a data set*) below. The data set contains sex and age as well as 16 item responses: the nine items of the Patient Health Questionnaire-9 (PHQ-9) and the seven items of the Generalized Anxiety Disorder-7 (GAD-7) scale.
 
 
 In the following examples, we are interested in the joint distribution of the PHQ-9 and GAD-7 sum scores and the corresponding binary decisions, defined as PHQ-9 sum score $\geq 10$ and GAD-7 sum score $\geq 10$ (moderate to severe symptoms). To this end, we first define functions to compute the sum scores and specify the thresholds for these decisions:
@@ -68,8 +68,8 @@ itemsAll<- c(itemsPhq, itemsGad)
 
 # Score functions
 funSumScores <- list(
-  function(x) sum(x[1:9]),   # PHQ-9 sum
-  function(x) sum(x[10:16])    # GAD-7 sum
+  function(x) sum(x[1:9]),     # PHQ-9 sum score
+  function(x) sum(x[10:16])    # GAD-7 sum score
 )
 
 # Thresholds
@@ -83,74 +83,56 @@ screenMental$phq_dec<- ifelse(screenMental$phq_score>=thresModSev[1], 1, 0)
 screenMental$gad_dec<- ifelse(screenMental$gad_score>=thresModSev[2], 1, 0)
 ```
 
-We standardize the age and prepare train and prediction (one person) sets
+We standardize the age and prepare training and prediction (one person) sets
 ```{r}
 screenMental$ageStand<- (screenMental$age-mean(screenMental$age))/sd(screenMental$age)
 
-#screenMental[which(screenMental$phq_score==10 & screenMental$gad_score==8), ]
-idPred<- 249
+idPred<- 400
 screenMental[screenMental$id==idPred, ]
 
 dataTrain <- screenMental[screenMental$id != idPred, ]
 dataSub   <- screenMental[screenMental$id == idPred, ]
 ```
 
-To illustrate the predictions we chose a female, 35 years old person with a PHQ-9 sum score of 10 and a GAD-7 sum score of 8. 
+To illustrate the predictions we chose a 30 years old woman with a PHQ-9 sum score of 6 and a GAD-7 sum score of 7. 
 
 ## 2. Fit a multidimensional IRT model
 
 With the function `fitIrt`, multidimensional IRT models can be fitted. The function is a wrapper around `mirt::mirt` from the `mirt` package, but tailored to the requirements of `dedaptive`. In particular, if an IRT model is to be used for probabilistic predictions or adaptive item selection with `dedaptive` (e.g., via `predJointDistRespIrt`, `fixSelectionIrt`, or `dedaptiveIrt`), it has to be fitted using `fitIrt`.
 
-Via the argument `model`, we can specify the latent structure, for example the number of latent variables, which items load on which latent variables, and whether latent variables are correlated. In the example below, we consider two independent latent variables and assume that all items load on both latent variables. This **2-factor model** is specified in the object `whichLatentStructure`. Moreover, we assume that the latent variables depend on sex and age via a latent regression, specified by the formula `whichFormula`.
+Via the argument `model`, we can specify the latent structure, for example the number of latent variables, which items load on which latent variables, and whether latent variables are correlated. In the example below, we consider two independent latent variables and assume that all items load on both latent variables. This **2-factor model** can be specified by setting the argument `model` to 2 (number of latent variables). Moreover, we assume that the latent variables depend on sex and age via a latent regression, specified by the formula `whichFormula`.
 
 This **2-factor model** can be fitted as follows: 
 
 ```{r}
-# Two-factor model specification
-whichLatentStructure <- mirt::mirt.model("
-  F1 = 1-16
-  F2 = 1-16
-")
-
 # Latent regression formula (right-hand side only)
 whichFormula <- "ageStand + sex"
 
-# Fit the model
+# Fit the 2-factor IRT model
 modelTrain <- fitIrt(
-  model    = whichLatentStructure,
-  respName = itemsAll,
-  formula  = whichFormula,
-  data     = dataTrain
+  model   = 2,
+  items   = itemsAll,
+  formula = whichFormula,
+  data    = dataTrain
 )
 ```
 
-The IRT model itself is saved in *modelTrain$fit*. We can inspect the loadings and regression:
-
-```{r}
-# loadings
-summary(modelTrain$fit)
-
-#latent regression
-coef(modelTrain$fit)$lr.betas
-```
-
-For more details, see the help page of the function (`?fitIrt`) and the documentation of the function `mirt`. 
-
+The IRT model itself is saved in *modelTrain$fit*. For more details, see the help page `?fitIrt` and the documentation of the function `mirt::mirt`. 
 
 ## 3. Approximate joint item distributions
 
-The function `predJointDistRespIrt` performs probabilistic predictions of item responses based on an IRT model fitted with `fitIrt`. The method can incorporate predictors via a latent regression (if specified) and can optionally condition on already observed responses for a subset of items. Predictions are obtained using a two-step Monte Carlo scheme with `nSimTheta` simulations of latent variables and `nSimItem` simulated response patterns for each draw of the latent variables, resulting in `nSimTheta * nSimItem` simulated response patterns in total. More details on this approximation strategy can be found in Wyss et al. (2025).
+The function `predJointDistRespIrt` performs probabilistic predictions of item responses based on an IRT model fitted with `fitIrt`. The method can incorporate predictors via a latent regression (if specified) and can optionally condition on already observed responses for a subset of items. Predictions are obtained using a two-step Monte Carlo scheme with `nSimTheta` simulations of latent variables and `nSimItem` simulated response patterns for each draw of the latent variables, resulting in `nSimTheta * nSimItem` simulated response patterns in total. More details on this approximation strategy can be found in Wyss et al. (2026).
 
 ### Prior predictions
 
-We first illustrate the function for the held-out individual in `dataSub`, assuming that no item responses are known (i.e., prior predictions):
+We first illustrate the function for the held-out individual in `dataSub`, assuming that no item responses are known (i.e., prior predictions given only by sex and age):
 
 ```{r}
 set.seed(123)
 predJointPrior <- predJointDistRespIrt(
   model     = modelTrain,
   dataSub   = dataSub,
-  nSimTheta = 10000,
+  nSimTheta = 1000,
   nSimItem  = 10,
   seed      = 123
 )
@@ -161,8 +143,6 @@ The object predJointPrior contains
 - a table with all `nSimTheta * nSimItem` simulated response patterns (`predJointPrior$sim`), and
 
 - a table with the relative frequencies of unique response patterns (`predJointPrior$jointDist`).
-
-These prior distributions summarize the uncertainty about all item responses given only the predictors (sex and age) and the fitted IRT model.
 
 ### Conditional predictions
 
@@ -181,7 +161,7 @@ resp2<- c(phq1=3, gad1=0)
 
 # Perform probabilistic predictions
 predJointCond1<- predJointDistRespIrt(modelTrain, dataSub, 
-                                      nSimTheta=10000, nSimItem=10, 
+                                      nSimTheta=1000, nSimItem=10, 
                                       givenVal=resp1)
 predJointCond2<- predJointDistRespIrt(modelTrain, dataSub, 
                                       nSimTheta=10000, nSimItem=10,
@@ -214,7 +194,7 @@ plot(predJointCond2$postDistTheta$dist[,2],
      main="F2 | phq1=3, gad1=0")
 ```
 
-These plots visualize how the posterior distributions of the latent variables shift when different item responses are observed. Sm
+These plots visualize how the posterior distributions of the latent variables shift when different item responses are observed.
 
 ## 4. Fixed and dedaptive item selections
 
@@ -249,7 +229,7 @@ predShortVersion <- fixSelectionIrt(
   thres      = thresModSev,
   funOfItems = funSumScores,
   givenVar   = itemsShortVersion,
-  nSimTheta  = 10000,
+  nSimTheta  = 1000,
   nSimItem   = 10,
   seed       = 13
 )
@@ -263,8 +243,8 @@ We now perform the same steps with the function `dedaptiveIrt`, which automatica
 ```{r}
 # Define cost parameters
 prescribedCosts<- list(c(0.5, 0.5), # costs FP for every decision
-                       c(0.5, 0.5), # costs FN for everyl decision
-                       0.05) # measurement costs of one item)
+                       c(0.5, 0.5), # costs FN for every decision
+                       0.05)        # measurement costs of one item)
 # Perform dedaptive selections and predictions
 predDedaptive <- dedaptiveIrt(
   model      = modelTrain,
@@ -272,17 +252,16 @@ predDedaptive <- dedaptiveIrt(
   thres      = thresModSev,
   funOfItems = funSumScores,
   costs      = prescribedCosts,
-  nSimTheta  = 10000,
+  nSimTheta  = 1000,
   nSimItem   = 10,
   seed       = 13
 )
+dataSub[,predDedaptive$chosen]
 ```
-
-
 
 For two scores and two decisions, these probabilistic predictions can be visualized with the function `plotScoresItemSelection` based on `predShortVersion$distFun`:
 
-```{r, fig.width=7,fig.height=7, fig.cap="Fig. 2 posterior distribution of the scores with fixed item selection (phq1=1, phq2=1, gad1=3, gad2=1)"}
+```{r, fig.width=7,fig.height=7, fig.cap="Fig. 2 posterior distribution of the scores with fixed item selection (phq1=1, phq2=1, gad1=1, gad2=1)"}
 # Plot the results
 plotScoresItemSelection(predShortVersion, main="", xlab="PHQ-9 sum score (Score 1)", 
                         ylab="GAD-7 sum score (Score 2)")
@@ -290,21 +269,22 @@ plotScoresItemSelection(predShortVersion, main="", xlab="PHQ-9 sum score (Score 
 predShortVersion$pred
 ```
 
-```{r, fig.width=7,fig.height=7, fig.cap="Fig. 3 posterior distribution of the scores with dedaptive item selection (gad2=1, phq4=2, phq5=1, phq6=3)"}
+```{r, fig.width=7,fig.height=7, fig.cap="Fig. 3 posterior distribution of the scores with dedaptive item selection (gad2=1, phq4=1)"}
 # Plot the results
 plotScoresItemSelection(predDedaptive, main="", xlab="PHQ-9 sum score (Score 1)", 
                         ylab="GAD-7 sum score (Score 2)")
 # Show summary predictions
-predDedaptive$pred[, 1:8]
+predDedaptive$pred
 
 # Show the responses of the selected items
 dataSub[, predDedaptive$chosen, drop=F]
 ```
-In the fixed item selection (phq1 = 1, phq2 = 1, gad1 = 3, gad2 = 1), the central panel in **Fig. 1**  shows the predicted joint distribution of PHQ-9 (Score 1, x-axis) and GAD-7 (Score 2, y-axis) sum scores based on the PHQ-2 and GAD-2 item responses. Each dot represents a possible score combination, with larger, greener dots indicating higher probability. The blue dashed lines mark the clinical thresholds at a sum score of 10. The estimated decision probabilities are  
-$\(P(\text{Score 1} \ge 10) = 0.434\)$ and $\(P(\text{Score 2} \ge 10) = 0.424\)$. The probability mass is fairly diffuse around both thresholds. The grey marginal barplots on the top and right show the corresponding marginal distributions for each score separately. With the fixed item selections, the individual is falsely classified as PHQ-9 $\leq$ 10 and correctly classified as GAD $\gep$ 10. 
+In the fixed item selection (phq1 = 1, phq2 = 1, gad1 = 1, gad2 = 1), the central panel in **Fig. 2**  shows the predicted joint distribution of PHQ-9 (Score 1, x-axis) and GAD-7 (Score 2, y-axis) sum scores based on the PHQ-2 and GAD-2 item responses. Each dot represents a possible score combination, with larger, greener dots indicating higher probability. The blue dashed lines mark the clinical thresholds at a sum score of 10. The estimated decision probabilities are  
+$P(\text{Score 1} \ge 10) = 0.310$ (PHQ-9) and $P(\text{Score 2} \ge 10) = 0.043$ (GAD-7). 
+The grey marginal barplots on the top and right show the corresponding marginal distributions for each score separately. With 4 out of 16 item responses, the individual is correctly classified as PHQ-9 sum score $<$ 10 and GAD-7 sum score $<$ 10. 
 
-In the dedaptive selection , the same type of plot is shown after four adaptively chosen items (gad2 = 1, phq4 = 2, phq5 = 1, phq6 = 3). Here, the predictive distribution is more concentrated around PHQ-9 scores $\geq$ 10 and GAD-7 scores $\les$ 10. The estimated decision probabilities are  
-$\(P(\text{Score 1} \ge 10) = 0.908\)$ and $\(P(\text{Score 2} \ge 10) = 0.307\)$. Thus, for the same number of administered items, dedaptive yields a much more decisive prediction for PHQ-9 (probability close to 1 instead of about 0.5), while keeping the GAD-7 decision more clearly below the threshold. With the fixed item selections, both classifications are correct for the considered individual. 
+In the dedaptive selection , the same type of plot is shown after two adaptively chosen items (gad2 = 1, phq4 = 1). The estimated decision probabilities are  
+$P(\text{Score 1} \geq 10) = 0.194$ and $P(\text{Score 2} \geq 10) = 0.109$. With 2 out of 16 item responses, the individual is correctly classified as PHQ-9 sum score $<$ 10 and GAD-7 sum score $<$ 10.
 
 
 ## 5. Simulate a data set
@@ -316,8 +296,8 @@ First, we fit a multidimensional IRT model to the full `screenMental` data set (
 ```{r}
 # Fit the model
 modelAllData <- fitIrt(
-  model    = whichLatentStructure,
-  respName = itemsAll,
+  model    = 2,
+  items    = itemsAll,
   formula  = whichFormula,
   data     = screenMental
 )
@@ -337,7 +317,7 @@ Our goal, however, is to create an entire data set that reflects the same relati
 
 - sex-specific kernel densities of age (age conditional on sex)
 
-from `screenMental`, and then simulate first sex and then the age given the sex from these estimated distributions. This is implemented in the function `simulateSexAge` below (not integrated in the package `dedaptive`):
+from `screenMental`, and then simulate first the sex and then the age given the sex from these estimated distributions. This is implemented in the function `simulateSexAge` below (not integrated in the package `dedaptive`):
 
 ```{r}
 simulateSexAge <- function(data, nSim,
@@ -401,9 +381,9 @@ simulateSexAge <- function(data, nSim,
 }
 ```
 
-We first generate a data set with simulated sex and age values and visualize and the underlying distribution estimates:
+We first generate a data set with simulated sex and age values and visualize the underlying distribution estimates:
 
-```{r, fig.width=7, fig.height=5, fig.cap="Fig. 4 Estimated age distributions by sex"}
+```{r, fig.width=5, fig.height=3, fig.cap="Fig. 4 Estimated age distributions by sex"}
 # Apply the function simulateSexAge
 # (includes distribution estimates besides the simulated data)
 listSim<- simulateSexAge(screenMental, nrow(screenMental), "sex", "age")
@@ -421,7 +401,7 @@ plot(densList[[2]],
      ylab = "Density", 
      main="",
      lwd  = 2, 
-     lty=1)
+     lty=1, cex.axis=0.6)
 
 lines(densList[[1]], lwd = 2, lty = 2)
 legend("topright",
@@ -429,15 +409,18 @@ legend("topright",
                   paste0("sex = male (",round((1-probFemale)*100), "%)")), 
        lty    = c(1, 2),
        lwd    = 2,
-       bty    = "n")
+       bty    = "n", cex=0.8)
 
 # Round the age to a resolution of one year
 dataSim$age<- round(dataSim$age)
 
+# Assign age of 18 for persons younger than 18
+dataSim$age[dataSim$age < 18]<- 18
+
 # Show first rows
 head(dataSim, 3)
 ```
-Given these predictor values, we can now simulate item responses with `simResponsesIrt`. We first re-scale age using the mean and standard deviation from `screenMental`:
+Of note, we also rounded age to the nearest year (1-year resolution) and set all ages below 18 to 18. Given these predictor values, we can now simulate item responses with `simResponsesIrt`. We first re-scale age using the mean and standard deviation from `screenMental`:
 
 ```{r}
 # Standardize the age (mean and SD from screenMental)
