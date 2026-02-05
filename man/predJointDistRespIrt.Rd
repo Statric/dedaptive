@@ -7,41 +7,41 @@
 predJointDistRespIrt(
   model,
   dataSub,
-  nSimTheta = 500,
-  nSimItem = 2,
+  nSimTheta = 1000,
+  nSimItem = 10,
   seed = 131820,
   givenVal = NULL,
   priorGrid = NULL
 )
 }
 \arguments{
-\item{model}{An IRT model fitted with \code{\link{fitIrt}}. This object
-contains the fitted \code{mirt} model and meta-data (item names, response
+\item{model}{A multidimensional IRT model fitted with \code{\link{fitIrt}}.
+This object contains the fitted \code{\link{mirt}} model and meta-data (item names, response
 labels, latent regression formula).}
 
-\item{dataSub}{One-row data frame with the predictor variables for the
-current person used in the latent regression (if specified in \code{model}).}
+\item{dataSub}{One-row data frame with the predictor variables of one
+observation used in the latent regression (if specified in \code{model}).}
 
 \item{nSimTheta}{Integer; number of simulated draws of the latent variables.}
 
 \item{nSimItem}{Integer; number of simulated response patterns per latent
-draw (for each sampled latent variable, \code{nSimItem} independent
-response patterns are generated).}
+draw (for each sampled latent variable, \code{nSimItem} independent response
+patterns are generated).}
 
 \item{seed}{Integer seed for reproducibility of all simulations.}
 
 \item{givenVal}{Optional named numeric vector of already observed item
-responses for a subset of items (e.g., \code{c(PHQ1 = 2, PHQ3 = 1)}). Names
-must match item names in \code{model$items}. If \code{NULL}, no
-responses are conditioned on and predictions are based on the prior
-distribution of the latent variables.}
+responses for a subset of items (e.g., \code{c(phq1 = 2, phq2 = 1)}). The
+names must match item names in \code{model$items}. If \code{NULL}, no
+responses are conditioned on and predictions of the prior distribution
+of the latent variables is performed.}
 
 \item{priorGrid}{Optional list representing an approximated distribution of
 the latent variables from a previous step (typically the
-\code{postDistTheta} element from an earlier call to
-\code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
-distribution of the latent variables implied by the IRT model (and latent
-regression, if specified) is used.}
+  \code{postDistTheta} element from an earlier call to
+  \code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
+  distribution of the latent variables implied by the IRT model (and latent
+  regression, if specified) is used.}
 }
 \value{
 A list with components:
@@ -60,11 +60,11 @@ A list with components:
 }
 \description{
 \code{predJointDistRespIrt()} performs probabilistic predictions of item
-responses based on an IRT model fitted with \code{\link{fitIrt}}. The method
+responses based on a multidimensional Item Response Theory (IRT) model fitted with \code{\link{fitIrt}}. The method
 can incorporate predictors (via a latent regression, if specified) and
 optionally already observed responses for a subset of items.
 
-The predictions are obtained in four steps (see Wyss et al. (2025) for
+The predictions are obtained in four steps (see Wyss et al. (2026) for
 further details):
 \enumerate{
   \item Predict the distribution of the latent variables (possibly
@@ -73,7 +73,7 @@ further details):
   \item For each sampled latent variable, simulate item response patterns
   from the IRT model, assuming conditional independence of items given the
   latent variables.
-  \item Approximate the (conditional) joint distribution of item responses
+  \item Approximate the joint distribution of item responses
   based on the simulated response patterns.
 }
 }

@@ -3,7 +3,7 @@
 \docType{data}
 \name{screenMental}
 \alias{screenMental}
-\title{Simulated data set for personalized mental health screening with dedaptive testing}
+\title{Simulated data set to demonstrate mental health screening with dedaptive testing}
 \format{
 A data frame with 652 rows (persons) and 19 variables:
 \describe{
@@ -37,7 +37,7 @@ data(screenMental)
 \description{
 \code{screenMental} is a fully simulated data set with sex, age, and PHQ-9/GAD-7
 item responses that follow the dependency structure learned from the data set
-used in the publication introducing the dedaptive testing framework (Wyss et al., 2025).
+used in the publication introducing the dedaptive testing framework (Wyss et al., 2026).
 The data set was generated using the function \code{\link{simResponsesIrt}}
 
 This data set can be used to demonstrate the functions \code{\link{fitIrt}},
@@ -46,11 +46,11 @@ This data set can be used to demonstrate the functions \code{\link{fitIrt}},
 \details{
 The original data stems from a study investigating internet-based cognitive
 behavioral therapy for social anxiety (Šipka et al., 2025). A multidimensional
-IRT model was trained on the nine items of the Patient Health Questionnaire-9
-(PHQ-9) and the seven items of the Generalized Anxiety Disorder-7 (GAD-7)
-scale. The model assumed two latent variables (all items loading on both
-latent variables) and a latent regression with effects of sex and age on the
-means of the two latent variables (see Wyss et al., 2025).
+Item Response Theory (IRT) model was trained on the nine items of the Patient
+Health Questionnaire-9 (PHQ-9) and the seven items of the Generalized Anxiety
+Disorder-7 (GAD-7) scale. The model assumed two latent variables (all items
+loading on both latent variables) and a latent regression with effects of sex and age on the
+means of the two latent variables (see Wyss et al., 2026).
 
 The data set was simulated as follows:
 \enumerate{
@@ -67,9 +67,9 @@ The data set was simulated as follows:
       \item a) Simulate sex according to the estimated frequencies from step 1a).
       \item b) For each simulated sex, draw ages from the corresponding
         kernel density estimates from step 1b).
-      \item c) Given sex and age from 2a) and 2b), simulate PHQ-9 and GAD-7 item responses from
-        sex- and age-specific joint distributions using the model from step 1c)
-        and the function \code{\link{simResponsesIrt}}.
+      \item c) Given sex and age from 2a) and 2b), simulate PHQ-9 and GAD-7 item
+      responses from sex- and age-specific joint distributions using the model
+      from step 1c) and the function \code{\link{simResponsesIrt}}.
     }
 }
 }

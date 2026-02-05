@@ -2,16 +2,17 @@
 % Please edit documentation in R/simResponsesIrt.R
 \name{simResponsesIrt}
 \alias{simResponsesIrt}
-\title{Simulate item responses from a fitted IRT model}
+\title{Simulate item responses from a fitted Item Response Theory model}
 \usage{
 simResponsesIrt(model, dataPred = NULL, nSim = NULL, seed = 1)
 }
 \arguments{
-\item{model}{IRT model fitted with fitIrt().}
+\item{model}{IRT model fitted with \code{\link{fitIrt}}.}
 
 \item{dataPred}{Optional data frame with predictors for latent regression.}
 
-\item{nSim}{Number of persons simulated when dataPred is NULL and no regression is used.}
+\item{nSim}{Number of simulated response patterns when \code{dataPred} is \code{NULL}
+and no regression is used.}
 
 \item{seed}{Integer seed for reproducibility.}
 }
@@ -19,16 +20,16 @@ simResponsesIrt(model, dataPred = NULL, nSim = NULL, seed = 1)
 A data frame with predictors and simulated responses.
 }
 \description{
-\code{simResponsesirt} simulates item response patterns from an IRT model
-fitted with \code{\link{fitIrt}}, using the probabilistic machinery of
-\code{\link{predJointDistRespIrt}}.
+\code{simResponsesirt} simulates item response patterns from an item Response
+ Theory (IRT) model fitted with \code{\link{fitIrt}}, using the probabilistic
+ machinery of \code{\link{predJointDistRespIrt}}.
 }
 \details{
-If the IRT model includes a latent regression (model$formula not NULL),
-dataPred must contain all predictor variables used in \code{\link{fitIrt}}.
-For each row in dataPred, one response pattern is simulated.
+If the IRT model includes a latent regression (\code{model$formula} not \code{NULL}),
+\code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}.
+For each row in \code{dataPred}, one response pattern is simulated.
 
-If the model has no latent regression (model$formula NULL) and
-dataPred is NULL, then nSim must be supplied and nSim
+If the model has no latent regression (\code{model$formula} is \code{NULL}) and
+\code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
 response patterns are simulated.
 }

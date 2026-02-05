@@ -2,12 +2,13 @@
 % Please edit documentation in R/helpFunctions.R
 \name{predFromJoint}
 \alias{predFromJoint}
-\title{Make predictions based on joint distribution of items and corresponding scores (helping function)}
+\title{Predictions based on joint distribution of items and corresponding scores (helping function)}
 \usage{
 predFromJoint(jointDistFun, thres)
 }
 \arguments{
-\item{jointDistFun}{Joint distribution that also contains the scores as columns}
+\item{jointDistFun}{Joint distribution of item responses patterns
+that also contains the scores as columns}
 
 \item{thres}{thresholds for decisions based on the scores}
 }
@@ -15,7 +16,7 @@ predFromJoint(jointDistFun, thres)
 table of predictions based on the joint distribution
 }
 \description{
-Make predictions based on joint distribution of items and corresponding scores (helping function)
+Predictions based on joint distribution of items and corresponding scores (helping function)
 }
 \examples{
 # no example, since it is only a helping function

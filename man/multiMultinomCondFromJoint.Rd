@@ -11,7 +11,7 @@ multiMultinomCondFromJoint(jointDist, varName, varValue, nameFreq = "freq")
 
 \item{varName}{Name of variable we want to condition}
 
-\item{varValue}{Given value of 'varName'}
+\item{varValue}{Given value of \code{varName}}
 
 \item{nameFreq}{Name of column that contains the frequency}
 }

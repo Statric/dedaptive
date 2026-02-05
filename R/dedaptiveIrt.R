@@ -1,11 +1,11 @@
-#' DEcision-oriented aDAPTIVE (dedaptive) testing based on an IRT model
+#' DEcision-oriented aDAPTIVE (dedaptive) testing based on an Item Response Theory model
 #'
 #' @description
 #' \code{dedaptiveIrt()} performs decision-oriented adaptive testing based on
-#' an IRT model fitted with \code{\link{fitIrt}} and probabilistic predictions
-#' from \code{\link{predJointDistRespIrt}}. For a given person, items are
-#' selected sequentially to minimize expected total costs of misclassification
-#' and measurement.
+#' an Item Response Theory (IRT) model fitted with \code{\link{fitIrt}} and
+#' probabilistic predictions from \code{\link{predJointDistRespIrt}}.
+#' For a given person, items are selected sequentially to minimize expected total
+#' costs of misclassification and measurement.
 #'
 #' @details
 #' Dedaptive testing combines:
@@ -22,16 +22,15 @@
 #'
 #' @param model IRT model object fitted with \code{\link{fitIrt}}.
 #' @param predJointSub Optional object containing the predicted distribution of
-#'   latent variables and response patterns for the current person, as returned
+#'   response patterns for the current person, as returned
 #'   by \code{\link{predJointDistRespIrt}}. If \code{NULL}, this distribution
 #'   is computed inside the function before any item is selected.
 #' @param dataSub One-row data frame for the current person containing item
 #'   responses and, if applicable, predictor variables used in the latent
 #'   regression of the IRT model.
 #' @param funOfItems List of functions used to compute score(s) from the item
-#'   responses (e.g., \code{list(sum)} for a sum score, or several functions
-#'   for multiple decisions). The length of \code{funOfItems} must match the
-#'   length of \code{thres}, \code{costs[[1]]}, and \code{costs[[2]]}.
+#'   responses (e.g., \code{list(sum)} for a sum score over all items, or several functions
+#'   for multiple decisions).
 #' @param thres Numeric vector of thresholds applied to the scores computed by
 #'   \code{funOfItems} to define binary decisions (one threshold per score
 #'   function).
@@ -44,7 +43,7 @@
 #'     \item \code{costs[[3]]}: scalar measurement cost per selected item.
 #'   }
 #'   The lengths of \code{costs[[1]]} and \code{costs[[2]]} must match the
-#'   length of \code{funOfItems}.
+#'   length of \code{funOfItems} respectively \code{thres}.
 #' @param itemsExclude Character vector of item names that can not be selected.
 #'   If \code{NULL} (default), all items are eligible for selection.
 #' @param nSimTheta Number of latent variable draws used internally in
@@ -60,12 +59,13 @@
 #' @return A list with components:
 #' \describe{
 #'   \item{\code{pred}}{One-row data frame with predicted means
-#'     (\code{predMean_*}), probabilities \code{P(score >= thres)}
-#'     (\code{prob_*}), true score values (\code{trueMean_*}), true decisions
-#'     (\code{diag_*}), number of selected items (\code{nItems}), selected item
-#'     combination (\code{combItems}), total runtime in seconds (\code{runTime})
-#'     and runtime per selected item (\code{runTimePerItem}).}
-#'   \item{\code{distFun}}{Distribution of score functions used for prediction.}
+#'     (\code{predMean_}), probabilities \code{P(score >= thres)}
+#'     (\code{prob_}), true score values (\code{trueMean_}), true decisions
+#'     (\code{diag_}), number of selected items (\code{nItems}), selected item
+#'     combination (\code{combItems}), total run time in seconds (\code{runTime})
+#'     and run time per selected item (\code{runTimePerItem}).}
+#'   \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
+#'   and decisions (based on  \code{thres}).}
 #'   \item{\code{chosen}}{Character vector with the names of the selected items
 #'     in the order in which they were chosen.}
 #'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
@@ -82,9 +82,9 @@
 dedaptiveIrt <- function(model = NULL,
                          predJointSub = NULL,
                          dataSub,
-                         costs,
-                         thres,
                          funOfItems = list(sum),
+                         thres,
+                         costs,
                          itemsExclude=NULL,
                          nSimTheta = 500,
                          nSimItem = 2,

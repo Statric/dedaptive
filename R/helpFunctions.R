@@ -1,7 +1,8 @@
 #' Cost-based binary classifier (helping function)
 #'
 #' @param prob Probability of higher class
-#' @param missCosts Vector of misclassification costs (costs for false positive, costs for false negative)
+#' @param missCosts Vector of misclassification costs (costs for false positive,
+#' costs for false negative)
 #' @param class1 Name of lower class
 #' @param class2 name of higher class
 #'
@@ -23,7 +24,7 @@ fcClassFct <- function(prob, missCosts, class1, class2) {
 #'
 #' @param jointDist table of the joint distribution
 #' @param varName Name of variable we want to condition
-#' @param varValue Given value of 'varName'
+#' @param varValue Given value of \code{varName}
 #' @param nameFreq Name of column that contains the frequency
 #'
 #' @returns conditional joint distribution
@@ -47,9 +48,10 @@ multiMultinomCondFromJoint <- function(jointDist, varName, varValue, nameFreq = 
 }
 
 
-#' Make predictions based on joint distribution of items and corresponding scores (helping function)
+#' Predictions based on joint distribution of items and corresponding scores (helping function)
 #'
-#' @param jointDistFun Joint distribution that also contains the scores as columns
+#' @param jointDistFun Joint distribution of item responses patterns
+#' that also contains the scores as columns
 #' @param thres thresholds for decisions based on the scores
 #'
 #' @returns table of predictions based on the joint distribution
@@ -89,9 +91,9 @@ predFromJoint <- function(jointDistFun, thres) {
   return(list(distFun = distFun, pred = dPred))
 }
 
-#' Title cost-based classification for multiple binary decisions (helping function)
+#' Cost-based classification for multiple binary decisions (helping function)
 #'
-#' @param probDiag table of probabilities for the decisions
+#' @param probDiag Joint distribution of the decisions
 #' @param cFp vector of costs of false positives (for every decision)
 #' @param cFn vector of costs of false negatives (for every decisions)
 #' @param probName Name of columns containing the probabilities

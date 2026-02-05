@@ -4,10 +4,10 @@
 \name{dedaptive-package}
 \alias{dedaptive}
 \alias{dedaptive-package}
-\title{dedaptive: Decision-oriented adaptive testing based on multidimensional IRT}
+\title{dedaptive: Decision-oriented adaptive testing based on multidimensional Item Response Theory}
 \description{
 This package implements decision-oriented adaptive testing (dedaptive)
-using multidimensional graded IRT models fitted with \code{mirt}.
+using multidimensional graded Item Response Theory (IRT) models fitted with \code{mirt}.
 }
 \seealso{
 Useful links:

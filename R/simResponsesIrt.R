@@ -1,22 +1,23 @@
-#' Simulate item responses from a fitted IRT model
+#' Simulate item responses from a fitted Item Response Theory model
 #'
 #' @description
-#' \code{simResponsesirt} simulates item response patterns from an IRT model
-#' fitted with \code{\link{fitIrt}}, using the probabilistic machinery of
-#' \code{\link{predJointDistRespIrt}}.
+#' \code{simResponsesirt} simulates item response patterns from an item Response
+#'  Theory (IRT) model fitted with \code{\link{fitIrt}}, using the probabilistic
+#'  machinery of \code{\link{predJointDistRespIrt}}.
 #'
 #' @details
-#' If the IRT model includes a latent regression (model$formula not NULL),
-#' dataPred must contain all predictor variables used in \code{\link{fitIrt}}.
-#' For each row in dataPred, one response pattern is simulated.
+#' If the IRT model includes a latent regression (\code{model$formula} not \code{NULL}),
+#' \code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}.
+#' For each row in \code{dataPred}, one response pattern is simulated.
 #'
-#' If the model has no latent regression (model$formula NULL) and
-#' dataPred is NULL, then nSim must be supplied and nSim
+#' If the model has no latent regression (\code{model$formula} is \code{NULL}) and
+#' \code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
 #' response patterns are simulated.
 #'
-#' @param model IRT model fitted with fitIrt().
+#' @param model IRT model fitted with \code{\link{fitIrt}}.
 #' @param dataPred Optional data frame with predictors for latent regression.
-#' @param nSim Number of persons simulated when dataPred is NULL and no regression is used.
+#' @param nSim Number of simulated response patterns when \code{dataPred} is \code{NULL}
+#' and no regression is used.
 #' @param seed Integer seed for reproducibility.
 #'
 #' @return A data frame with predictors and simulated responses.

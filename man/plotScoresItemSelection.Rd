@@ -33,50 +33,50 @@ plotScoresItemSelection(
 
 \item{whichScores}{Integer vector of length 2 indicating which two scores
 to plot. For example, \code{c(1, 3)} plots \code{fun_1} against \code{fun_3}.
-Defaults to \code{c(1, 2)}.}
+Default is \code{c(1, 2)}.}
 
 \item{scoreNames}{Optional character vector of length 2 with labels for
 the two scores (x- and y-axes). If \code{NULL}, default labels of the form
 \code{c("Score i", "Score j")} based on \code{whichScores} are used.}
 
-\item{main}{Main title for the joint scatterplot.}
+\item{main}{Main title for the joint scatter plot.}
 
-\item{xlab, ylab}{Axis labels for the joint scatterplot. If \code{NULL},
+\item{xlab, ylab}{Axis labels for the joint scatter plot. If \code{NULL},
 they default to the corresponding \code{scoreNames}.}
 
 \item{pointCexBase}{Base point size in the joint plot (scaled further by
 relative frequency).}
 
 \item{paletteColors}{Character vector passed to \code{grDevices::colorRampPalette}
-to generate the colour scale for point frequencies.}
+to generate the color scale for points representing the joint distribution.}
 
-\item{thresholdCol}{Colour of threshold lines in all panels.}
+\item{thresholdCol}{Color of threshold lines in all panels.}
 
 \item{thresholdLty}{Line type of threshold lines.}
 
 \item{thresholdLwd}{Line width of threshold lines.}
 
-\item{probTextCol}{Colour of the probability texts in the joint plot.}
+\item{probTextCol}{Color of the probability texts in the joint plot.}
 
 \item{probTextCex}{Character expansion for the probability texts.}
 
 \item{legendN}{Integer; number of color steps in the embedded legend bar.}
 
 \item{legendXleftRel, legendXrightRel}{Relative horizontal position of the
-colour bar inside the joint panel (0 = left edge, 1 = right edge).}
+color bar inside the joint panel (0 = left edge, 1 = right edge).}
 
 \item{legendYbottomRel, legendYtopRel}{Relative vertical position of the
-colour bar inside the joint panel (0 = bottom, 1 = top).}
+color bar inside the joint panel (0 = bottom, 1 = top).}
 
 \item{legendLabelOffsetXRel}{Relative horizontal offset (in plot-width units)
-for the min/max labels to the right of the colour bar.}
+for the min/max labels to the right of the color bar.}
 }
 \value{
-Called for its side effect of producing a plot. Invisibly returns a list
+Produces a plot of the joint and marginal distributions of scores. It invisibly returns a list
 containing the marginals and probabilities for the selected scores.
 }
 \description{
-Creates a color-coded scatterplot (joint distribution) of two scores
+Creates a color-coded scatter plot (joint distribution) of two scores
 (functions of item responses) together with plots of the marginal distributions
 above and to the right. Thresholds are indicated by reference lines and
 the probabilities are shown as well.

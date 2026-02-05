@@ -2,14 +2,14 @@
 % Please edit documentation in R/fitIrt.R
 \name{fitIrt}
 \alias{fitIrt}
-\title{Fit multidimensional graded IRT models for use with \code{dedaptive}}
+\title{Fit multidimensional graded Item Response Theory (IRT) models for the use with \code{dedaptive}}
 \usage{
 fitIrt(items, formula = NULL, data, ...)
 }
 \arguments{
-\item{items}{Character vector with the names of the item/response columns
-in \code{data}. These columns are treated as ordered responses and used to
-fit the graded IRT model.}
+\item{items}{Character vector with the names of the columns in \code{data} containing
+the item responses. These columns are treated as ordered responses and used to
+fit the multidimensional graded IRT model.}
 
 \item{formula}{Either \code{NULL} (no latent regression), a character string
 containing only the right-hand side of a regression formula
@@ -21,22 +21,23 @@ specifying the predictors for the latent regression.}
 variables referenced in \code{formula}. Each row typically corresponds to
 one person.}
 
-\item{...}{Additional arguments passed to \code{mirt::mirt()}, such as \code{model}
-(latent structure passed to \code{mirt::mirt()} e.g., an object created by
-\code{mirt::mirt.model()}), \code{technical} options, starting values, or convergence settings. The
-  estimation algorithm is currently fixed to the EM algorithm within
-  \code{fitIrt()}; other methods supported by \code{mirt} may be made
-  available in future versions.}
+\item{...}{Additional arguments passed to \code{\link{mirt}}, such as \code{model}
+(latent structure passed to \code{\link{mirt}} e.g., an object created by
+\code{\link{mirt.model}} or an integer specifying the dimension of the latent space),
+\code{technical} options, starting values, or convergence settings. The
+ estimation algorithm is currently fixed to the EM algorithm within
+ \code{fitIrt}; other methods supported by \code{\link{mirt}} may be made
+ available in future versions.}
 }
 \value{
 A list with the following elements:
 \describe{
   \item{\code{items}}{Meta-data (character vector with the item names used in the model).}
-  \item{\code{formula}}{Meta-data (The original \code{formula} argument as supplied by the user=.}
-  \item{\code{varLabels}}{MA list of length \code{length(items)}, where each
+  \item{\code{formula}}{Meta-data (The original \code{formula} argument as supplied by the user.}
+  \item{\code{varLabels}}{List of length \code{length(items)}, where each
     element contains the sorted unique response categories for the corresponding item.}
   \item{\code{fit}}{The fitted \code{mirt} model object returned by
-    \code{mirt::mirt()}. This object is used by \code{dedaptive} for prediction
+    \code{\link{mirt}}. This object is used by \code{dedaptive} for prediction
     and item selection.}
 }
 }
@@ -62,9 +63,7 @@ The argument \code{formula} can be supplied either as
     regression formula (e.g., \code{"age + sex"}), or
   \item a **one-sided formula** (e.g., \code{~ age + sex}).
 }
-Internally, character input is converted to a one-sided formula (e.g.
-\code{"age + sex"} becomes \code{~ age + sex}) and then passed to
-\code{mirt} as a latent regression. All predictor variables referenced in
+All predictor variables referenced in
 \code{formula} must be available as columns in \code{data}.
 
 Via the argument \code{model}, we can specify the latent structure, e.g., the
@@ -72,12 +71,12 @@ number of latent variables, which items load on which latent variables, and
 whether the latent variables are correlated. The \code{model} argument is
 passed directly to \code{mirt::mirt()}, so any model specification supported
 by \code{mirt} can be used. For a full description of possible model
-specifications, see \code{\link[mirt]{mirt}}.
+specifications, see \code{\link{mirt}}.
 
 Currently, the IRT model is estimated using the Expectation-Maximization (EM) algorithm as implemented
 in \code{mirt} (i.e., \code{method = "EM"} in the underlying call to
 \code{mirt::mirt()}). In future versions, additional estimation methods
-supported by \code{mirt} may be exposed via \code{fitIrt()}.
+supported by \code{mirt} may be incorporated in \code{fitIrt()}.
 }
 \examples{
 \dontrun{

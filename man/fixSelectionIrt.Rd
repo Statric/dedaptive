@@ -2,15 +2,15 @@
 % Please edit documentation in R/fixSelectionIrt.R
 \name{fixSelectionIrt}
 \alias{fixSelectionIrt}
-\title{Probabilistic predictions with fixed-item panels based on an IRT model}
+\title{Probabilistic predictions with fixed-item panels based on an Item Response Theory model}
 \usage{
 fixSelectionIrt(
   model,
   predJointSub = NULL,
   predJointSubCond = NULL,
   dataSub,
-  thres,
   funOfItems = sum,
+  thres,
   givenVar = NULL,
   nSimTheta = 500,
   nSimItem = 2,
@@ -34,18 +34,18 @@ further conditioning is performed.}
 responses and, if applicable, predictor variables used in the latent
 regression.}
 
-\item{thres}{Numeric vector of thresholds applied to the scores computed by
-\code{funOfItems} to define binary decisions (one threshold per score
-function).}
-
 \item{funOfItems}{List of functions used to compute score(s) from the item
 responses (e.g. \code{list(sum)} for a sum score, or several functions for
 multiple decisions). Its length must match the length of \code{thres}.}
 
+\item{thres}{Numeric vector of thresholds applied to the scores computed by
+\code{funOfItems} to define binary decisions (one threshold per score
+function).}
+
 \item{givenVar}{Optional character vector with the names of items that are
 treated as "selected" (fixed) and whose observed values in \code{dataSub}
 are conditioned on. If \code{NULL}, predictions are based solely on the
-IRT model without conditioning on specific items.}
+predictor variables without conditioning on specific items.}
 
 \item{nSimTheta}{Number of latent variable draws used internally in
 \code{\link{predJointDistRespIrt}}.}
@@ -59,21 +59,23 @@ IRT model without conditioning on specific items.}
 A list with components:
 \describe{
   \item{\code{pred}}{One-row data frame with predicted means
-    (\code{predMean_*}), probabilities \code{P(score >= thres)}
-    (\code{prob_*}), true score values computed from all items
-    (\code{trueMean_*}), true decisions (\code{diag_*}), number of selected
+    (\code{predMean_}), probabilities \code{P(score >= thres)}
+    (\code{prob_}), true score values computed from all items
+    (\code{trueMean_}), true decisions (\code{diag_}), number of selected
     items (\code{nItems}), selected item combination (\code{combItems}),
-    total runtime in seconds (\code{runTime}) and runtime per selected item
-    (\code{runTimePerItem}).}
-  \item{\code{distFun}}{Distribution of score functions used for prediction,
-    as returned by the internal helper \code{predFromJoint}.}
+    and the run time in seconds (\code{runTime}).}
+  \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
+  and decisions (based on  \code{thres}).}
   \item{\code{chosen}}{Character vector with the names of the fixed
     selected items (i.e. \code{givenVar}).}
+  \item{\code{distItems}}{Joint distribution of the not considered items.}
+  \item{\code{distTheta}}{Approximation of the latent variable distribution
+    based on the known item responses.}
 }
 }
 \description{
 \code{fixSelectionIrt()} performs probabilistic predictions for a fixed set
-of selected items based on an IRT model fitted with \code{\link{fitIrt}} and
+of selected items based on an Item Response Theory (IRT) model fitted with \code{\link{fitIrt}} and
 probabilistic predictions from \code{\link{predJointDistRespIrt}}. In
 contrast to \code{\link{dedaptiveIrt}}, no adaptive selection is performed:
 a pre-specified set of items (\code{givenVar}) is used.

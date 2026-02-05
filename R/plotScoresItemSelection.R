@@ -1,7 +1,7 @@
 #' Plot joint and marginal distributions of scores based on predictions of a subset of items
 #'
 #' @description
-#' Creates a color-coded scatterplot (joint distribution) of two scores
+#' Creates a color-coded scatter plot (joint distribution) of two scores
 #' (functions of item responses) together with plots of the marginal distributions
 #' above and to the right. Thresholds are indicated by reference lines and
 #' the probabilities are shown as well.
@@ -17,32 +17,32 @@
 #'   \code{thres}.
 #' @param whichScores Integer vector of length 2 indicating which two scores
 #' to plot. For example, \code{c(1, 3)} plots \code{fun_1} against \code{fun_3}.
-#' Defaults to \code{c(1, 2)}.
+#' Default is \code{c(1, 2)}.
 #' @param scoreNames Optional character vector of length 2 with labels for
 #'   the two scores (x- and y-axes). If \code{NULL}, default labels of the form
 #'   \code{c("Score i", "Score j")} based on \code{whichScores} are used.
-#' @param main Main title for the joint scatterplot.
-#' @param xlab,ylab Axis labels for the joint scatterplot. If \code{NULL},
+#' @param main Main title for the joint scatter plot.
+#' @param xlab,ylab Axis labels for the joint scatter plot. If \code{NULL},
 #'   they default to the corresponding \code{scoreNames}.
 #' @param pointCexBase Base point size in the joint plot (scaled further by
 #'   relative frequency).
 #' @param paletteColors Character vector passed to \code{grDevices::colorRampPalette}
-#'   to generate the colour scale for point frequencies.
-#' @param thresholdCol Colour of threshold lines in all panels.
+#'   to generate the color scale for points representing the joint distribution.
+#' @param thresholdCol Color of threshold lines in all panels.
 #' @param thresholdLty Line type of threshold lines.
 #' @param thresholdLwd Line width of threshold lines.
-#' @param probTextCol Colour of the probability texts in the joint plot.
+#' @param probTextCol Color of the probability texts in the joint plot.
 #' @param probTextCex Character expansion for the probability texts.
 #' @param legendN Integer; number of color steps in the embedded legend bar.
 #' @param legendXleftRel,legendXrightRel Relative horizontal position of the
-#'   colour bar inside the joint panel (0 = left edge, 1 = right edge).
+#'   color bar inside the joint panel (0 = left edge, 1 = right edge).
 #' @param legendYbottomRel,legendYtopRel Relative vertical position of the
-#'   colour bar inside the joint panel (0 = bottom, 1 = top).
+#'   color bar inside the joint panel (0 = bottom, 1 = top).
 #' @param legendLabelOffsetXRel Relative horizontal offset (in plot-width units)
-#'   for the min/max labels to the right of the colour bar.
+#'   for the min/max labels to the right of the color bar.
 #'
 #' @return
-#' Called for its side effect of producing a plot. Invisibly returns a list
+#' Produces a plot of the joint and marginal distributions of scores. It invisibly returns a list
 #' containing the marginals and probabilities for the selected scores.
 #' @importFrom graphics layout par abline text rect segments axis
 #' @export
@@ -178,7 +178,7 @@ plotScoresItemSelection <- function(result,
                        formatC(prob2, digits = 3, format = "f")),
        col = probTextCol, cex = probTextCex, adj = c(0, 0.5))
 
-  ## Embedded colour legend (position controlled by *Rel arguments)
+  # Embedded colour legend (position controlled by *Rel arguments)
   usr <- par("usr")
   xBar0 <- usr[1] + legendXleftRel  * (usr[2] - usr[1])
   xBar1 <- usr[1] + legendXrightRel * (usr[2] - usr[1])
@@ -206,7 +206,7 @@ plotScoresItemSelection <- function(result,
        adj = c(0, 0.5), cex = 0.7)
   par(xpd = FALSE)
 
-  ## 4) Top marginal for Score 1 (panel 2) -----------------------------------
+  # 4) Top marginal for Score 1 (panel 2)
 
   par(mar = c(0, 4.5, 2, 2))
 
@@ -228,7 +228,7 @@ plotScoresItemSelection <- function(result,
   axis(2)
   abline(v = thresUsed[1], col = probTextCol, lwd = 2, lty = 2)
 
-  ## 5) Right marginal for Score 2 (panel 3) ---------------------------------
+  # 5) Right marginal for Score 2 (panel 3)
 
   par(mar = c(4.5, 0, 2, 2))
 
@@ -250,18 +250,6 @@ plotScoresItemSelection <- function(result,
   axis(1)
   abline(h = thresUsed[2], col = probTextCol, lwd = 2, lty = 2)
 
-  ## 6) Reset layout and return ----------------------------------------------
-
   layout(1)
 
-  invisible(list(
-    whichScores = whichScores,
-    thresUsed   = thresUsed,
-    marg1       = marg1,
-    marg2       = marg2,
-    prob1       = prob1,
-    prob2       = prob2,
-    freqMin     = freqMin,
-    freqMax     = freqMax
-  ))
 }
