@@ -20,7 +20,7 @@
 #' }
 #'
 #' @param model A multidimensional IRT model fitted with \code{\link{fitIrt}}.
-#' This object contains the fitted \code{\link{mirt}} model and meta-data (item names, response
+#' This object contains the fitted \code{\link[mirt]{mirt}} model and meta-data (item names, response
 #' labels, latent regression formula).
 #' @param dataSub One-row data frame with the predictor variables of one
 #' observation used in the latent regression (if specified in \code{model}).

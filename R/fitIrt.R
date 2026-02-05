@@ -6,11 +6,11 @@
 #' returns a model object that can be used for predictions and item selection
 #' within the \code{dedaptive} library.
 #'
-#' Technically, \code{fitIrt()} is a thin wrapper around \code{mirt::mirt()}:
+#' Technically, \code{fitIrt()} is a thin wrapper around :
 #' it prepares the data, sets up an optional latent regression, and stores some
 #' additional information (e.g., item labels) needed later by \code{dedaptive}.
 #' If you plan to use an IRT model with \code{dedaptive}, you must always fit
-#' it via \code{fitIrt()} rather than calling \code{mirt::mirt()} directly.
+#' it via \code{fitIrt()} rather than calling \code{\link[mirt]{mirt}} directly.
 #'
 #' @details
 #' The function expects a set of item responses and, optionally, predictors for a
@@ -29,14 +29,14 @@
 #' Via the argument \code{model}, we can specify the latent structure, e.g., the
 #' number of latent variables, which items load on which latent variables, and
 #' whether the latent variables are correlated. The \code{model} argument is
-#' passed directly to \code{mirt::mirt()}, so any model specification supported
-#' by \code{mirt} can be used. For a full description of possible model
-#' specifications, see \code{\link{mirt}}.
+#' passed directly to \code{\link[mirt]{mirt}}, so any model specification supported
+#' by \code{\link[mirt]{mirt}} can be used. For a full description of possible model
+#' specifications, see \code{\link[mirt]{mirt}}.
 #'
 #' Currently, the IRT model is estimated using the Expectation-Maximization (EM) algorithm as implemented
-#' in \code{mirt} (i.e., \code{method = "EM"} in the underlying call to
-#' \code{mirt::mirt()}). In future versions, additional estimation methods
-#' supported by \code{mirt} may be incorporated in \code{fitIrt()}.
+#' in \code{\link[mirt]{mirt}} (i.e., \code{method = "EM"} in the underlying call to
+#' \code{\link[mirt]{mirt}}. In future versions, additional estimation methods
+#' supported by \code{\link[mirt]{mirt}} may be incorporated in \code{fitIrt()}.
 #'
 #' @param items Character vector with the names of the columns in \code{data} containing
 #' the item responses. These columns are treated as ordered responses and used to
@@ -49,12 +49,12 @@
 #'  \code{items} and, if \code{formula} is not \code{NULL}, all predictor
 #'  variables referenced in \code{formula}. Each row typically corresponds to
 #'  one person.
-#' @param ... Additional arguments passed to \code{\link{mirt}}, such as \code{model}
-#' (latent structure passed to \code{\link{mirt}} e.g., an object created by
-#' \code{\link{mirt.model}} or an integer specifying the dimension of the latent space),
+#' @param ... Additional arguments passed to \code{\link[mirt]{mirt}}, such as \code{model}
+#' (latent structure passed to \code{\link[mirt]{mirt}} e.g., an object created by
+#' \code{\link[mirt]{mirt.model}} or an integer specifying the dimension of the latent space),
 #' \code{technical} options, starting values, or convergence settings. The
 #'  estimation algorithm is currently fixed to the EM algorithm within
-#'  \code{fitIrt}; other methods supported by \code{\link{mirt}} may be made
+#'  \code{fitIrt}; other methods supported by \code{\link[mirt]{mirt}} may be made
 #'  available in future versions.
 #'
 #' @return
@@ -64,8 +64,8 @@
 #'   \item{\code{formula}}{Meta-data (The original \code{formula} argument as supplied by the user.}
 #'   \item{\code{varLabels}}{List of length \code{length(items)}, where each
 #'     element contains the sorted unique response categories for the corresponding item.}
-#'   \item{\code{fit}}{The fitted \code{mirt} model object returned by
-#'     \code{\link{mirt}}. This object is used by \code{dedaptive} for prediction
+#'   \item{\code{fit}}{The fitted \code{\link[mirt]{mirt}} model object returned by
+#'     \code{\link[mirt]{mirt}}. This object is used by \code{dedaptive} for prediction
 #'     and item selection.}
 #' }
 #'
