@@ -17,11 +17,14 @@ knitr::opts_chunk$set(
 ```
 
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# Dedaptive Testing <img src="man/figures/logo.png" align="right" alt="" width="120" />
+
+<div style="clear: both;"></div>
+
 <!-- badges: start -->
 <!-- badges: end -->
-
-
-# Dedaptive Testing
 
 
 The R package `dedaptive` provides tools for **DEcision-oriented aDAPTIVE testing** based on  
@@ -36,13 +39,6 @@ This workflow demonstrates:
 4. Simulation-based predictions of joint item distributions (`predJointDistRespIrt`)
 5. Performing probabilistic predictions with fixed-item panels (`fixSelectionIrt`) and adaptive, decision-oriented and cost-sensitive testing (`dedaptiveIrt`)
 6. Simulating new item responses given predictor values (`simResponsesIrt`)  
-
-<!-- Logo -->
-
-<div style="text-align: center;">
-  <img src="man/figures/logo.png" width="300"><br>
-  <em> Logo of the <code>dedaptive</code> R package (image generated with ChatGPT, OpenAI).</em>
-</div>
 
 ## 1. Load and prepare the example data
 
@@ -436,3 +432,7 @@ head(dataSim,3)
 ```
 
 The resulting object `dataSim` is a new, fully simulated data set with sex, age, and PHQ-9/GAD-7 item responses that follow the dependency structure learned from `screenMental`, but without containing any original individual-level records.
+
+
+<sub>Logo of dedaptive is generated with ChatGPT (OpenAI).</sub>
+

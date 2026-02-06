@@ -1,11 +1,17 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+# Dedaptive Testing <img src="man/figures/logo.png" align="right" alt="" width="120" />
+
+<div style="clear: both;">
+
+</div>
+
 <!-- badges: start -->
 
 <!-- badges: end -->
-
-# Dedaptive Testing
 
 The R package `dedaptive` provides tools for **DEcision-oriented
 aDAPTIVE testing** based on  
@@ -28,16 +34,6 @@ This workflow demonstrates:
     cost-sensitive testing (`dedaptiveIrt`)
 5.  Simulating new item responses given predictor values
     (`simResponsesIrt`)
-
-<!-- Logo -->
-
-<div style="text-align: center;">
-
-<img src="man/figures/logo.png" width="300"><br> <em> Logo of the
-<code>dedaptive</code> R package (image generated with ChatGPT,
-OpenAI).</em>
-
-</div>
 
 ## 1. Load and prepare the example data
 
@@ -387,7 +383,7 @@ predShortVersion$pred
 #>   predMean_1 predMean_2 prob_1 prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1     8.3658     6.2479 0.3102 0.0432          6      0          3      0
 #>   nItems              combItems   runTime runTimePerItem
-#> 1      4 phq1, phq2, gad1, gad2 0.1385989      0.1385989
+#> 1      4 phq1, phq2, gad1, gad2 0.1367421      0.1367421
 ```
 
 ``` r
@@ -412,8 +408,8 @@ selection (gad2=1, phq4=1)
 predDedaptive$pred
 #>   predMean_1 predMean_2 prob_1 prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1     7.1569     6.7706  0.194 0.1085          6      0          3      0
-#>   nItems  combItems runTime runTimePerItem
-#> 1      2 gad2, phq4 1.01987      0.3399567
+#>   nItems  combItems  runTime runTimePerItem
+#> 1      2 gad2, phq4 1.097861      0.3659537
 
 # Show the responses of the selected items
 dataSub[, predDedaptive$chosen, drop=F]
@@ -557,7 +553,7 @@ simulateSexAge <- function(data, nSim,
 ```
 
 We first generate a data set with simulated sex and age values and
-visualize the underlying density estimates:
+visualize the underlying distribution estimates:
 
 ``` r
 # Apply the function simulateSexAge
@@ -644,3 +640,5 @@ The resulting object `dataSim` is a new, fully simulated data set with
 sex, age, and PHQ-9/GAD-7 item responses that follow the dependency
 structure learned from `screenMental`, but without containing any
 original individual-level records.
+
+<sub>Logo of dedaptive is generated with ChatGPT (OpenAI).</sub>
