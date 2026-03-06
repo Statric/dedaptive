@@ -11,8 +11,8 @@ simResponsesIrt(model, dataPred = NULL, nSim = NULL, seed = 1)
 
 \item{dataPred}{Optional data frame with predictors for latent regression.}
 
-\item{nSim}{Number of simulated response patterns when \code{dataPred} is \code{NULL}
-and no regression is used.}
+\item{nSim}{Number of simulated response patterns when \code{dataPred} is
+\code{NULL} and no regression is used.}
 
 \item{seed}{Integer seed for reproducibility.}
 }
@@ -20,7 +20,7 @@ and no regression is used.}
 A data frame with predictors and simulated responses.
 }
 \description{
-\code{simResponsesirt} simulates item response patterns from an item Response
+\code{simResponsesIrt()} simulates item response patterns from an Item Response
  Theory (IRT) model fitted with \code{\link{fitIrt}}, using the probabilistic
  machinery of \code{\link{predJointDistRespIrt}}.
 }
