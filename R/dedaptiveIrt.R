@@ -337,7 +337,7 @@ dedaptiveIrt <- function(model = NULL,
       predJointSubTemp <- predJointSubTemp$jointDist
 
       # Recompute scores and diagnoses for the remaining items
-      for (f in 1:seq_along(funOfItems)) {
+      for (f in seq_along(funOfItems)) {
         predJointSubTemp[[paste0("fun_", f)]] <-
           apply(predJointSubTemp[, items,
                                  drop = FALSE],
