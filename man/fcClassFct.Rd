@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpFunctions.R
 \name{fcClassFct}
 \alias{fcClassFct}
-\title{Cost-based binary classifier (helping function)}
+\title{Cost-based binary classifier (helper function)}
 \usage{
 fcClassFct(prob, missCosts, class1, class2)
 }
@@ -20,9 +20,9 @@ costs for false negative)}
 classifier
 }
 \description{
-Cost-based binary classifier (helping function)
+Cost-based binary classifier (helper function)
 }
 \examples{
-# no example, since it is only a helping function
+# no example, since it is only a helper function
 
 }

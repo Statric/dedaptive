@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpFunctions.R
 \name{predFromJoint}
 \alias{predFromJoint}
-\title{Predictions based on joint distribution of items and corresponding scores (helping function)}
+\title{Predictions based on joint distribution of items and corresponding scores (helper function)}
 \usage{
 predFromJoint(jointDistFun, thres)
 }
@@ -16,8 +16,8 @@ that also contains the scores as columns}
 table of predictions based on the joint distribution
 }
 \description{
-Predictions based on joint distribution of items and corresponding scores (helping function)
+Predictions based on joint distribution of items and corresponding scores (helper function)
 }
 \examples{
-# no example, since it is only a helping function
+# no example, since it is only a helper function
 }

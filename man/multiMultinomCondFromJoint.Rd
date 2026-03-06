@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpFunctions.R
 \name{multiMultinomCondFromJoint}
 \alias{multiMultinomCondFromJoint}
-\title{Compute conditional joint distribution (helping function)}
+\title{Compute conditional joint distribution (helper function)}
 \usage{
 multiMultinomCondFromJoint(jointDist, varName, varValue, nameFreq = "freq")
 }
@@ -19,8 +19,8 @@ multiMultinomCondFromJoint(jointDist, varName, varValue, nameFreq = "freq")
 conditional joint distribution
 }
 \description{
-Compute conditional joint distribution (helping function)
+Compute conditional joint distribution (helper function)
 }
 \examples{
-# no example, since it is only a helping function
+# no example, since it is only a helper function
 }

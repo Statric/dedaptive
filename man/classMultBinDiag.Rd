@@ -2,16 +2,16 @@
 % Please edit documentation in R/helpFunctions.R
 \name{classMultBinDiag}
 \alias{classMultBinDiag}
-\title{Cost-based classification for multiple binary decisions (helping function)}
+\title{Cost-based classification for multiple binary decisions (helper function)}
 \usage{
 classMultBinDiag(probDiag, cFp, cFn, probName = "freq")
 }
 \arguments{
 \item{probDiag}{Joint distribution of the decisions}
 
-\item{cFp}{vector of costs of false positives (for every decision)}
+\item{cFp}{Vector of costs of false positives (for every decision)}
 
-\item{cFn}{vector of costs of false negatives (for every decisions)}
+\item{cFn}{Vector of costs of false negatives (for every decision)}
 
 \item{probName}{Name of columns containing the probabilities}
 }
@@ -19,8 +19,8 @@ classMultBinDiag(probDiag, cFp, cFn, probName = "freq")
 classifications and expected costs of classifications
 }
 \description{
-Cost-based classification for multiple binary decisions (helping function)
+Cost-based classification for multiple binary decisions (helper function)
 }
 \examples{
-# no example, since it is only a helping function
+# no example, since it is only a helper function
 }

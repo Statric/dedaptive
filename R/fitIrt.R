@@ -66,6 +66,7 @@
 #' # Will follow
 #' }
 #' @import mirt
+#' @importFrom stats as.formula
 #' @export
 
 
@@ -122,7 +123,7 @@ fitIrt <- function(items, formula = NULL, data, ...) {
     }
 
     # extract predictor names
-    varReg <- stats::all.vars(covFormula)
+    varReg <- all.vars(covFormula)
     ## Check if the predictor variables are contained in 'data'
     if (!all(varReg %in% names(data))) {
       stop("All predictors in 'formula' must be columns in 'data'.")
