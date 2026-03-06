@@ -2,7 +2,8 @@
 #'
 #' @description
 #' \code{predJointDistRespIrt()} performs probabilistic predictions of item
-#' responses based on a multidimensional Item Response Theory (IRT) model fitted with \code{\link{fitIrt}}. The method
+#' responses based on a multidimensional Item Response Theory (IRT) model
+#' fitted with \code{\link{fitIrt}}. The method
 #' can incorporate predictors (via a latent regression, if specified) and
 #' optionally already observed responses for a subset of items.
 #'
@@ -32,8 +33,8 @@
 #' @param givenVal Optional named numeric vector of already observed item
 #' responses for a subset of items (e.g., \code{c(phq1 = 2, phq2 = 1)}). The
 #' names must match item names in \code{model$items}. If \code{NULL}, no
-#' responses are conditioned on and predictions of the prior distribution
-#' of the latent variables is performed.
+#' responses are conditioned on and the prior distribution of the latent
+#' variables is predicted.
 #' @param priorGrid Optional list representing an approximated distribution of
 #' the latent variables from a previous step (typically the
 #'   \code{postDistTheta} element from an earlier call to
@@ -44,7 +45,7 @@
 #' @return A list with components:
 #' \describe{
 #'   \item{\code{postDistTheta}}{If \code{givenVal} is not \code{NULL}, a list
-#'     with components \code{dist} (matrix with grid points of the latent
+#'     with components \code{dist} (matrix containing grid points of the latent
 #'     variables and their posterior probabilities) and \code{givenVal} (all
 #'     item responses that have been conditioned on so far).}
 #'   \item{\code{sim}}{Data frame containing all simulated response patterns
@@ -58,10 +59,7 @@
 #' @import mirt
 #' @export
 #'
-#' @references
-#' Wyss, P., Steiner, D., Lopes, R., M., Sipka, Berger, T., & Krause, A. (2025).
-#' Decision-Oriented Adaptive Testing for Efficient Screening Across Mental Disorders.
-#' Manuscript in preparation.
+#' @references Follow
 predJointDistRespIrt <- function(model,
                                  dataSub,
                                  nSimTheta = 1000,
@@ -69,6 +67,30 @@ predJointDistRespIrt <- function(model,
                                  seed = 131820,
                                  givenVal = NULL,
                                  priorGrid = NULL) {
+
+  # (1) Preparation
+  # Checks
+  if (!(is.list(model) || is.null(model$fit) || is.null(model$items))){
+    stop("'model' must be an object returned by fitIrt().")
+  }
+
+  if (!(is.data.frame(dataSub) || nrow(dataSub) != 1L)) {
+    stop("'dataSub' must be a one-row data frame.")
+  }
+
+  if (!(is.numeric(nSimTheta) || length(nSimTheta) != 1L || nSimTheta < 1)) {
+    stop("'nSimTheta' must be a positive integer.")
+  }
+
+  if (!(is.numeric(nSimItem) || length(nSimItem) != 1L || nSimItem < 1)) {
+    stop("'nSimItem' must be a positive integer.")
+  }
+
+  if (!is.null(givenVal)) {
+    if (is.null(names(givenVal)) || !(all(names(givenVal) %in% model$items))) {
+      stop("Names of 'givenVal' must match item names in 'model$items'.")
+    }
+  }
 
   # extract information from model
   items <- model$items
@@ -81,7 +103,7 @@ predJointDistRespIrt <- function(model,
 
   # (1) Prior distribution of latent variables
 
-  if (is.null(givenVal) | is.null(priorGrid)) {
+  if (is.null(givenVal) || is.null(priorGrid)) {
 
     # covariance matrix of prior distribution of the latent variables
     thetaCovPrior <- mirt::coef(model$fit, simplify = TRUE)$cov
@@ -89,7 +111,6 @@ predJointDistRespIrt <- function(model,
     # prior mean of latent variables
     if (is.null(model$formula)) {
       # no latent regression: mean zero
-      dataReg        <- NULL
       thetaMeanPrior <- rep(0, length(mirt::extract.mirt(model$fit, "factorNames")))
     } else {
       # latent regression case
@@ -98,16 +119,16 @@ predJointDistRespIrt <- function(model,
       regCoef <- mirt::coef(model$fit, simplify = TRUE)$lr.betas
 
       ## formula of latent regression model
-      formReg <- stats::as.formula(paste0("~", model$formula))
-
-      ## predictor names
-      varReg  <- all.vars(formReg)
-
-      ## data for regression
-      dataReg <- dataSub[, varReg, drop = FALSE]
+      if (inherits(model$formula, "formula")) {
+        formReg <- model$formula
+      } else {
+        formReg <- stats::as.formula(
+          if (grepl("~", model$formula, fixed = TRUE)) model$formula else paste0("~", model$formula)
+        )
+      }
 
       ## design matrix and prior mean
-      modelMat       <- stats::model.matrix(formReg, dataSub)
+      modelMat <- stats::model.matrix(formReg, dataSub)
       thetaMeanPrior <- as.numeric(modelMat %*% regCoef)
     }
   }
@@ -190,7 +211,7 @@ predJointDistRespIrt <- function(model,
     ## initialize likelihood
     likelihood <- rep(1, nrow(thetaGrid))
 
-    for (j in 1:length(givenRespPattern)) {
+    for (j in seq_along(givenRespPattern)) {
       ## response of item j (in column-major order; same as original)
       response <- givenRespPattern[j]
 
@@ -223,7 +244,7 @@ predJointDistRespIrt <- function(model,
                        size    = nSimTheta,
                        replace = TRUE,
                        prob    = postDistTheta)
-    thetaSim <- thetaGrid[simIds, ]
+    thetaSim <- thetaGrid[simIds, , drop = FALSE]
     # thetaSim as matrix if only one value was simulated
     if (nSimTheta == 1) {
       thetaSim <- matrix(thetaSim,
@@ -245,7 +266,7 @@ predJointDistRespIrt <- function(model,
   # (3) Simulate response values
 
   # matrix with repeated theta values
-  if (is.null(ncol(thetaSim))) {
+  if (is.vector(thetaSim)) {
     thetaSimRep <- rep(thetaSim, nSimItem)
   } else {
     thetaSimRep <- matrix(
@@ -257,8 +278,8 @@ predJointDistRespIrt <- function(model,
 
   # extract loadings (slopes) and intercepts per item
   paramItems  <- mirt::coef(model$fit, simplify = TRUE)$items
-  slopesItems <- paramItems[, grepl("a", colnames(paramItems))]
-  intItems    <- paramItems[, grepl("d", colnames(paramItems))]
+  slopesItems <- paramItems[, grepl("a", colnames(paramItems)), drop = FALSE]
+  intItems    <- paramItems[, grepl("d", colnames(paramItems)), drop = FALSE]
 
   # set the seed
   set.seed(seed + 1)
@@ -270,9 +291,11 @@ predJointDistRespIrt <- function(model,
   colnames(respSim) <- items
 
   # Consider the known values (if any)
-  for (i in 1:length(outList$postDistTheta$givenVal)) {
-    respSim[, names(outList$postDistTheta$givenVal)[i]] <-
-      as.numeric(outList$postDistTheta$givenVal[i])
+  if (!is.null(outList$postDistTheta$givenVal)) {
+    for (i in seq_along(outList$postDistTheta$givenVal)) {
+      respSim[, names(outList$postDistTheta$givenVal)[i]] <-
+        as.numeric(outList$postDistTheta$givenVal[i])
+    }
   }
 
   # (4) Approximate joint distribution of response combinations
@@ -286,7 +309,7 @@ predJointDistRespIrt <- function(model,
   # Make item values numeric
   facToNumeric <- function(x) as.numeric(as.character(x))
   freqTable[, colnames(freqTable) != "freq"] <-
-    apply(freqTable[, colnames(freqTable) != "freq"], 2, facToNumeric)
+    lapply(freqTable[, colnames(freqTable) != "freq", drop = FALSE], facToNumeric)
 
   # Save results
   outList$sim       <- respComb

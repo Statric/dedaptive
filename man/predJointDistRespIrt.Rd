@@ -33,8 +33,8 @@ patterns are generated).}
 \item{givenVal}{Optional named numeric vector of already observed item
 responses for a subset of items (e.g., \code{c(phq1 = 2, phq2 = 1)}). The
 names must match item names in \code{model$items}. If \code{NULL}, no
-responses are conditioned on and predictions of the prior distribution
-of the latent variables is performed.}
+responses are conditioned on and the prior distribution of the latent
+variables is predicted.}
 
 \item{priorGrid}{Optional list representing an approximated distribution of
 the latent variables from a previous step (typically the
@@ -47,7 +47,7 @@ the latent variables from a previous step (typically the
 A list with components:
 \describe{
   \item{\code{postDistTheta}}{If \code{givenVal} is not \code{NULL}, a list
-    with components \code{dist} (matrix with grid points of the latent
+    with components \code{dist} (matrix containing grid points of the latent
     variables and their posterior probabilities) and \code{givenVal} (all
     item responses that have been conditioned on so far).}
   \item{\code{sim}}{Data frame containing all simulated response patterns
@@ -60,7 +60,8 @@ A list with components:
 }
 \description{
 \code{predJointDistRespIrt()} performs probabilistic predictions of item
-responses based on a multidimensional Item Response Theory (IRT) model fitted with \code{\link{fitIrt}}. The method
+responses based on a multidimensional Item Response Theory (IRT) model
+fitted with \code{\link{fitIrt}}. The method
 can incorporate predictors (via a latent regression, if specified) and
 optionally already observed responses for a subset of items.
 
@@ -78,7 +79,5 @@ further details):
 }
 }
 \references{
-Wyss, P., Steiner, D., Lopes, R., M., Sipka, Berger, T., & Krause, A. (2025).
-Decision-Oriented Adaptive Testing for Efficient Screening Across Mental Disorders.
-Manuscript in preparation.
+Follow
 }

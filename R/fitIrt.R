@@ -70,9 +70,12 @@
 #' @export
 
 
-fitIrt <- function(items, formula = NULL, data, ...) {
+fitIrt <- function(items,
+                   formula = NULL,
+                   data,
+                   ...) {
 
-  # (0) Set-up
+  # (0) Preparation
   # Checks
 
   ## Items
