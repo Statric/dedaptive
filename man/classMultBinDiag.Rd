@@ -7,13 +7,13 @@
 classMultBinDiag(probDiag, cFp, cFn, probName = "freq")
 }
 \arguments{
-\item{probDiag}{Joint distribution of the decisions}
+\item{probDiag}{Joint distribution of the decisions.}
 
-\item{cFp}{Vector of costs of false positives (for every decision)}
+\item{cFp}{Vector of costs of false positives (for every decision).}
 
-\item{cFn}{Vector of costs of false negatives (for every decision)}
+\item{cFn}{Vector of costs of false negatives (for every decision).}
 
-\item{probName}{Name of columns containing the probabilities}
+\item{probName}{Name of the column containing the probabilities.}
 }
 \value{
 classifications and expected costs of classifications

@@ -7,13 +7,13 @@
 multiMultinomCondFromJoint(jointDist, varName, varValue, nameFreq = "freq")
 }
 \arguments{
-\item{jointDist}{table of the joint distribution}
+\item{jointDist}{table of the joint distribution.}
 
-\item{varName}{Name of variable we want to condition}
+\item{varName}{Name of variable we want to condition on.}
 
-\item{varValue}{Given value of \code{varName}}
+\item{varValue}{Given value of \code{varName}.}
 
-\item{nameFreq}{Name of column that contains the frequency}
+\item{nameFreq}{Name of column that contains the frequency.}
 }
 \value{
 conditional joint distribution

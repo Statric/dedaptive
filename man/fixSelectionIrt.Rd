@@ -2,7 +2,7 @@
 % Please edit documentation in R/fixSelectionIrt.R
 \name{fixSelectionIrt}
 \alias{fixSelectionIrt}
-\title{Probabilistic predictions with fixed-item panels based on an Item Response Theory model}
+\title{Probabilistic predictions with fixed-item panels based on a Multidimensional Item Response Theory model}
 \usage{
 fixSelectionIrt(
   model,
@@ -18,12 +18,11 @@ fixSelectionIrt(
 )
 }
 \arguments{
-\item{model}{IRT model object fitted with \code{\link{fitIrt}}.}
+\item{model}{MIRT model object fitted with \code{\link{fitIrt}}.}
 
 \item{predJointSub}{Optional prediction of the joint distribution of item
 responses for the current person as returned by
-\code{\link{predJointDistRespIrt}} before conditioning on selected items.
-If \code{NULL}, the joint distribution is computed inside the function.}
+\code{\link{predJointDistRespIrt}} before conditioning on selected items.}
 
 \item{predJointSubCond}{Optional prediction of the joint distribution of
 item responses for the current person already conditional on
@@ -32,15 +31,15 @@ further conditioning is performed.}
 
 \item{dataSub}{One-row data frame for the current person containing item
 responses and, if applicable, predictor variables used in the latent
-regression.}
+regression of the MIRT model.}
 
 \item{funOfItems}{List of functions used to compute score(s) from the item
-responses (e.g. \code{list(sum)} for a sum score, or several functions for
-multiple decisions). Its length must match the length of \code{thres}.}
+responses (e.g., \code{list(sum)} for a sum score over all items, or several functions
+for multiple decisions).}
 
 \item{thres}{Numeric vector of thresholds applied to the scores computed by
 \code{funOfItems} to define binary decisions (one threshold per score
-function).}
+function). The length of \code{thres} must match the length of \code{funOfItems}.}
 
 \item{givenVar}{Optional character vector with the names of items that are
 treated as "selected" (fixed) and whose observed values in \code{dataSub}
@@ -50,32 +49,34 @@ predictor variables without conditioning on specific items.}
 \item{nSimTheta}{Number of latent variable draws used internally in
 \code{\link{predJointDistRespIrt}}.}
 
-\item{nSimItem}{Number of response patterns simulated per latent draw in
-\code{\link{predJointDistRespIrt}}.}
+\item{nSimItem}{Number of response patterns simulated per latent draw used internally
+in \code{\link{predJointDistRespIrt}}.}
 
-\item{seed}{Integer seed used to make the simulation reproducible.}
+\item{seed}{Integer seed used to make the sequential selection procedure and
+simulations reproducible.}
 }
 \value{
 A list with components:
 \describe{
   \item{\code{pred}}{One-row data frame with predicted means
     (\code{predMean_}), probabilities \code{P(score >= thres)}
-    (\code{prob_}), true score values computed from all items
-    (\code{trueMean_}), true decisions (\code{diag_}), number of selected
-    items (\code{nItems}), selected item combination (\code{combItems}),
-    and the run time in seconds (\code{runTime}).}
-  \item{\code{distFun}}{Predicted distribution of the scores (computed with
-    \code{funOfItems}) and decisions (based on \code{thres}).}
-  \item{\code{chosen}}{Character vector with the names of the fixed
-    selected items (i.e. \code{givenVar}).}
-  \item{\code{distItems}}{Joint distribution of the not considered items.}
-  \item{\code{distTheta}}{Approximation of the latent variable distribution
-    based on the known item responses.}
+    (\code{prob_}), true score values (\code{trueMean_}), true decisions
+    (\code{diag_}), number of selected items (\code{nItems}), selected item
+    combination (\code{combItems}), total run time in seconds (\code{runTime})
+    and run time per selected item (\code{runTimePerItem}).}
+  \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
+  and decisions (based on  \code{thres}).}
+  \item{\code{chosen}}{Character vector with the names of the selected items
+    in the order in which they were chosen.}
+  \item{\code{distItems}}{Joint distribution of the not chosen items at the
+    end of the procedure.}
+  \item{\code{distItems}}{Joint distribution of the not-selected items at
+    the end of the procedure.}
 }
 }
 \description{
 \code{fixSelectionIrt()} performs probabilistic predictions for a fixed set
-of selected items based on an Item Response Theory (IRT) model fitted with \code{\link{fitIrt}} and
+of selected items based on a Multidimensional Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}} and
 probabilistic predictions from \code{\link{predJointDistRespIrt}}. In
 contrast to \code{\link{dedaptiveIrt}}, no adaptive selection is performed:
 a pre-specified set of items (\code{givenVar}) is used.

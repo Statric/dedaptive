@@ -2,11 +2,12 @@
 % Please edit documentation in R/plotScoresItemSelection.R
 \name{plotScoresItemSelection}
 \alias{plotScoresItemSelection}
-\title{Plot joint and marginal distributions of scores based on predictions of a subset of items}
+\title{Plot joint and marginal distributions of scores based on predictions of a subset of items
+and a fitted Multidimensional Item Response Theory Model}
 \usage{
 plotScoresItemSelection(
   result,
-  whichScores = c(1L, 2L),
+  whichScores = c(1, 2),
   scoreNames = NULL,
   main = "Joint distribution of scores",
   xlab = NULL,
@@ -18,7 +19,7 @@ plotScoresItemSelection(
   thresholdLwd = 2,
   probTextCol = "blue",
   probTextCex = 0.8,
-  legendN = 40L,
+  legendN = 40,
   legendXleftRel = 0.72,
   legendXrightRel = 0.78,
   legendYbottomRel = 0.15,
@@ -44,7 +45,7 @@ the two scores (x- and y-axes). If \code{NULL}, default labels of the form
 \item{xlab, ylab}{Axis labels for the joint scatter plot. If \code{NULL},
 they default to the corresponding \code{scoreNames}.}
 
-\item{pointCexBase}{Base point size in the joint plot (scaled further by
+\item{pointCexBase}{Base point size in the plot of the joint distribution (scaled further by
 relative frequency).}
 
 \item{paletteColors}{Character vector passed to \code{grDevices::colorRampPalette}
@@ -72,8 +73,8 @@ color bar inside the joint panel (0 = bottom, 1 = top).}
 for the min/max labels to the right of the color bar.}
 }
 \value{
-Produces a plot of the joint and marginal distributions of scores. It invisibly returns a list
-containing the marginals and probabilities for the selected scores.
+Produces a plot of the joint and marginal distributions of two scores.
+It invisibly returns a list containing the marginals and probabilities for the selected scores.
 }
 \description{
 Creates a color-coded scatter plot (joint distribution) of two scores
@@ -82,8 +83,9 @@ above and to the right. Thresholds are indicated by reference lines and
 the probabilities are shown as well.
 
 The function assumes that \code{result} comes from \code{\link{dedaptiveIrt}}
-or \code{\link{fixSelectionIrt}} and contains elements \code{distFun} and
+or \code{\link{fixSelectionIrt}} (based on a fitted Multidimensional Item Response
+Theory model) and contains elements \code{distFun} and
 \code{thres}. Via the argument \code{whichScores}, you can choose which two score
-functions (and corresponding decisions/thresholds) to visualize; by default,
+functions (and corresponding decisions/thresholds) to visualize. By default,
 the first two scores are used.
 }

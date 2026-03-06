@@ -2,12 +2,12 @@
 % Please edit documentation in R/simResponsesIrt.R
 \name{simResponsesIrt}
 \alias{simResponsesIrt}
-\title{Simulate item responses from a fitted Item Response Theory model}
+\title{Simulate item responses from a fitted Multidimensional Item Response Theory model}
 \usage{
 simResponsesIrt(model, dataPred = NULL, nSim = NULL, seed = 1)
 }
 \arguments{
-\item{model}{IRT model fitted with \code{\link{fitIrt}}.}
+\item{model}{MIRT model fitted with \code{\link{fitIrt}}.}
 
 \item{dataPred}{Optional data frame with predictors for latent regression.}
 
@@ -20,12 +20,12 @@ simResponsesIrt(model, dataPred = NULL, nSim = NULL, seed = 1)
 A data frame with predictors and simulated responses.
 }
 \description{
-\code{simResponsesIrt()} simulates item response patterns from an Item Response
- Theory (IRT) model fitted with \code{\link{fitIrt}}, using the probabilistic
- machinery of \code{\link{predJointDistRespIrt}}.
+\code{simResponsesIrt()} simulates item response patterns from a Multidimensional
+Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}, using the
+probabilistic machinery of \code{\link{predJointDistRespIrt}}.
 }
 \details{
-If the IRT model includes a latent regression (\code{model$formula} not \code{NULL}),
+If the MIRT model includes a latent regression (\code{model$formula} not \code{NULL}),
 \code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}.
 For each row in \code{dataPred}, one response pattern is simulated.
 

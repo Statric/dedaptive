@@ -8,9 +8,9 @@ predFromJoint(jointDistFun, thres)
 }
 \arguments{
 \item{jointDistFun}{Joint distribution of item responses patterns
-that also contains the scores as columns}
+that also contains the scores as columns.}
 
-\item{thres}{thresholds for decisions based on the scores}
+\item{thres}{thresholds for decisions based on the scores.}
 }
 \value{
 table of predictions based on the joint distribution

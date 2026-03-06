@@ -2,7 +2,7 @@
 % Please edit documentation in R/dedaptiveIrt.R
 \name{dedaptiveIrt}
 \alias{dedaptiveIrt}
-\title{DEcision-oriented aDAPTIVE (dedaptive) testing based on an Item Response Theory model}
+\title{DEcision-oriented aDAPTIVE (dedaptive) testing based on a Multidimensional Item Response Theory model}
 \usage{
 dedaptiveIrt(
   model = NULL,
@@ -12,14 +12,14 @@ dedaptiveIrt(
   thres,
   costs,
   itemsExclude = NULL,
-  nSimTheta = 500,
-  nSimItem = 2,
+  nSimTheta = 1000,
+  nSimItem = 10,
   seed = 131820,
   saveSteps = FALSE
 )
 }
 \arguments{
-\item{model}{IRT model object fitted with \code{\link{fitIrt}}.}
+\item{model}{MIRT model object fitted with \code{\link{fitIrt}}.}
 
 \item{predJointSub}{Optional object containing the predicted distribution of
 response patterns for the current person, as returned
@@ -28,7 +28,7 @@ is computed inside the function before any item is selected.}
 
 \item{dataSub}{One-row data frame for the current person containing item
 responses and, if applicable, predictor variables used in the latent
-regression of the IRT model.}
+regression of the MIRT model.}
 
 \item{funOfItems}{List of functions used to compute score(s) from the item
 responses (e.g., \code{list(sum)} for a sum score over all items, or several functions
@@ -36,7 +36,7 @@ for multiple decisions).}
 
 \item{thres}{Numeric vector of thresholds applied to the scores computed by
 \code{funOfItems} to define binary decisions (one threshold per score
-function).}
+function). The length of \code{thres} must match the length of \code{funOfItems}.}
 
 \item{costs}{List of length 3 with cost parameters:
 \itemize{
@@ -55,8 +55,8 @@ If \code{NULL} (default), all items are eligible for selection.}
 \item{nSimTheta}{Number of latent variable draws used internally in
 \code{\link{predJointDistRespIrt}}.}
 
-\item{nSimItem}{Number of response patterns simulated per latent draw in
-\code{\link{predJointDistRespIrt}}.}
+\item{nSimItem}{Number of response patterns simulated per latent draw used internally
+in \code{\link{predJointDistRespIrt}}.}
 
 \item{seed}{Integer seed used to make the sequential selection procedure and
 simulations reproducible.}
@@ -85,13 +85,12 @@ A list with components:
   \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
     intermediate results from each step of the sequential selection
     procedure is returned.}
-
 }
 }
 \description{
-\code{dedaptiveIrt()} performs decision-oriented adaptive testing based on
-an Item Response Theory (IRT) model fitted with \code{\link{fitIrt}} and
-probabilistic predictions from \code{\link{predJointDistRespIrt}}.
+\code{dedaptiveIrt()} performs DEcision-oriented aDAPTIVE (dedaptive) testing
+based on a Multidimensional Item Response Theory (MIRT) model fitted with
+\code{\link{fitIrt}} and probabilistic predictions from \code{\link{predJointDistRespIrt}}.
 For a given person, items are selected sequentially to minimize expected total
 costs of misclassification and measurement.
 }

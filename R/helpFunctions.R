@@ -1,17 +1,20 @@
 #' Cost-based binary classifier (helper function)
 #'
-#' @param prob Probability of higher class
+#' @param prob Probability of higher class.
 #' @param missCosts Vector of misclassification costs (costs for false positive,
-#' costs for false negative)
-#' @param class1 Name of lower class
-#' @param class2 name of higher class
+#' costs for false negative).
+#' @param class1 Name of lower class.
+#' @param class2 name of higher class.
 #'
 #' @return classifier
 #' @export
 #'
 #' @examples # no example, since it is only a helper function
 #'
-fcClassFct <- function(prob, missCosts, class1, class2) {
+fcClassFct <- function(prob,
+                       missCosts,
+                       class1,
+                       class2) {
   # Check format of missclassification costs
   if (length(missCosts) != 2) {
     stop("'missCosts' must be a numeric vector of length 2.")
@@ -34,16 +37,19 @@ fcClassFct <- function(prob, missCosts, class1, class2) {
 
 #' Compute conditional joint distribution (helper function)
 #'
-#' @param jointDist table of the joint distribution
-#' @param varName Name of variable we want to condition
-#' @param varValue Given value of \code{varName}
-#' @param nameFreq Name of column that contains the frequency
+#' @param jointDist table of the joint distribution.
+#' @param varName Name of variable we want to condition on.
+#' @param varValue Given value of \code{varName}.
+#' @param nameFreq Name of column that contains the frequency.
 #'
 #' @return conditional joint distribution
 #' @export
 #'
 #' @examples # no example, since it is only a helper function
-multiMultinomCondFromJoint <- function(jointDist, varName, varValue, nameFreq = "freq") {
+multiMultinomCondFromJoint <- function(jointDist,
+                                       varName,
+                                       varValue,
+                                       nameFreq = "freq") {
 
   # Checks
   if (!(varName %in% names(jointDist))) {
@@ -75,14 +81,15 @@ multiMultinomCondFromJoint <- function(jointDist, varName, varValue, nameFreq = 
 #' Predictions based on joint distribution of items and corresponding scores (helper function)
 #'
 #' @param jointDistFun Joint distribution of item responses patterns
-#' that also contains the scores as columns
-#' @param thres thresholds for decisions based on the scores
+#' that also contains the scores as columns.
+#' @param thres thresholds for decisions based on the scores.
 #'
 #' @return table of predictions based on the joint distribution
 #' @export
 #'
 #' @examples # no example, since it is only a helper function
-predFromJoint <- function(jointDistFun, thres) {
+predFromJoint <- function(jointDistFun,
+                          thres) {
   # Checks
   if (length(thres) == 0) {
     stop("'thres' must contain at least one threshold.")
@@ -131,16 +138,19 @@ predFromJoint <- function(jointDistFun, thres) {
 
 #' Cost-based classification for multiple binary decisions (helper function)
 #'
-#' @param probDiag Joint distribution of the decisions
-#' @param cFp Vector of costs of false positives (for every decision)
-#' @param cFn Vector of costs of false negatives (for every decision)
-#' @param probName Name of columns containing the probabilities
+#' @param probDiag Joint distribution of the decisions.
+#' @param cFp Vector of costs of false positives (for every decision).
+#' @param cFn Vector of costs of false negatives (for every decision).
+#' @param probName Name of the column containing the probabilities.
 #'
 #' @return classifications and expected costs of classifications
 #' @export
 #'
 #' @examples # no example, since it is only a helper function
-classMultBinDiag <- function(probDiag, cFp, cFn, probName = "freq") {
+classMultBinDiag <- function(probDiag,
+                             cFp,
+                             cFn,
+                             probName = "freq") {
   # Checks
   if (length(cFp) != length(cFn)) {
     stop("'cFp' and 'cFn' must have the same length.")

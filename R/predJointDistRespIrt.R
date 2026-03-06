@@ -1,26 +1,24 @@
-#' Probabilistic predictions of joint item responses from an IRT model
+#' Probabilistic predictions of joint item responses from an Item Response Theory model
 #'
 #' @description
 #' \code{predJointDistRespIrt()} performs probabilistic predictions of item
-#' responses based on a multidimensional Item Response Theory (IRT) model
-#' fitted with \code{\link{fitIrt}}. The method
-#' can incorporate predictors (via a latent regression, if specified) and
+#' responses based on a Multidimensional Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}.
+#' The method can incorporate predictors (via a latent regression, if specified) and
 #' optionally already observed responses for a subset of items.
 #'
-#' The predictions are obtained in four steps (see Wyss et al. (2026) for
-#' further details):
+#' The predictions are obtained in four steps:
 #' \enumerate{
 #'   \item Predict the distribution of the latent variables (possibly
 #'   conditional on predictors via the latent regression).
 #'   \item Draw samples of latent variables from this distribution.
 #'   \item For each sampled latent variable, simulate item response patterns
-#'   from the IRT model, assuming conditional independence of items given the
+#'   from the MIRT model, assuming local independence of items given the
 #'   latent variables.
 #'   \item Approximate the joint distribution of item responses
 #'   based on the simulated response patterns.
 #' }
 #'
-#' @param model A multidimensional IRT model fitted with \code{\link{fitIrt}}.
+#' @param model A MIRT model fitted with \code{\link{fitIrt}}.
 #' This object contains the fitted \code{\link[mirt]{mirt}} model and meta-data (item names, response
 #' labels, latent regression formula).
 #' @param dataSub One-row data frame with the predictor variables of one
@@ -39,7 +37,7 @@
 #' the latent variables from a previous step (typically the
 #'   \code{postDistTheta} element from an earlier call to
 #'   \code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
-#'   distribution of the latent variables implied by the IRT model (and latent
+#'   distribution of the latent variables implied by the MIRT model (and latent
 #'   regression, if specified) is used.
 #'
 #' @return A list with components:
@@ -47,19 +45,18 @@
 #'   \item{\code{postDistTheta}}{If \code{givenVal} is not \code{NULL}, a list
 #'     with components \code{dist} (matrix containing grid points of the latent
 #'     variables and their posterior probabilities) and \code{givenVal} (all
-#'     item responses that have been conditioned on so far).}
+#'     item responses that have been conditioned on).}
 #'   \item{\code{sim}}{Data frame containing all simulated response patterns
-#'     generated from the IRT model given the simulated latent variables.}
+#'     generated from the MIRT model given the simulated latent variables.}
 #'   \item{\code{jointDist}}{Data frame containing the approximated joint
 #'     distribution of item responses. Each row corresponds to a distinct
 #'     response pattern; the last column \code{freq} contains its relative
-#'     frequency (probability).}
+#'     frequency (approximated probability).}
 #' }
 #'
 #' @import mirt
 #' @export
-#'
-#' @references Follow
+
 predJointDistRespIrt <- function(model,
                                  dataSub,
                                  nSimTheta = 1000,
@@ -101,7 +98,7 @@ predJointDistRespIrt <- function(model,
   # Initialize output list
   outList <- list()
 
-  # (1) Prior distribution of latent variables
+  # (2) Prior distribution of latent variables
 
   if (is.null(givenVal) || is.null(priorGrid)) {
 
@@ -133,8 +130,8 @@ predJointDistRespIrt <- function(model,
     }
   }
 
-  # (2) Simulate latent variables
-  ## (2a) Simulate from prior
+  # (3) Simulate latent variables
+  ## (3a) Simulate from prior
   if (is.null(givenVal)) {
 
     if (length(thetaMeanPrior) <= 1) {
@@ -161,7 +158,7 @@ predJointDistRespIrt <- function(model,
 
   } else {
 
-    ## (2b) Known responses: approximate posterior of latent variables on a grid
+    ## (3b) Known responses: approximate posterior of latent variables on a grid
     # matrix with given response pattern (NA for unknown items)
     givenRespPattern <- matrix(NA, ncol = length(items), nrow = 1)
     colnames(givenRespPattern) <- items
@@ -263,7 +260,7 @@ predJointDistRespIrt <- function(model,
     }
   }
 
-  # (3) Simulate response values
+  # (4) Simulate response values
 
   # matrix with repeated theta values
   if (is.vector(thetaSim)) {
@@ -298,7 +295,7 @@ predJointDistRespIrt <- function(model,
     }
   }
 
-  # (4) Approximate joint distribution of response combinations
+  # (5) Approximate joint distribution of response combinations
 
   respComb  <- as.data.frame(respSim)
   freqTable <- plyr::count(respComb)

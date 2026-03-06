@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitIrt.R
 \name{fitIrt}
 \alias{fitIrt}
-\title{Fit multidimensional graded Item Response Theory (IRT) models for the use with \code{dedaptive}}
+\title{Fit multidimensional graded Item Response Theory models for the use with \code{dedaptive}}
 \usage{
 fitIrt(items, formula = NULL, data, ...)
 }
@@ -42,9 +42,9 @@ A list with the following elements:
 }
 }
 \description{
-The function \code{fitIrt()} fits multidimensional graded IRT models and
-returns a model object that can be used for predictions and item selection
-within the \code{dedaptive} library.
+The function \code{fitIrt()} fits Multidimensional Item Response Theory (MIRT)
+models for graded (ordinal) responses and returns a model object that can be used
+for predictions and item selection within the \code{dedaptive} library.
 
 Technically, \code{fitIrt()} is a wrapper around \code{\link[mirt]{mirt}}:
 it prepares the data, sets up an optional latent regression, and stores some

@@ -7,14 +7,14 @@
 fcClassFct(prob, missCosts, class1, class2)
 }
 \arguments{
-\item{prob}{Probability of higher class}
+\item{prob}{Probability of higher class.}
 
 \item{missCosts}{Vector of misclassification costs (costs for false positive,
-costs for false negative)}
+costs for false negative).}
 
-\item{class1}{Name of lower class}
+\item{class1}{Name of lower class.}
 
-\item{class2}{name of higher class}
+\item{class2}{name of higher class.}
 }
 \value{
 classifier

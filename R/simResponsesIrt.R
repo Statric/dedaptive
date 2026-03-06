@@ -1,12 +1,12 @@
-#' Simulate item responses from a fitted Item Response Theory model
+#' Simulate item responses from a fitted Multidimensional Item Response Theory model
 #'
 #' @description
-#' \code{simResponsesIrt()} simulates item response patterns from an Item Response
-#'  Theory (IRT) model fitted with \code{\link{fitIrt}}, using the probabilistic
-#'  machinery of \code{\link{predJointDistRespIrt}}.
+#' \code{simResponsesIrt()} simulates item response patterns from a Multidimensional
+#' Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}, using the
+#' probabilistic machinery of \code{\link{predJointDistRespIrt}}.
 #'
 #' @details
-#' If the IRT model includes a latent regression (\code{model$formula} not \code{NULL}),
+#' If the MIRT model includes a latent regression (\code{model$formula} not \code{NULL}),
 #' \code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}.
 #' For each row in \code{dataPred}, one response pattern is simulated.
 #'
@@ -14,7 +14,7 @@
 #' \code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
 #' response patterns are simulated.
 #'
-#' @param model IRT model fitted with \code{\link{fitIrt}}.
+#' @param model MIRT model fitted with \code{\link{fitIrt}}.
 #' @param dataPred Optional data frame with predictors for latent regression.
 #' @param nSim Number of simulated response patterns when \code{dataPred} is
 #'   \code{NULL} and no regression is used.

@@ -1,4 +1,5 @@
 #' Plot joint and marginal distributions of scores based on predictions of a subset of items
+#' and a fitted Multidimensional Item Response Theory Model
 #'
 #' @description
 #' Creates a color-coded scatter plot (joint distribution) of two scores
@@ -7,9 +8,10 @@
 #' the probabilities are shown as well.
 #'
 #' The function assumes that \code{result} comes from \code{\link{dedaptiveIrt}}
-#' or \code{\link{fixSelectionIrt}} and contains elements \code{distFun} and
+#' or \code{\link{fixSelectionIrt}} (based on a fitted Multidimensional Item Response
+#' Theory model) and contains elements \code{distFun} and
 #' \code{thres}. Via the argument \code{whichScores}, you can choose which two score
-#' functions (and corresponding decisions/thresholds) to visualize; by default,
+#' functions (and corresponding decisions/thresholds) to visualize. By default,
 #' the first two scores are used.
 #'
 #' @param result List returned by \code{\link{dedaptiveIrt}} or
@@ -24,7 +26,7 @@
 #' @param main Main title for the joint scatter plot.
 #' @param xlab,ylab Axis labels for the joint scatter plot. If \code{NULL},
 #'   they default to the corresponding \code{scoreNames}.
-#' @param pointCexBase Base point size in the joint plot (scaled further by
+#' @param pointCexBase Base point size in the plot of the joint distribution (scaled further by
 #'   relative frequency).
 #' @param paletteColors Character vector passed to \code{grDevices::colorRampPalette}
 #'   to generate the color scale for points representing the joint distribution.
@@ -42,12 +44,12 @@
 #'   for the min/max labels to the right of the color bar.
 #'
 #' @return
-#' Produces a plot of the joint and marginal distributions of scores. It invisibly returns a list
-#' containing the marginals and probabilities for the selected scores.
+#' Produces a plot of the joint and marginal distributions of two scores.
+#' It invisibly returns a list containing the marginals and probabilities for the selected scores.
 #' @importFrom graphics layout par abline text rect segments axis
 #' @export
 plotScoresItemSelection <- function(result,
-                                    whichScores  = c(1L, 2L),
+                                    whichScores  = c(1, 2),
                                     scoreNames   = NULL,
                                     main         = "Joint distribution of scores",
                                     xlab = NULL,
@@ -59,7 +61,7 @@ plotScoresItemSelection <- function(result,
                                     thresholdLwd  = 2,
                                     probTextCol   = "blue",
                                     probTextCex   = 0.8,
-                                    legendN       = 40L,
+                                    legendN       = 40,
                                     legendXleftRel   = 0.72,
                                     legendXrightRel  = 0.78,
                                     legendYbottomRel = 0.15,

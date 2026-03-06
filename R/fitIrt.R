@@ -1,10 +1,10 @@
 
-#' Fit multidimensional graded Item Response Theory (IRT) models for the use with \code{dedaptive}
+#' Fit multidimensional graded Item Response Theory models for the use with \code{dedaptive}
 #'
 #' @description
-#' The function \code{fitIrt()} fits multidimensional graded IRT models and
-#' returns a model object that can be used for predictions and item selection
-#' within the \code{dedaptive} library.
+#' The function \code{fitIrt()} fits Multidimensional Item Response Theory (MIRT)
+#' models for graded (ordinal) responses and returns a model object that can be used
+#' for predictions and item selection within the \code{dedaptive} library.
 #'
 #' Technically, \code{fitIrt()} is a wrapper around \code{\link[mirt]{mirt}}:
 #' it prepares the data, sets up an optional latent regression, and stores some
@@ -74,7 +74,7 @@ fitIrt <- function(items,
                    data,
                    ...) {
 
-  # (0) Preparation
+  # (1) Preparation
   # Checks
 
   ## Items
@@ -101,7 +101,7 @@ fitIrt <- function(items,
   modelOut$items <- items
   modelOut$formula  <- formula   # original input (string or formula or NULL)
 
-  # (1) Labels of item categories
+  # Labels of item categories
   varLabels <- lapply(
     data[, items, drop = FALSE],
     function(x) sort(unique(x[!is.na(x)]))
@@ -133,7 +133,7 @@ fitIrt <- function(items,
     dataReg <- data[, varReg, drop = FALSE]
   }
 
-  # (3) Fit IRT model
+  # (3) Fit MIRT model
   modelOut$fit <- mirt::mirt(
     data    = data[, items, drop = FALSE],
     formula = covFormula,

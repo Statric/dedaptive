@@ -2,7 +2,7 @@
 % Please edit documentation in R/predJointDistRespIrt.R
 \name{predJointDistRespIrt}
 \alias{predJointDistRespIrt}
-\title{Probabilistic predictions of joint item responses from an IRT model}
+\title{Probabilistic predictions of joint item responses from an Item Response Theory model}
 \usage{
 predJointDistRespIrt(
   model,
@@ -15,7 +15,7 @@ predJointDistRespIrt(
 )
 }
 \arguments{
-\item{model}{A multidimensional IRT model fitted with \code{\link{fitIrt}}.
+\item{model}{A MIRT model fitted with \code{\link{fitIrt}}.
 This object contains the fitted \code{\link[mirt]{mirt}} model and meta-data (item names, response
 labels, latent regression formula).}
 
@@ -40,7 +40,7 @@ variables is predicted.}
 the latent variables from a previous step (typically the
   \code{postDistTheta} element from an earlier call to
   \code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
-  distribution of the latent variables implied by the IRT model (and latent
+  distribution of the latent variables implied by the MIRT model (and latent
   regression, if specified) is used.}
 }
 \value{
@@ -49,35 +49,30 @@ A list with components:
   \item{\code{postDistTheta}}{If \code{givenVal} is not \code{NULL}, a list
     with components \code{dist} (matrix containing grid points of the latent
     variables and their posterior probabilities) and \code{givenVal} (all
-    item responses that have been conditioned on so far).}
+    item responses that have been conditioned on).}
   \item{\code{sim}}{Data frame containing all simulated response patterns
-    generated from the IRT model given the simulated latent variables.}
+    generated from the MIRT model given the simulated latent variables.}
   \item{\code{jointDist}}{Data frame containing the approximated joint
     distribution of item responses. Each row corresponds to a distinct
     response pattern; the last column \code{freq} contains its relative
-    frequency (probability).}
+    frequency (approximated probability).}
 }
 }
 \description{
 \code{predJointDistRespIrt()} performs probabilistic predictions of item
-responses based on a multidimensional Item Response Theory (IRT) model
-fitted with \code{\link{fitIrt}}. The method
-can incorporate predictors (via a latent regression, if specified) and
+responses based on a Multidimensional Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}.
+The method can incorporate predictors (via a latent regression, if specified) and
 optionally already observed responses for a subset of items.
 
-The predictions are obtained in four steps (see Wyss et al. (2026) for
-further details):
+The predictions are obtained in four steps:
 \enumerate{
   \item Predict the distribution of the latent variables (possibly
   conditional on predictors via the latent regression).
   \item Draw samples of latent variables from this distribution.
   \item For each sampled latent variable, simulate item response patterns
-  from the IRT model, assuming conditional independence of items given the
+  from the MIRT model, assuming local independence of items given the
   latent variables.
   \item Approximate the joint distribution of item responses
   based on the simulated response patterns.
 }
-}
-\references{
-Follow
 }

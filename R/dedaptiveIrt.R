@@ -1,9 +1,9 @@
-#' DEcision-oriented aDAPTIVE (dedaptive) testing based on an Item Response Theory model
+#' DEcision-oriented aDAPTIVE (dedaptive) testing based on a Multidimensional Item Response Theory model
 #'
 #' @description
-#' \code{dedaptiveIrt()} performs decision-oriented adaptive testing based on
-#' an Item Response Theory (IRT) model fitted with \code{\link{fitIrt}} and
-#' probabilistic predictions from \code{\link{predJointDistRespIrt}}.
+#' \code{dedaptiveIrt()} performs DEcision-oriented aDAPTIVE (dedaptive) testing
+#' based on a Multidimensional Item Response Theory (MIRT) model fitted with
+#' \code{\link{fitIrt}} and probabilistic predictions from \code{\link{predJointDistRespIrt}}.
 #' For a given person, items are selected sequentially to minimize expected total
 #' costs of misclassification and measurement.
 #'
@@ -20,20 +20,20 @@
 #' (one score/decision per entry). \code{costs[[3]]} is a single scalar
 #' specifying the per-item measurement cost.
 #'
-#' @param model IRT model object fitted with \code{\link{fitIrt}}.
+#' @param model MIRT model object fitted with \code{\link{fitIrt}}.
 #' @param predJointSub Optional object containing the predicted distribution of
 #'   response patterns for the current person, as returned
 #'   by \code{\link{predJointDistRespIrt}}. If \code{NULL}, this distribution
 #'   is computed inside the function before any item is selected.
 #' @param dataSub One-row data frame for the current person containing item
 #'   responses and, if applicable, predictor variables used in the latent
-#'   regression of the IRT model.
+#'   regression of the MIRT model.
 #' @param funOfItems List of functions used to compute score(s) from the item
 #'   responses (e.g., \code{list(sum)} for a sum score over all items, or several functions
 #'   for multiple decisions).
 #' @param thres Numeric vector of thresholds applied to the scores computed by
 #'   \code{funOfItems} to define binary decisions (one threshold per score
-#'   function).
+#'   function). The length of \code{thres} must match the length of \code{funOfItems}.
 #' @param costs List of length 3 with cost parameters:
 #'   \itemize{
 #'     \item \code{costs[[1]]}: numeric vector of false positive costs, one per
@@ -48,8 +48,8 @@
 #'   If \code{NULL} (default), all items are eligible for selection.
 #' @param nSimTheta Number of latent variable draws used internally in
 #'   \code{\link{predJointDistRespIrt}}.
-#' @param nSimItem Number of response patterns simulated per latent draw in
-#'   \code{\link{predJointDistRespIrt}}.
+#' @param nSimItem Number of response patterns simulated per latent draw used internally
+#' in \code{\link{predJointDistRespIrt}}.
 #' @param seed Integer seed used to make the sequential selection procedure and
 #'   simulations reproducible.
 #' @param saveSteps Logical; if \code{TRUE}, the output from each step of
@@ -75,7 +75,6 @@
 #'   \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
 #'     intermediate results from each step of the sequential selection
 #'     procedure is returned.}
-#'
 #' }
 #'
 #' @import mirt
@@ -88,8 +87,8 @@ dedaptiveIrt <- function(model = NULL,
                          thres,
                          costs,
                          itemsExclude = NULL,
-                         nSimTheta = 500,
-                         nSimItem = 2,
+                         nSimTheta = 1000,
+                         nSimItem = 10,
                          seed = 131820,
                          saveSteps = FALSE) {
 
