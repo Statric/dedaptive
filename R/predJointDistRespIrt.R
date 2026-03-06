@@ -70,19 +70,19 @@ predJointDistRespIrt <- function(model,
 
   # (1) Preparation
   # Checks
-  if (!(is.list(model) || is.null(model$fit) || is.null(model$items))){
+  if (!is.list(model) || is.null(model$fit) || is.null(model$items)){
     stop("'model' must be an object returned by fitIrt().")
   }
 
-  if (!(is.data.frame(dataSub) || nrow(dataSub) != 1L)) {
+  if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
   }
 
-  if (!(is.numeric(nSimTheta) || length(nSimTheta) != 1L || nSimTheta < 1)) {
+  if (!is.numeric(nSimTheta) || length(nSimTheta) != 1L || nSimTheta < 1) {
     stop("'nSimTheta' must be a positive integer.")
   }
 
-  if (!(is.numeric(nSimItem) || length(nSimItem) != 1L || nSimItem < 1)) {
+  if (!is.numeric(nSimItem) || length(nSimItem) != 1L || nSimItem < 1) {
     stop("'nSimItem' must be a positive integer.")
   }
 

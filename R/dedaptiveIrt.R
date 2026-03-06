@@ -44,7 +44,7 @@
 #'   }
 #'   The lengths of \code{costs[[1]]} and \code{costs[[2]]} must match the
 #'   length of \code{funOfItems} respectively \code{thres}.
-#' @param itemsExclude Character vector of item names that can not be selected.
+#' @param itemsExclude Character vector of item names that cannot be selected.
 #'   If \code{NULL} (default), all items are eligible for selection.
 #' @param nSimTheta Number of latent variable draws used internally in
 #'   \code{\link{predJointDistRespIrt}}.
@@ -53,7 +53,7 @@
 #' @param seed Integer seed used to make the sequential selection procedure and
 #'   simulations reproducible.
 #' @param saveSteps Logical; if \code{TRUE}, the output from each step of
-#'   the sequential selection procedure  is saved. If \code{FALSE} (default),
+#'   the sequential selection procedure is saved. If \code{FALSE} (default),
 #'   only the final results are returned.
 #'
 #' @return A list with components:
@@ -70,9 +70,11 @@
 #'     in the order in which they were chosen.}
 #'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
 #'     end of the procedure.}
-#'   \item{\code{distTheta}}{Approximation of the latent variable distribution
-#'     after the last selected item.}
-#'   \item{\code{outSteps}}{...}
+#'   \item{\code{distItems}}{Joint distribution of the not-selected items at
+#'     the end of the procedure.}
+#'   \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
+#'     intermediate results from each step of the sequential selection
+#'     procedure is returned.}
 #'
 #' }
 #'
@@ -85,13 +87,38 @@ dedaptiveIrt <- function(model = NULL,
                          funOfItems = list(sum),
                          thres,
                          costs,
-                         itemsExclude=NULL,
+                         itemsExclude = NULL,
                          nSimTheta = 500,
                          nSimItem = 2,
                          seed = 131820,
-                         saveSteps =F) {
+                         saveSteps = FALSE) {
 
   # (1) Preparation
+  # Checks
+  if (!is.list(model) || is.null(model$items) || is.null(model$fit)) {
+    stop("'model' must be an object returned by fitIrt().")
+  }
+
+  if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
+    stop("'dataSub' must be a one-row data frame.")
+  }
+
+  if (!is.list(funOfItems) || length(funOfItems) == 0L) {
+    stop("'funOfItems' must be a non-empty list of functions.")
+  }
+
+  if (length(thres) != length(funOfItems)) {
+    stop("'thres' must have the same length as 'funOfItems'.")
+  }
+
+  if (!is.list(costs) || length(costs) != 3L) {
+    stop("'costs' must be a list of length 3.")
+  }
+
+  if (length(costs[[1]]) != length(funOfItems) ||
+      length(costs[[2]]) != length(funOfItems)) {
+    stop("Lengths of 'costs[[1]]' (false positives) and 'costs[[2]]' (false negatives) must match 'funOfItems'.")
+  }
 
   # Time stamp at the beginning of the procedure
   timeStamp1 <- Sys.time()
@@ -99,14 +126,13 @@ dedaptiveIrt <- function(model = NULL,
   # Extract information from the IRT model
   items <- model$items
 
-  if(is.null(itemsExclude) == FALSE) {
+  if(!is.null(itemsExclude)) {
     itemsAllowed<- setdiff(items, itemsExclude)
   } else {
     itemsAllowed<- items
   }
-  varLabels <- model$varLabels  # stored for potential future use
   nResp <- length(itemsAllowed)
-  startJoint<- is.null(predJointSub)==FALSE
+  startJoint <- !is.null(predJointSub)
 
   # Generate individual seeds
   set.seed(seed)
@@ -132,7 +158,7 @@ dedaptiveIrt <- function(model = NULL,
   predJointSub <- predJointSub$jointDist
 
   # Compute score functions and binary decisions for each simulated response pattern
-  for (f in 1:length(funOfItems)) {
+  for (f in seq_along(funOfItems)) {
     # Scores (functions of item responses)
     predJointSub[[paste0("fun_", f)]] <-
       apply(predJointSub[, items, drop = FALSE],
@@ -154,13 +180,12 @@ dedaptiveIrt <- function(model = NULL,
   itemsLeft <- itemsAllowed
   ## latent distribution from the last step
   distThetaPast <- NULL
-  ## counter for theoretically impossible combinations
-  nImpossibleComb <- 0
+
   ## output from every step
   if(saveSteps){outSteps<- list()}
 
   c <- 0
-  while (costRed & length(itemsLeft) > 0) {
+  while (costRed && length(itemsLeft) > 0) {
     c <- c + 1
 
     # (2) Expected costs given past measurements
@@ -169,7 +194,7 @@ dedaptiveIrt <- function(model = NULL,
     probDiagPast <- stats::aggregate(
       stats::as.formula(
         paste0("freq ~ ",
-               paste(paste("diag", 1:length(funOfItems), sep = "_"),
+               paste(paste("diag", seq_along(funOfItems), sep = "_"),
                      collapse = "+"))
       ),
       data = predJointSubTemp,
@@ -181,23 +206,31 @@ dedaptiveIrt <- function(model = NULL,
 
     # (3) Expected costs when adding each of the remaining items
 
-    if (length(itemsLeft) > 1) {
+    # Vector of expected total costs for each candidate item
+    expCostPros <- NULL
+    expCostProsPerLevel <- NULL
 
-      # Vector of expected total costs for each candidate item
-      expCostPros <- NULL
+    if (length(itemsLeft) > 1) {
+      expCostPros <- numeric(length(itemsLeft))
 
       if(saveSteps){
         expCostProsPerLevel<- list()
       }
-      for (m in itemsLeft) {
+
+      for (iItem in seq_along(itemsLeft)) {
+        m <- itemsLeft[iItem]
 
         # Extract possible response levels for item m
-        levelM <- sort(unique(predJointSub[[m]]))
+        levelM <- sort(unique(predJointSubTemp[[m]]))
 
-        expCostM <- NULL  # expected costs conditional on each level of item m
-        probM <- NULL  # probabilities P(Y_m = l)
+        # expected costs conditional on each level of item m
+        expCostM <- numeric(length(levelM))
 
-        for (l in levelM) {
+        # probabilities P(Y_m = l)
+        probM <- numeric(length(levelM))
+
+        for (iLevel in seq_along(levelM)) {
+          l <- levelM[iLevel]
 
           # Probability P(Y_m = l) under the current joint distribution
           probMl <- sum(predJointSubTemp$freq[predJointSubTemp[[m]] == l])
@@ -213,7 +246,7 @@ dedaptiveIrt <- function(model = NULL,
             probDiagMl <- stats::aggregate(
               stats::as.formula(
                 paste0("freq ~ ",
-                       paste(paste("diag", 1:length(funOfItems), sep = "_"),
+                       paste(paste("diag", seq_along(funOfItems), sep = "_"),
                              collapse = "+"))
               ),
               data = jointMlCond,
@@ -228,8 +261,8 @@ dedaptiveIrt <- function(model = NULL,
             expCostsMl <- 0
           }
           # Add P(Ym=l) to vector
-          probM <- c(probM,    probMl)
-          expCostM <- c(expCostM, expCostsMl)
+          probM[iLevel] <- probMl
+          expCostM[iLevel] <- expCostsMl
         }
 
         # Table with probabilities and expected costs for item m
@@ -241,7 +274,7 @@ dedaptiveIrt <- function(model = NULL,
 
         # Expected total cost when measuring item m (including measurement cost)
         exCostsM <- sum(costTabM[, 1] * costTabM[, 2]) + cM
-        expCostPros <- c(expCostPros, exCostsM)
+        expCostPros[iItem] <- exCostsM
       }
 
       names(expCostPros) <- itemsLeft
@@ -305,7 +338,7 @@ dedaptiveIrt <- function(model = NULL,
       predJointSubTemp <- predJointSubTemp$jointDist
 
       # Recompute scores and diagnoses for the remaining items
-      for (f in 1:length(funOfItems)) {
+      for (f in 1:seq_along(funOfItems)) {
         predJointSubTemp[[paste0("fun_", f)]] <-
           apply(predJointSubTemp[, items,
                                  drop = FALSE],
@@ -332,21 +365,21 @@ dedaptiveIrt <- function(model = NULL,
     # In case all items are selected, we prepare to fill in the true values
     distFun <- matrix(NA, nrow = 1, ncol = length(funOfItems) + 1)
     distFun <- data.frame(distFun)
-    colnames(distFun) <- c(paste("fun", 1:length(funOfItems), sep = "_"), "freq")
+    colnames(distFun) <- c(paste("fun", seq_along(funOfItems), sep = "_"), "freq")
     distFun$freq <- 1
 
     dataPred <- matrix(NA, nrow = 1, ncol = length(funOfItems) * 2)
     dataPred <- data.frame(dataPred)
     colnames(dataPred) <- c(
-      paste("predMean", 1:length(funOfItems), sep = "_"),
-      paste("prob",     1:length(funOfItems), sep = "_")
+      paste("predMean", seq_along(funOfItems), sep = "_"),
+      paste("prob", seq_along(funOfItems), sep = "_")
     )
 
     out <- list(distFun = distFun, pred = dataPred)
   }
 
   # Compute true score values and decisions based on all item responses
-  for (f in 1:length(funOfItems)) {
+  for (f in seq_along(funOfItems)) {
     out$pred[[paste0("trueMean_", f)]] <-
       funOfItems[[f]](dataSub[, items])
 
@@ -377,7 +410,9 @@ dedaptiveIrt <- function(model = NULL,
   denomRunTime<- out$pred$nItems + 1 - startJoint
   if(length(itemsChosen) >= length(itemsAllowed)) {denomRunTime<- denomRunTime - 1}
   out$pred$runTimePerItem <- out$pred$runTime / denomRunTime
-
+  if(length(itemsChosen) <= 0) {
+    out$pred$runTimePerItem<- out$pred$runTime
+  }
   # Add joint distribution of not chosen items and latent distribution
   out$distItems <- predJointSubTemp
   out$distTheta <- distThetaPast

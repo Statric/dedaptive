@@ -15,7 +15,7 @@ dedaptiveIrt(
   nSimTheta = 500,
   nSimItem = 2,
   seed = 131820,
-  saveSteps = F
+  saveSteps = FALSE
 )
 }
 \arguments{
@@ -49,7 +49,7 @@ function).}
 The lengths of \code{costs[[1]]} and \code{costs[[2]]} must match the
 length of \code{funOfItems} respectively \code{thres}.}
 
-\item{itemsExclude}{Character vector of item names that can not be selected.
+\item{itemsExclude}{Character vector of item names that cannot be selected.
 If \code{NULL} (default), all items are eligible for selection.}
 
 \item{nSimTheta}{Number of latent variable draws used internally in
@@ -62,7 +62,7 @@ If \code{NULL} (default), all items are eligible for selection.}
 simulations reproducible.}
 
 \item{saveSteps}{Logical; if \code{TRUE}, the output from each step of
-the sequential selection procedure  is saved. If \code{FALSE} (default),
+the sequential selection procedure is saved. If \code{FALSE} (default),
 only the final results are returned.}
 }
 \value{
@@ -80,9 +80,11 @@ A list with components:
     in the order in which they were chosen.}
   \item{\code{distItems}}{Joint distribution of the not chosen items at the
     end of the procedure.}
-  \item{\code{distTheta}}{Approximation of the latent variable distribution
-    after the last selected item.}
-  \item{\code{outSteps}}{...}
+  \item{\code{distItems}}{Joint distribution of the not-selected items at
+    the end of the procedure.}
+  \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
+    intermediate results from each step of the sequential selection
+    procedure is returned.}
 
 }
 }

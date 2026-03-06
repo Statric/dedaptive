@@ -69,7 +69,6 @@
 #' @importFrom stats as.formula
 #' @export
 
-
 fitIrt <- function(items,
                    formula = NULL,
                    data,
