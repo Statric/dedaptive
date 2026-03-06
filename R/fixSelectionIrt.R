@@ -50,8 +50,8 @@
 #'     (\code{trueMean_}), true decisions (\code{diag_}), number of selected
 #'     items (\code{nItems}), selected item combination (\code{combItems}),
 #'     and the run time in seconds (\code{runTime}).}
-#'   \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
-#'   and decisions (based on  \code{thres}).}
+#'   \item{\code{distFun}}{Predicted distribution of the scores (computed with
+#'     \code{funOfItems}) and decisions (based on \code{thres}).}
 #'   \item{\code{chosen}}{Character vector with the names of the fixed
 #'     selected items (i.e. \code{givenVar}).}
 #'   \item{\code{distItems}}{Joint distribution of the not considered items.}
@@ -65,7 +65,7 @@ fixSelectionIrt <- function(model,
                             predJointSub = NULL,
                             predJointSubCond = NULL,
                             dataSub,
-                            funOfItems = sum,
+                            funOfItems = list(sum),
                             thres,
                             givenVar = NULL,
                             nSimTheta = 500,
@@ -73,6 +73,26 @@ fixSelectionIrt <- function(model,
                             seed = 131820) {
 
   # (1) Preparation
+  # Checks
+  if (!is.list(model) || is.null(model$items) || is.null(model$fit)) {
+    stop("'model' must be an object returned by fitIrt().")
+  }
+
+  if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
+    stop("'dataSub' must be a one-row data frame.")
+  }
+
+  if (!is.list(funOfItems) || length(funOfItems) == 0L) {
+    stop("'funOfItems' must be a non-empty list of functions.")
+  }
+
+  if (length(thres) != length(funOfItems)) {
+    stop("'thres' must have the same length as 'funOfItems'.")
+  }
+
+  if (!is.null(givenVar) && !all(givenVar %in% items)) {
+    stop("All elements of 'givenVar' must be item names in 'model$items'.")
+  }
 
   # Time stamp at the beginning
   timeStamp1 <- Sys.time()
@@ -108,7 +128,7 @@ fixSelectionIrt <- function(model,
       # Use provided joint distribution before conditioning on givenVar
       predJointDistSub <- predJointSub$jointDist
 
-      if (!is.null(givenVar) & length(givenVar) > 0) {
+      if (!is.null(givenVar) && length(givenVar) > 0) {
 
         # Sequentially condition the joint distribution on all givenVar values
         for (i in seq_along(givenVal)) {
@@ -134,7 +154,7 @@ fixSelectionIrt <- function(model,
 
   # (3) Apply score functions and thresholds
 
-  for (f in 1:length(funOfItems)) {
+  for (f in seq_along(funOfItems)) {
     # Scores (functions of item responses)
     predJointDistSub[[paste0("fun_", f)]] <-
       apply(predJointDistSub[, items, drop = FALSE],
@@ -152,7 +172,7 @@ fixSelectionIrt <- function(model,
   out <- predFromJoint(predJointDistSub, thres)
 
   # True values and decisions based on all items
-  for (f in 1:length(funOfItems)) {
+  for (f in seq_along(funOfItems)) {
     # True score computed from all responses in dataSub
     out$pred[[paste0("trueMean_", f)]] <-
       funOfItems[[f]](dataSub[, items])
@@ -168,7 +188,6 @@ fixSelectionIrt <- function(model,
   } else {
     out$pred$nItems <-length(givenVar)
   }
-  out$pred$nItems <- if (is.null(givenVar)) 0L else length(givenVar)
 
   if (is.null(givenVar)) {
     out$chosen            <- ""
@@ -186,8 +205,13 @@ fixSelectionIrt <- function(model,
   out$pred$runTimePerItem <-  out$pred$runTime
 
   # Add joint distribution of not chosen items and latent variables
-  out$distItems <- predJointSub$jointDist
-  out$distTheta <- predJointSub$postDistTheta
+  out$distItems <- predJointDistSub
+
+  if (!is.null(predJointSubCond)) {
+    out$distTheta <- predJointSubCond$postDistTheta
+  } else {
+    out$distTheta <- predJointSub$postDistTheta
+  }
 
   # Add the score functions and thresholds
   out$funOfItems<- funOfItems

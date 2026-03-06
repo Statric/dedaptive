@@ -9,7 +9,7 @@ fixSelectionIrt(
   predJointSub = NULL,
   predJointSubCond = NULL,
   dataSub,
-  funOfItems = sum,
+  funOfItems = list(sum),
   thres,
   givenVar = NULL,
   nSimTheta = 500,
@@ -64,8 +64,8 @@ A list with components:
     (\code{trueMean_}), true decisions (\code{diag_}), number of selected
     items (\code{nItems}), selected item combination (\code{combItems}),
     and the run time in seconds (\code{runTime}).}
-  \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
-  and decisions (based on  \code{thres}).}
+  \item{\code{distFun}}{Predicted distribution of the scores (computed with
+    \code{funOfItems}) and decisions (based on \code{thres}).}
   \item{\code{chosen}}{Character vector with the names of the fixed
     selected items (i.e. \code{givenVar}).}
   \item{\code{distItems}}{Joint distribution of the not considered items.}
