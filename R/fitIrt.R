@@ -6,25 +6,17 @@
 #' returns a model object that can be used for predictions and item selection
 #' within the \code{dedaptive} library.
 #'
-#' Technically, \code{fitIrt()} is a thin wrapper around :
+#' Technically, \code{fitIrt()} is a wrapper around \code{\link[mirt]{mirt}}:
 #' it prepares the data, sets up an optional latent regression, and stores some
-#' additional information (e.g., item labels) needed later by \code{dedaptive}.
+#' additional information (e.g., item labels) needed later by functions from \code{dedaptive}.
 #' If you plan to use an IRT model with \code{dedaptive}, you must always fit
 #' it via \code{fitIrt()} rather than calling \code{\link[mirt]{mirt}} directly.
 #'
 #' @details
 #' The function expects a set of item responses and, optionally, predictors for a
 #' latent regression (e.g., age, sex). The names of the item columns are given
-#' in \code{items}, and the predictors are specified via \code{formula}.
-#'
-#' The argument \code{formula} can be supplied either as
-#' \itemize{
-#'   \item a **character string** containing only the right-hand side (RHS) of a
-#'     regression formula (e.g., \code{"age + sex"}), or
-#'   \item a **one-sided formula** (e.g., \code{~ age + sex}).
-#' }
-#' All predictor variables referenced in
-#' \code{formula} must be available as columns in \code{data}.
+#' in \code{items}, and the predictors are specified via \code{formula}. All
+#' predictor variables referenced in \code{formula} must be available as columns in \code{data}.
 #'
 #' Via the argument \code{model}, we can specify the latent structure, e.g., the
 #' number of latent variables, which items load on which latent variables, and
@@ -35,7 +27,7 @@
 #'
 #' Currently, the IRT model is estimated using the Expectation-Maximization (EM) algorithm as implemented
 #' in \code{\link[mirt]{mirt}} (i.e., \code{method = "EM"} in the underlying call to
-#' \code{\link[mirt]{mirt}}. In future versions, additional estimation methods
+#' \code{\link[mirt]{mirt}}). In future versions, additional estimation methods
 #' supported by \code{\link[mirt]{mirt}} may be incorporated in \code{fitIrt()}.
 #'
 #' @param items Character vector with the names of the columns in \code{data} containing
@@ -61,7 +53,7 @@
 #' A list with the following elements:
 #' \describe{
 #'   \item{\code{items}}{Meta-data (character vector with the item names used in the model).}
-#'   \item{\code{formula}}{Meta-data (The original \code{formula} argument as supplied by the user.}
+#'   \item{\code{formula}}{Meta-data (the original \code{formula} argument as supplied by the user).}
 #'   \item{\code{varLabels}}{List of length \code{length(items)}, where each
 #'     element contains the sorted unique response categories for the corresponding item.}
 #'   \item{\code{fit}}{The fitted \code{\link[mirt]{mirt}} model object returned by
@@ -72,7 +64,6 @@
 #' @examples
 #' \dontrun{
 #' # Will follow
-#' )
 #' }
 #' @import mirt
 #' @export
@@ -80,18 +71,41 @@
 
 fitIrt <- function(items, formula = NULL, data, ...) {
 
+  # (0) Set-up
+  # Checks
+
+  ## Items
+  if (!is.character(items) || length(items) == 0L) {
+    stop("'items' must be a non-empty character vector.")
+  }
+  if (!all(items %in% names(data))) {
+    stop("All variables listed in 'items' must be columns in 'data'.")
+  }
+
+  ## Data
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data.frame.")
+  }
+
+  ## Method: Fixed to 'EM'
+  dots <- list(...)
+  if ("method" %in% names(dots)) {
+    stop("Please do not supply 'method'; fitIrt() currently fixes method = 'EM'.")
+  }
+
+  # Initialize output and some meta-data
   modelOut <- list()
   modelOut$items <- items
   modelOut$formula  <- formula   # original input (string or formula or NULL)
 
-  ## 1) Labels of item categories
+  # (1) Labels of item categories
   varLabels <- lapply(
     data[, items, drop = FALSE],
-    function(x) sort(unique(x))
+    function(x) sort(unique(x[!is.na(x)]))
   )
   modelOut$varLabels <- varLabels
 
-  ## 2) Prepare latent regression
+  # (2) Prepare latent regression
   if (is.null(formula)) {
     covFormula <- NULL
     dataReg    <- NULL
@@ -99,17 +113,24 @@ fitIrt <- function(items, formula = NULL, data, ...) {
     # accept both character and formula
     if (inherits(formula, "formula")) {
       covFormula <- formula
+    } else if (is.character(formula) && length(formula) == 1L) {
+      covFormula <- stats::as.formula(
+        if (grepl("~", formula, fixed = TRUE)) formula else paste0("~", formula)
+      )
     } else {
-      covFormula <- stats::as.formula(paste0("~", formula))
+      stop("'formula' must be NULL, a one-sided formula, or a single character string.")
     }
 
     # extract predictor names
-    varReg  <- all.vars(covFormula)
-    # (if you prefer formula.tools: varReg <- formula.tools::get.vars(covFormula))
+    varReg <- stats::all.vars(covFormula)
+    ## Check if the predictor variables are contained in 'data'
+    if (!all(varReg %in% names(data))) {
+      stop("All predictors in 'formula' must be columns in 'data'.")
+    }
     dataReg <- data[, varReg, drop = FALSE]
   }
 
-  ## 3) Fit IRT model
+  # (3) Fit IRT model
   modelOut$fit <- mirt::mirt(
     data    = data[, items, drop = FALSE],
     formula = covFormula,
