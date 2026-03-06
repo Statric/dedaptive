@@ -34,7 +34,7 @@ To install the development version, you need the package `remotes`. The package 
 
 This workflow demonstrates:
 
-1. Loading the data set (`screenMental`) integrated in the package and preparing training and prediction data sets  
+1. Loading the data set (`screenMental`) integrated into the package  
 3. Fitting a multidimensional IRT model (`fitIrt`) 
 4. Simulation-based predictions of joint item distributions (`predJointDistRespIrt`)
 5. Performing probabilistic predictions with fixed-item panels (`fixSelectionIrt`) and adaptive, decision-oriented and cost-sensitive testing (`dedaptiveIrt`)
@@ -90,7 +90,7 @@ dataTrain <- screenMental[screenMental$id != idPred, ]
 dataSub   <- screenMental[screenMental$id == idPred, ]
 ```
 
-To illustrate the predictions we chose a 30 years old woman with a PHQ-9 sum score of 6 and a GAD-7 sum score of 7. 
+To illustrate the predictions we chose a 30 years old woman with a PHQ-9 sum score of 6 and a GAD-7 sum score of 3. 
 
 ## 2. Fit a multidimensional IRT model
 
@@ -113,7 +113,7 @@ modelTrain <- fitIrt(
 )
 ```
 
-The IRT model itself is saved in *modelTrain$fit*. For more details, see the help page `?fitIrt` and the documentation of the function `mirt::mirt`. 
+The IRT model itself is saved in `modelTrain$fit`. For more details, see the help page `?fitIrt` and the documentation of the function `mirt::mirt`. 
 
 ## 3. Approximate joint item distributions
 
@@ -279,7 +279,7 @@ In the fixed item selection (phq1 = 1, phq2 = 1, gad1 = 1, gad2 = 1), the centra
 $P(\text{Score 1} \ge 10) = 0.310$ (PHQ-9) and $P(\text{Score 2} \ge 10) = 0.043$ (GAD-7). 
 The grey marginal barplots on the top and right show the corresponding marginal distributions for each score separately. With 4 out of 16 item responses, the individual is correctly classified as PHQ-9 sum score $<$ 10 and GAD-7 sum score $<$ 10. 
 
-In the dedaptive selection , the same type of plot is shown after two adaptively chosen items (gad2 = 1, phq4 = 1). The estimated decision probabilities are  
+In the dedaptive selection, the same type of plot is shown after two adaptively chosen items (gad2 = 1, phq4 = 1). The estimated decision probabilities are  
 $P(\text{Score 1} \geq 10) = 0.194$ and $P(\text{Score 2} \geq 10) = 0.109$. With 2 out of 16 item responses, the individual is correctly classified as PHQ-9 sum score $<$ 10 and GAD-7 sum score $<$ 10.
 
 
