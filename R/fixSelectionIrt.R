@@ -91,7 +91,7 @@ fixSelectionIrt <- function(model,
     stop("'thres' must have the same length as 'funOfItems'.")
   }
 
-  if (!is.null(givenVar) && !all(givenVar %in% items)) {
+  if (!is.null(givenVar) && !all(givenVar %in% model$items)) {
     stop("All elements of 'givenVar' must be item names in 'model$items'.")
   }
 
