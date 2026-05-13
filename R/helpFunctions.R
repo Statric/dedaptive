@@ -156,7 +156,7 @@ getThetaGridPred <- function(fit,
     )
   }
 
-  # If user supplies grid settings, create a dedaptive prediction grid
+  # If user supplies grid settings, create a prediction grid
   if (!is.null(thetaLim) || !is.null(thetaQuadpts)) {
     thetaLimUse <- if (is.null(thetaLim)) c(-6, 6) else thetaLim
 

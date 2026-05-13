@@ -44,8 +44,7 @@ depending on the number of latent factors.}
 
 \item{thetaGrid}{Optional numeric matrix containing a custom prediction grid
 for the latent variables. The matrix must have one column per latent factor.
-If supplied, \code{thetaLim},  \code{thetaQuadpts} and the internal theta grid
-from the fitted \code{\link[mirt]{mirt}} are ignored.}
+If supplied, \code{thetaLim} and \code{thetaQuadpts} are ignored.}
 
 \item{...}{Additional arguments passed to \code{\link[mirt]{mirt}}, such as \code{model}
 (latent structure passed to \code{\link[mirt]{mirt}} e.g., an object created by

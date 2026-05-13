@@ -240,12 +240,6 @@ predJointDistRespIrt <- function(model,
                      replace = TRUE,
                      prob = postDistTheta)
     thetaSim <- thetaGrid[simIds, , drop = FALSE]
-    # thetaSim as matrix if only one value was simulated
-    if (nSimTheta == 1) {
-      thetaSim <- matrix(thetaSim,
-                         nrow = 1,
-                         ncol = ncol(thetaGrid))
-    }
 
     # save approximation of posterior in output
     postDistTheta <- cbind(thetaGrid, postDistTheta)
