@@ -56,8 +56,6 @@
 #'     in the order in which they were chosen.}
 #'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
 #'     end of the procedure.}
-#'   \item{\code{distItems}}{Joint distribution of the not-selected items at
-#'     the end of the procedure.}
 #' }
 #'
 #' @import mirt
@@ -75,9 +73,7 @@ fixSelectionIrt <- function(model,
 
   # (1) Preparation
   # Checks
-  if (!is.list(model) || is.null(model$items) || is.null(model$fit)) {
-    stop("'model' must be an object returned by fitIrt().")
-  }
+  checkIrtPredModel(model)
 
   if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
@@ -114,17 +110,17 @@ fixSelectionIrt <- function(model,
   if (is.null(predJointSubCond)) {
 
     if (is.null(predJointSub)) {
-      # No precomputed joint distribution: compute it from the IRT model
+      # No pre-computed joint distribution: compute it from the IRT model
       set.seed(seed)
       predJointSub <- predJointDistRespIrt(
-        model     = model,
-        dataSub   = dataSub,
+        model = model,
+        dataSub = dataSub,
         nSimTheta = nSimTheta,
-        nSimItem  = nSimItem,
-        seed      = seed,
-        givenVal  = givenVal
+        nSimItem = nSimItem,
+        seed = seed,
+        givenVal = givenVal
       )
-      predJointDistSub<- predJointSub$jointDist
+      predJointDistSub <- predJointSub$jointDist
     } else {
       # Use provided joint distribution before conditioning on givenVar
       predJointDistSub <- predJointSub$jointDist
@@ -135,8 +131,8 @@ fixSelectionIrt <- function(model,
         for (i in seq_along(givenVal)) {
           predJointDistSub <- multiMultinomCondFromJoint(
             jointDist = predJointDistSub,
-            varName   = names(givenVal)[i],
-            varValue  = givenVal[i]
+            varName = names(givenVal)[i],
+            varValue = givenVal[i]
           )$cond
         }
 
@@ -191,16 +187,15 @@ fixSelectionIrt <- function(model,
   }
 
   if (is.null(givenVar)) {
-    out$chosen            <- ""
-    out$pred$combItems    <- ""
+    out$chosen <- ""
+    out$pred$combItems <- ""
   } else {
-    out$chosen            <- givenVar
-    out$pred$combItems    <- paste(givenVar, collapse = ", ")
+    out$chosen <- givenVar
+    out$pred$combItems <- paste(givenVar, collapse = ", ")
   }
 
 
   # Runtime information
-
   timeStamp2 <- Sys.time()
   out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
   out$pred$runTimePerItem <-  out$pred$runTime
@@ -215,7 +210,7 @@ fixSelectionIrt <- function(model,
   }
 
   # Add the score functions and thresholds
-  out$funOfItems<- funOfItems
-  out$thres<- thres
+  out$funOfItems <- funOfItems
+  out$thres <- thres
   return(out)
 }

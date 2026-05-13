@@ -1,3 +1,261 @@
+#' Check a user-supplied theta grid for prediction (helper function)
+#'
+#' @param thetaGrid Numeric matrix or object coercible to a matrix. The grid must
+#'   contain one column per latent factor and one row per grid point.
+#' @param nFactors Integer; number of latent variables.
+#' @param factorNames Optional character vector with names of the latent
+#'   variables. If supplied, these names are used as column names of the returned
+#'   grid. If \code{NULL}, names are generated as \code{F1}, \code{F2}, etc.
+#'
+#' @return A numeric matrix containing the checked theta grid.
+#' @export
+#' @examples # no example, since it is only a helper function
+
+checkThetaGridPred <- function(thetaGrid,
+                               nFactors,
+                               factorNames = NULL) {
+
+  thetaGrid <- as.matrix(thetaGrid)
+
+  if (!is.numeric(thetaGrid)) {
+    stop("'thetaGrid' must be numeric.")
+  }
+
+  if (ncol(thetaGrid) != nFactors) {
+    stop("'thetaGrid' must have one column per latent factor.")
+  }
+
+  if (any(!is.finite(thetaGrid))) {
+    stop("'thetaGrid' must contain only finite values.")
+  }
+
+  if (is.null(factorNames)) {
+    factorNames <- paste0("F", seq_len(nFactors))
+  }
+
+  if (length(factorNames) != nFactors) {
+    stop("'factorNames' must have length equal to 'nFactors'.")
+  }
+
+  colnames(thetaGrid) <- factorNames
+
+  return(thetaGrid)
+}
+
+#' Create a regular theta grid for prediction (helper function)
+#'
+#' @param nFactors Integer; number of latent variables.
+#' @param thetaLim Numeric vector of length 2 defining the lower and upper limits
+#'   of the grid for each latent dimension. Defaults to \code{c(-6, 6)}.
+#' @param thetaQuadpts Optional integer specifying the number of grid points per
+#'   latent dimension. If \code{NULL}, default values are chosen based on
+#'   \code{nFactors}.
+#' @param factorNames Optional character vector with names of the latent
+#'   variables. If supplied, these names are used as column names of the returned
+#'   grid. If \code{NULL}, names are generated as \code{F1}, \code{F2}, etc.
+#'
+#' @return A numeric matrix containing the theta grid. The matrix has one column
+#'   per latent factor and one row per grid point.
+#' @export
+#' @examples # no example, since it is only a helper function
+
+makeThetaGridPred <- function(nFactors,
+                              thetaLim = c(-6, 6),
+                              thetaQuadpts = NULL,
+                              factorNames = NULL) {
+
+  if (!is.numeric(nFactors) || length(nFactors) != 1L ||
+      is.na(nFactors) || nFactors < 1L) {
+    stop("'nFactors' must be a positive integer.")
+  }
+
+  nFactors <- as.integer(nFactors)
+
+  if (is.null(factorNames)) {
+    factorNames <- paste0("F", seq_len(nFactors))
+  }
+
+  if (length(factorNames) != nFactors) {
+    stop("'factorNames' must have length equal to 'nFactors'.")
+  }
+
+  if (!is.numeric(thetaLim) || length(thetaLim) != 2L ||
+      any(!is.finite(thetaLim)) || thetaLim[1] >= thetaLim[2]) {
+    stop("'thetaLim' must be a numeric vector of length 2 with thetaLim[1] < thetaLim[2].")
+  }
+
+  if (is.null(thetaQuadpts)) {
+    thetaQuadpts <- switch(
+      as.character(nFactors),
+      "1" = 61L,
+      "2" = 31L,
+      "3" = 15L,
+      "4" = 9L,
+      "5" = 7L,
+      3L
+    )
+  }
+
+  if (!is.numeric(thetaQuadpts) || length(thetaQuadpts) != 1L ||
+      is.na(thetaQuadpts) || thetaQuadpts <= 2L ||
+      thetaQuadpts != as.integer(thetaQuadpts)) {
+    stop("'thetaQuadpts' must be a single integer larger than 2.")
+  }
+
+  thetaQuadpts <- as.integer(thetaQuadpts)
+
+  thetaSeq <- seq(thetaLim[1], thetaLim[2], length.out = thetaQuadpts)
+
+  thetaGrid <- as.matrix(
+    expand.grid(rep(list(thetaSeq), nFactors))
+  )
+
+  colnames(thetaGrid) <- factorNames
+
+  return(thetaGrid)
+}
+
+#' Get theta grid for prediction
+#'
+#' @param fit Fitted \code{\link[mirt]{mirt}} model object.
+#' @param nFactors Integer; number of latent variables.
+#' @param factorNames Optional character vector with names of the latent
+#'   variables. If supplied, these names are used as column names of the returned
+#'   grid. If \code{NULL}, names are generated as \code{F1}, \code{F2}, etc.
+#' @param thetaLim Optional numeric vector of length 2 defining the lower and
+#'   upper limits of the prediction grid. If \code{NULL}, default limits are used
+#'   when a new regular grid is created.
+#' @param thetaQuadpts Optional integer specifying the number of grid points per
+#'   latent dimension. If \code{NULL}, default values are used when a new regular
+#'   grid is created.
+#' @param thetaGrid Optional numeric matrix containing a custom prediction grid.
+#'   The matrix must have one column per latent factor. If supplied, this grid
+#'   takes precedence over \code{thetaLim}, \code{thetaQuadpts}, and the internal
+#'   theta grid from the fitted \code{\link[mirt]{mirt}} object.
+#'
+#' @return A numeric matrix containing the theta grid used for prediction.
+#'
+#' @export
+#' @examples # no example, since it is only a helper function$
+
+getThetaGridPred <- function(fit,
+                             nFactors,
+                             factorNames = NULL,
+                             thetaLim = NULL,
+                             thetaQuadpts = NULL,
+                             thetaGrid = NULL) {
+
+  # If user supplies a custom grid, validate and use it directly
+  if (!is.null(thetaGrid)) {
+    return(
+      checkThetaGridPred(
+        thetaGrid = thetaGrid,
+        nFactors = nFactors,
+        factorNames = factorNames
+      )
+    )
+  }
+
+  # If user supplies grid settings, create a dedaptive prediction grid
+  if (!is.null(thetaLim) || !is.null(thetaQuadpts)) {
+    thetaLimUse <- if (is.null(thetaLim)) c(-6, 6) else thetaLim
+
+    return(
+      makeThetaGridPred(
+        nFactors = nFactors,
+        thetaLim = thetaLimUse,
+        thetaQuadpts = thetaQuadpts,
+        factorNames = factorNames
+      )
+    )
+  }
+
+  # If no grid settings are supplied, use the internal mirt grid if available
+  thetaGridMirt <- fit@Model$Theta
+
+  if (!is.null(thetaGridMirt) &&
+      nrow(thetaGridMirt) > 0L &&
+      ncol(thetaGridMirt) == nFactors) {
+
+    return(
+      checkThetaGridPred(
+        thetaGrid = thetaGridMirt,
+        nFactors = nFactors,
+        factorNames = factorNames
+      )
+    )
+  }
+
+  # Fallback: mimic the usual EM-style grid
+  makeThetaGridPred(
+    nFactors = nFactors,
+    thetaLim = c(-6, 6),
+    factorNames = factorNames
+  )
+}
+
+#' Check fitted IRT model object for prediction functions (helper function)
+#'
+#' @param model Object to check. Usually a list returned by \code{\link{fitIrt}}.
+#'
+#' @return Invisibly returns \code{TRUE} if all required components are present.
+#' Otherwise, an informative error is returned.
+#' @export
+#' @examples # no example, since it is only a helper function
+
+checkIrtPredModel <- function(model) {
+
+  if (!is.list(model)) {
+    stop("'model' must be an object returned by fitIrt().")
+  }
+
+  requiredTop <- c(
+    "items",
+    "varLabels",
+    "coef",
+    "nFactors",
+    "thetaGridPred",
+    "itemProbs"
+  )
+
+  missingTop <- requiredTop[
+    !vapply(requiredTop, function(x) !is.null(model[[x]]), logical(1))
+  ]
+
+  if (length(missingTop) > 0L) {
+    stop(
+      "'model' is missing required component(s): ",
+      paste(missingTop, collapse = ", "),
+      ". Please refit the model with fitIrt()."
+    )
+  }
+
+  if (!is.list(model$coef)) {
+    stop("'model$coef' must be a list.")
+  }
+
+  requiredCoef <- c(
+    "paramItems",
+    "slopesItems",
+    "intItems",
+    "thetaCovPrior"
+  )
+
+  missingCoef <- requiredCoef[
+    !vapply(requiredCoef, function(x) !is.null(model$coef[[x]]), logical(1))
+  ]
+
+  if (length(missingCoef) > 0L) {
+    stop(
+      "'model$coef' is missing required component(s): ",
+      paste(missingCoef, collapse = ", "),
+      ". Please refit the model with fitIrt()."
+    )
+  }
+
+  invisible(TRUE)
+}
+
 #' Cost-based binary classifier (helper function)
 #'
 #' @param prob Probability of higher class.

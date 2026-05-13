@@ -80,8 +80,6 @@ A list with components:
     in the order in which they were chosen.}
   \item{\code{distItems}}{Joint distribution of the not chosen items at the
     end of the procedure.}
-  \item{\code{distItems}}{Joint distribution of the not-selected items at
-    the end of the procedure.}
   \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
     intermediate results from each step of the sequential selection
     procedure is returned.}

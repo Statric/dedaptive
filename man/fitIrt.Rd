@@ -4,7 +4,15 @@
 \alias{fitIrt}
 \title{Fit multidimensional graded Item Response Theory models for the use with \code{dedaptive}}
 \usage{
-fitIrt(items, formula = NULL, data, ...)
+fitIrt(
+  items,
+  formula = NULL,
+  data,
+  thetaLim = NULL,
+  thetaQuadpts = NULL,
+  thetaGrid = NULL,
+  ...
+)
 }
 \arguments{
 \item{items}{Character vector with the names of the columns in \code{data} containing
@@ -21,24 +29,79 @@ specifying the predictors for the latent regression.}
 variables referenced in \code{formula}. Each row typically corresponds to
 one person.}
 
+\item{thetaLim}{Optional numeric vector of length 2 defining the lower and
+upper limits of the prediction grid for the latent variables. If
+\code{NULL}, no user-defined grid limits are used. In that case,
+\code{fitIrt()} uses the internal theta grid from the fitted
+\code{\link[mirt]{mirt}} object when available; otherwise, a default
+regular prediction grid is created.}
+
+\item{thetaQuadpts}{Optional integer specifying the number of grid points per
+latent dimension used for the prediction grid. If \code{NULL}, no
+user-defined number of grid points is used. If a new regular grid is
+created, default values follow the usual \code{mirt} quadrature scheme
+depending on the number of latent factors.}
+
+\item{thetaGrid}{Optional numeric matrix containing a custom prediction grid
+for the latent variables. The matrix must have one column per latent factor.
+If supplied, \code{thetaLim},  \code{thetaQuadpts} and the internal theta grid
+from the fitted \code{\link[mirt]{mirt}} are ignored.}
+
 \item{...}{Additional arguments passed to \code{\link[mirt]{mirt}}, such as \code{model}
 (latent structure passed to \code{\link[mirt]{mirt}} e.g., an object created by
 \code{\link[mirt]{mirt.model}} or an integer specifying the dimension of the latent space),
-\code{technical} options, starting values, or convergence settings. The
- estimation algorithm is currently fixed to the EM algorithm within
- \code{fitIrt}; other methods supported by \code{\link[mirt]{mirt}} may be made
- available in future versions.}
+\code{method} (default \code{method = "EM"}), \code{technical} options, starting values,
+or convergence settings.}
 }
 \value{
 A list with the following elements:
 \describe{
-  \item{\code{items}}{Meta-data (character vector with the item names used in the model).}
-  \item{\code{formula}}{Meta-data (the original \code{formula} argument as supplied by the user).}
+  \item{\code{items}}{Character vector with the item names used in the model (meta-data).}
+
+  \item{\code{formula}}{Original \code{formula} argument as supplied by the user (meta-data).
+    This is \code{NULL} if no latent regression was specified.}
+
+  \item{\code{covFormula}}{Parsed one-sided formula used internally for the
+    latent regression. This is \code{NULL} if no latent regression was specified.}
+
+  \item{\code{thetaLim}}{User-supplied lower and upper limits of the prediction
+    grid for the latent variables, or \code{NULL} if no limits were supplied.}
+
+  \item{\code{thetaQuadpts}}{User-supplied number of grid points per latent
+    dimension, or \code{NULL} if no value was supplied.}
+
   \item{\code{varLabels}}{List of length \code{length(items)}, where each
-    element contains the sorted unique response categories for the corresponding item.}
+    element contains the sorted unique response categories for the corresponding
+    item.}
+
   \item{\code{fit}}{The fitted \code{\link[mirt]{mirt}} model object returned by
-    \code{\link[mirt]{mirt}}. This object is used by \code{dedaptive} for prediction
-    and item selection.}
+    \code{\link[mirt]{mirt}}.}
+
+  \item{\code{factorNames}}{Character vector with the names of the latent
+    variables in the fitted model.}
+
+  \item{\code{nFactors}}{Number of latent variables in the fitted model.}
+
+  \item{\code{coef}}{List of estimated model parameters from the fitted
+    \code{\link[mirt]{mirt}} object:
+    \describe{
+      \item{\code{paramItems}}{Estimated item parameters.}
+      \item{\code{slopesItems}}{Estimated item slope parameters.}
+      \item{\code{intItems}}{Estimated item intercept or threshold parameters.}
+      \item{\code{paramReg}}{Estimated latent-regression coefficients, or \code{NULL}
+        if no latent regression was fitted.}
+      \item{\code{thetaCovPrior}}{Estimated covariance matrix of the latent
+        variables.}
+    }}
+
+  \item{\code{thetaGridPred}}{Prediction grid for the latent variables used by
+    \code{dedaptive} functions to approximate posterior distributions of the
+    latent variables conditional on observed item responses.}
+
+  \item{\code{itemProbs}}{List of item category response probabilities evaluated
+    on \code{thetaGridPred}. Each list element corresponds to one item and
+    contains a matrix with one row per grid point and one column per response
+    category.}
 }
 }
 \description{
@@ -57,6 +120,7 @@ The function expects a set of item responses and, optionally, predictors for a
 latent regression (e.g., age, sex). The names of the item columns are given
 in \code{items}, and the predictors are specified via \code{formula}. All
 predictor variables referenced in \code{formula} must be available as columns in \code{data}.
+Additional arguments are passed to \code{\link[mirt]{mirt}} via \code{...}.
 
 Via the argument \code{model}, we can specify the latent structure, e.g., the
 number of latent variables, which items load on which latent variables, and
@@ -65,10 +129,16 @@ passed directly to \code{\link[mirt]{mirt}}, so any model specification supporte
 by \code{\link[mirt]{mirt}} can be used. For a full description of possible model
 specifications, see \code{\link[mirt]{mirt}}.
 
-Currently, the IRT model is estimated using the Expectation-Maximization (EM) algorithm as implemented
-in \code{\link[mirt]{mirt}} (i.e., \code{method = "EM"} in the underlying call to
-\code{\link[mirt]{mirt}}). In future versions, additional estimation methods
-supported by \code{\link[mirt]{mirt}} may be incorporated in \code{fitIrt()}.
+Via the argument \code{method}, the estimation method can be specified through
+\code{...} (see the documentation of \code{\link[mirt]{mirt}}).
+
+Independently of the estimation method, \code{fitIrt()} stores a prediction
+grid for the latent variables. The grid is selected in the following order:
+a user-supplied \code{thetaGrid}, a regular grid defined by \code{thetaLim}
+or \code{thetaQuadpts}, the internal theta grid from the fitted
+\code{\link[mirt]{mirt}} object when available, and finally a default regular
+grid. This prediction grid is used other functions of \code{dedaptive}
+to approximate posterior distributions of the latent variables.
 }
 \examples{
 \dontrun{

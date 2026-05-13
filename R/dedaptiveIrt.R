@@ -70,8 +70,6 @@
 #'     in the order in which they were chosen.}
 #'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
 #'     end of the procedure.}
-#'   \item{\code{distItems}}{Joint distribution of the not-selected items at
-#'     the end of the procedure.}
 #'   \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
 #'     intermediate results from each step of the sequential selection
 #'     procedure is returned.}
@@ -94,9 +92,8 @@ dedaptiveIrt <- function(model = NULL,
 
   # (1) Preparation
   # Checks
-  if (!is.list(model) || is.null(model$items) || is.null(model$fit)) {
-    stop("'model' must be an object returned by fitIrt().")
-  }
+
+  checkIrtPredModel(model)
 
   if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
@@ -197,7 +194,7 @@ dedaptiveIrt <- function(model = NULL,
                      collapse = "+"))
       ),
       data = predJointSubTemp,
-      FUN  = sum
+      FUN = sum
     )
 
     # Expected misclassification costs given the current state (no new item)
@@ -213,7 +210,7 @@ dedaptiveIrt <- function(model = NULL,
       expCostPros <- numeric(length(itemsLeft))
 
       if(saveSteps){
-        expCostProsPerLevel<- list()
+        expCostProsPerLevel <- list()
       }
 
       for (iItem in seq_along(itemsLeft)) {
@@ -249,7 +246,7 @@ dedaptiveIrt <- function(model = NULL,
                              collapse = "+"))
               ),
               data = jointMlCond,
-              FUN  = sum
+              FUN = sum
             )
 
             # Expected misclassification costs in this conditional distribution
@@ -259,7 +256,7 @@ dedaptiveIrt <- function(model = NULL,
             # If P(Y_m = l) = 0, the corresponding cost contribution is 0
             expCostsMl <- 0
           }
-          # Add P(Ym=l) to vector
+          # Add P(Ym=l) and expected costs to vector
           probM[iLevel] <- probMl
           expCostM[iLevel] <- expCostsMl
         }
@@ -271,7 +268,7 @@ dedaptiveIrt <- function(model = NULL,
           expCostProsPerLevel[[m]]<- costTabM
         }
 
-        # Expected total cost when measuring item m (including measurement cost)
+        # Expected total cost when including item m (including measurement cost)
         exCostsM <- sum(costTabM[, 1] * costTabM[, 2]) + cM
         expCostPros[iItem] <- exCostsM
       }
@@ -311,11 +308,9 @@ dedaptiveIrt <- function(model = NULL,
 
       # Add the selected item to the list of chosen items
       itemsChosen <- c(itemsChosen, itemNameMinCost)
-      itemsLeft <- setdiff(itemsAllowed, itemsChosen)
 
-      # Values of all selected items (not used further here, but kept for clarity)
-      valItemsChosen <- as.numeric(dataSub[, itemsChosen, drop = FALSE])
-      names(valItemsChosen) <- itemsChosen
+      # Remove item from the list of left-over items
+      itemsLeft <- setdiff(itemsAllowed, itemsChosen)
 
       # Observed value of the last selected item
       valItemLast <- as.numeric(dataSub[, itemNameMinCost])
@@ -333,7 +328,7 @@ dedaptiveIrt <- function(model = NULL,
       )
 
       # Use the posterior distribution of the latent variables as prior for next step
-      distThetaPast    <- predJointSubTemp$postDistTheta
+      distThetaPast <- predJointSubTemp$postDistTheta
       predJointSubTemp <- predJointSubTemp$jointDist
 
       # Recompute scores and diagnoses for the remaining items
@@ -403,16 +398,16 @@ dedaptiveIrt <- function(model = NULL,
   out$pred$combItems <- paste(itemsChosen, collapse = ", ")
   out$chosen <- itemsChosen
 
-  # Add runtime information
+  # Add run time information
   timeStamp2 <- Sys.time()
   out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
   denomRunTime<- out$pred$nItems + 1 - startJoint
   if(length(itemsChosen) >= length(itemsAllowed)) {denomRunTime<- denomRunTime - 1}
   out$pred$runTimePerItem <- out$pred$runTime / denomRunTime
   if(length(itemsChosen) <= 0) {
-    out$pred$runTimePerItem<- out$pred$runTime
+    out$pred$runTimePerItem <- out$pred$runTime
   }
-  # Add joint distribution of not chosen items and latent distribution
+  # Add joint distribution of not chosen items and distribution of latent variables
   out$distItems <- predJointSubTemp
   out$distTheta <- distThetaPast
 
