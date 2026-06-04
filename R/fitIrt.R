@@ -1,4 +1,4 @@
-#' Fit multidimensional graded Item Response Theory models for the use with \code{dedaptive}
+#' Fit multidimensional graded item response theory models for the use with \code{dedaptive}
 #'
 #' @description
 #' The function \code{fitIrt()} fits Multidimensional Item Response Theory (MIRT)
@@ -66,9 +66,12 @@
 #' \code{\link[mirt]{mirt.model}} or an integer specifying the dimension of the latent space),
 #' \code{method} (default \code{method = "EM"}), \code{technical} options, starting values,
 #' or convergence settings.
+#'
 #' @return
 #' A list with the following elements:
 #' \describe{
+#'   \item{\code{modelType}}{Character specfying the used model type ("irt", meta-data)}
+#'
 #'   \item{\code{items}}{Character vector with the item names used in the model (meta-data).}
 #'
 #'   \item{\code{formula}}{Original \code{formula} argument as supplied by the user (meta-data).
@@ -151,6 +154,7 @@ fitIrt <- function(items,
 
   # Initialize output and some meta-data
   modelOut <- list()
+  modelOut$modelType <- "irt"
   modelOut$items <- items
   modelOut["formula"] <- list(formula)
   modelOut$thetaLim <- thetaLim
