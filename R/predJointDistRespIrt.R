@@ -6,10 +6,12 @@
 #' The method can incorporate predictors (via a latent regression, if specified) and
 #' optionally already observed responses for a subset of items.
 #'
-#' The predictions are obtained in four steps:
+#' The predictions are obtained with the following steps:
 #' \enumerate{
 #'   \item Predict the distribution of the latent variables (possibly
 #'   conditional on predictors via the latent regression).
+#'   \item If \code{givenVal} is supplied, update the distribution of the latent
+#'   variables conditional on the observed item responses.
 #'   \item Draw samples of latent variables from this distribution.
 #'   \item For each sampled latent variable, simulate item response patterns
 #'   from the MIRT model, assuming local independence of items given the
@@ -19,11 +21,9 @@
 #' }
 #'
 #' @param model A MIRT model fitted with \code{\link{fitIrt}}.
-#' This object contains the fitted \code{\link[mirt]{mirt}} model and meta-data (item names, response
-#' labels, latent regression formula).
 #' @param dataSub One-row data frame with the predictor variables of one
 #' observation used in the latent regression (if specified in \code{model}).
-#' @param nSimTheta Integer; number of simulated draws of the latent variables.
+#' @param nSimLatent Integer; number of simulated draws of the latent variables.
 #' @param nSimItem Integer; number of simulated response patterns per latent
 #' draw (for each sampled latent variable, \code{nSimItem} independent response
 #' patterns are generated).
@@ -35,14 +35,14 @@
 #' variables is predicted.
 #' @param priorGrid Optional list representing an approximated distribution of
 #' the latent variables from a previous step (typically the
-#'   \code{postDistTheta} element from an earlier call to
+#'   \code{postDistLatent} element from an earlier call to
 #'   \code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
 #'   distribution of the latent variables implied by the MIRT model (and latent
 #'   regression, if specified) is used.
 #'
 #' @return A list with components:
 #' \describe{
-#'   \item{\code{postDistTheta}}{If \code{givenVal} is not \code{NULL}, a list
+#'   \item{\code{postDistLatent}}{If \code{givenVal} is not \code{NULL}, a list
 #'     with components \code{dist} (matrix containing grid points of the latent
 #'     variables and their posterior probabilities) and \code{givenVal} (all
 #'     item responses that have been conditioned on).}
@@ -59,7 +59,7 @@
 
 predJointDistRespIrt <- function(model,
                                  dataSub,
-                                 nSimTheta = 1000,
+                                 nSimLatent = 1000,
                                  nSimItem = 10,
                                  seed = 131820,
                                  givenVal = NULL,
@@ -68,20 +68,20 @@ predJointDistRespIrt <- function(model,
   # (1) Preparation
   # Checks
 
-  checkIrtPredModel(model)
+  checkPredModel(model)
 
   if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
   }
 
-  if (!is.numeric(nSimTheta) || length(nSimTheta) != 1L || nSimTheta < 1) {
-    stop("'nSimTheta' must be a positive integer.")
+  if (!is.numeric(nSimLatent) || length(nSimLatent) != 1L || nSimLatent < 1) {
+    stop("'nSimLatent' must be a positive integer.")
   }
 
   if (!is.numeric(nSimItem) || length(nSimItem) != 1L || nSimItem < 1) {
     stop("'nSimItem' must be a positive integer.")
   }
-  nSimTheta <- as.integer(nSimTheta)
+  nSimLatent <- as.integer(nSimLatent)
   nSimItem <- as.integer(nSimItem)
 
   if (!is.null(givenVal)) {
@@ -90,7 +90,7 @@ predJointDistRespIrt <- function(model,
     }
   }
 
-  # extract information from model
+  # Extract information from model
   items <- model$items
   varLabels <- model$varLabels
 
@@ -134,19 +134,19 @@ predJointDistRespIrt <- function(model,
     if (length(thetaMeanPrior) <= 1) {
       set.seed(seed)
       thetaSim <- stats::rnorm(
-        n = nSimTheta,
+        n = nSimLatent,
         mean = thetaMeanPrior,
         sd = sqrt(thetaCovPrior)
       )
     } else {
       set.seed(seed)
       thetaSim <- MASS::mvrnorm(
-        n = nSimTheta,
+        n = nSimLatent,
         mu = thetaMeanPrior,
         Sigma = thetaCovPrior
       )
       # Define thetaSim as matrix also if only one simulation is performed
-      if (nSimTheta == 1) {
+      if (nSimLatent == 1) {
         thetaSim <- matrix(thetaSim,
                            nrow = 1,
                            ncol = length(thetaMeanPrior))
@@ -208,7 +208,7 @@ predJointDistRespIrt <- function(model,
     likelihood <- rep(1, nrow(thetaGrid))
 
     for (j in seq_len(ncol(givenRespPattern))) {
-      ## response of item j (in column-major order; same as original)
+      ## response of item j
       response <- givenRespPattern[1, j]
 
       ## labels for item j
@@ -222,6 +222,7 @@ predJointDistRespIrt <- function(model,
         )
         respCol <- respCol[1]
 
+        ## item category probabilities conditional on latent variable
         probs <- itemProbs[[j]][, respCol]
 
         ## update likelihood (conditional independence)
@@ -236,7 +237,7 @@ predJointDistRespIrt <- function(model,
     # sample latent variables from posterior
     set.seed(seed)
     simIds <- sample(seq_len(nrow(thetaGrid)),
-                     size = nSimTheta,
+                     size = nSimLatent,
                      replace = TRUE,
                      prob = postDistTheta)
     thetaSim <- thetaGrid[simIds, , drop = FALSE]
@@ -244,11 +245,11 @@ predJointDistRespIrt <- function(model,
     # save approximation of posterior in output
     postDistTheta <- cbind(thetaGrid, postDistTheta)
     if (is.null(priorGrid)) {
-      outList$postDistTheta <- list(dist = postDistTheta,
-                                    givenVal = givenVal)
+      outList$postDistLatent <- list(dist = postDistTheta,
+                                     givenVal = givenVal)
     } else {
-      outList$postDistTheta <- list(dist = postDistTheta,
-                                    givenVal = c(givenValPast, givenVal))
+      outList$postDistLatent <- list(dist = postDistTheta,
+                                     givenVal = c(givenValPast, givenVal))
     }
   }
 
@@ -275,10 +276,10 @@ predJointDistRespIrt <- function(model,
   colnames(respSim) <- items
 
   # Consider the known values (if any)
-  if (!is.null(outList$postDistTheta$givenVal)) {
-    for (i in seq_along(outList$postDistTheta$givenVal)) {
-      respSim[, names(outList$postDistTheta$givenVal)[i]] <-
-        as.numeric(outList$postDistTheta$givenVal[i])
+  if (!is.null(outList$postDistLatent$givenVal)) {
+    for (i in seq_along(outList$postDistLatent$givenVal)) {
+      respSim[, names(outList$postDistLatent$givenVal)[i]] <-
+        as.numeric(outList$postDistLatent$givenVal[i])
     }
   }
 
@@ -289,11 +290,10 @@ predJointDistRespIrt <- function(model,
 
   colnames(freqTable) <- c(items, "freq")
 
-  # Make item values numeric
-  facToNumeric <- function(x) as.numeric(as.character(x))
-  freqTable[, colnames(freqTable) != "freq"] <-
-    lapply(freqTable[, colnames(freqTable) != "freq", drop = FALSE], facToNumeric)
-
+  freqTable[, items] <- lapply(
+    freqTable[, items, drop = FALSE],
+    facToNumeric
+  )
   # Save results
   outList$sim <- respComb
   outList$jointDist <- freqTable
