@@ -2,7 +2,6 @@
 % Please edit documentation in R/dedaptive-package.R
 \docType{package}
 \name{dedaptive-package}
-\alias{dedaptive}
 \alias{dedaptive-package}
 \title{dedaptive: Decision-oriented adaptive testing based on Multidimensional Item Response Theory}
 \description{

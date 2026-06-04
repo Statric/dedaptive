@@ -7,7 +7,7 @@
 predJointDistRespIrt(
   model,
   dataSub,
-  nSimTheta = 1000,
+  nSimLatent = 1000,
   nSimItem = 10,
   seed = 131820,
   givenVal = NULL,
@@ -15,14 +15,12 @@ predJointDistRespIrt(
 )
 }
 \arguments{
-\item{model}{A MIRT model fitted with \code{\link{fitIrt}}.
-This object contains the fitted \code{\link[mirt]{mirt}} model and meta-data (item names, response
-labels, latent regression formula).}
+\item{model}{A MIRT model fitted with \code{\link{fitIrt}}.}
 
 \item{dataSub}{One-row data frame with the predictor variables of one
 observation used in the latent regression (if specified in \code{model}).}
 
-\item{nSimTheta}{Integer; number of simulated draws of the latent variables.}
+\item{nSimLatent}{Integer; number of simulated draws of the latent variables.}
 
 \item{nSimItem}{Integer; number of simulated response patterns per latent
 draw (for each sampled latent variable, \code{nSimItem} independent response
@@ -38,7 +36,7 @@ variables is predicted.}
 
 \item{priorGrid}{Optional list representing an approximated distribution of
 the latent variables from a previous step (typically the
-  \code{postDistTheta} element from an earlier call to
+  \code{postDistLatent} element from an earlier call to
   \code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
   distribution of the latent variables implied by the MIRT model (and latent
   regression, if specified) is used.}
@@ -46,7 +44,7 @@ the latent variables from a previous step (typically the
 \value{
 A list with components:
 \describe{
-  \item{\code{postDistTheta}}{If \code{givenVal} is not \code{NULL}, a list
+  \item{\code{postDistLatent}}{If \code{givenVal} is not \code{NULL}, a list
     with components \code{dist} (matrix containing grid points of the latent
     variables and their posterior probabilities) and \code{givenVal} (all
     item responses that have been conditioned on).}
@@ -64,10 +62,12 @@ responses based on a Multidimensional Item Response Theory (MIRT) model fitted w
 The method can incorporate predictors (via a latent regression, if specified) and
 optionally already observed responses for a subset of items.
 
-The predictions are obtained in four steps:
+The predictions are obtained with the following steps:
 \enumerate{
   \item Predict the distribution of the latent variables (possibly
   conditional on predictors via the latent regression).
+  \item If \code{givenVal} is supplied, update the distribution of the latent 
+  variables conditional on the observed item responses.
   \item Draw samples of latent variables from this distribution.
   \item For each sampled latent variable, simulate item response patterns
   from the MIRT model, assuming local independence of items given the

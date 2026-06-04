@@ -38,10 +38,10 @@ data(screenMental)
 \code{screenMental} is a fully simulated data set with sex, age, and PHQ-9/GAD-7
 item responses that follow the dependency structure learned from the data set
 used in the publication introducing the dedaptive testing framework (Wyss et al., 2026).
-The data set was generated using the function \code{\link{simResponsesIrt}}
+The data set was generated using the function \code{\link{simResponsesLatentModel}}
 
-This data set can be used to demonstrate the functions \code{\link{fitIrt}},
-\code{\link{predJointDistRespIrt}}, \code{\link{fixSelectionIrt}} and \code{\link{dedaptiveIrt}}.
+This data set can be used to demonstrate the functions \code{\link{fitIrt}} and \code{\link{fitLc}},
+\code{\link{predJointDistResp}}, \code{\link{fixSelection}} and \code{\link{dedaptive}}.
 }
 \details{
 The original data stems from a study investigating internet-based cognitive
@@ -69,7 +69,7 @@ The data set was simulated as follows:
         kernel density estimates from step 1b).
       \item c) Given sex and age from 2a) and 2b), simulate PHQ-9 and GAD-7 item
       responses from sex- and age-specific joint distributions using the model
-      from step 1c) and the function \code{\link{simResponsesIrt}}.
+      from step 1c) and the function \code{\link{simResponsesLatentModel}}.
     }
 }
 }

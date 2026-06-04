@@ -1,9 +1,11 @@
-#' DEcision-oriented aDAPTIVE (dedaptive) testing based on a Multidimensional Item Response Theory model
+#' DEcision-oriented aDAPTIVE (dedaptive) testing based on latent-variable models.
 #'
 #' @description
-#' \code{dedaptiveIrt()} performs DEcision-oriented aDAPTIVE (dedaptive) testing
-#' based on a Multidimensional Item Response Theory (MIRT) model fitted with
-#' \code{\link{fitIrt}} and probabilistic predictions from \code{\link{predJointDistRespIrt}}.
+#' \code{dedaptive()} performs DEcision-oriented aDAPTIVE (dedaptive) testing
+#' based on probabilistic predictions from a fitted latent-variable model.
+#' Currently, Latent Class (LC) models fitted with \code{\link{fitLc}}
+#' Mand ultdimensional Item Response Theory (MIRT) models fitted with
+#' \code{\link{fitIrt}} are supported.
 #' For a given person, items are selected sequentially to minimize expected total
 #' costs of misclassification and measurement.
 #'
@@ -20,14 +22,15 @@
 #' (one score/decision per entry). \code{costs[[3]]} is a single scalar
 #' specifying the per-item measurement cost.
 #'
-#' @param model MIRT model object fitted with \code{\link{fitIrt}}.
+#' @param model Model object fitted with \code{\link{fitIrt}} or
+#'   \code{\link{fitLc}}.
 #' @param predJointSub Optional object containing the predicted distribution of
 #'   response patterns for the current person, as returned
-#'   by \code{\link{predJointDistRespIrt}}. If \code{NULL}, this distribution
+#'   by \code{\link{predJointDistResp}}. If \code{NULL}, this distribution
 #'   is computed inside the function before any item is selected.
 #' @param dataSub One-row data frame for the current person containing item
-#'   responses and, if applicable, predictor variables used in the latent
-#'   regression of the MIRT model.
+#'   responses and, if applicable, predictor variables considered in the latent regression
+#'   of the MIRT or LC model.
 #' @param funOfItems List of functions used to compute score(s) from the item
 #'   responses (e.g., \code{list(sum)} for a sum score over all items, or several functions
 #'   for multiple decisions).
@@ -46,12 +49,18 @@
 #'   length of \code{funOfItems} respectively \code{thres}.
 #' @param itemsExclude Character vector of item names that cannot be selected.
 #'   If \code{NULL} (default), all items are eligible for selection.
-#' @param nSimTheta Number of latent variable draws used internally in
-#'   \code{\link{predJointDistRespIrt}}.
-#' @param nSimItem Number of response patterns simulated per latent draw used internally
-#' in \code{\link{predJointDistRespIrt}}.
+#' @param nSimLatent Number of latent variable or latent class draws used
+#'   internally in \code{\link{predJointDistResp}} when simulation-based
+#'   predictions are used.
+#' @param nSimItem Number of response patterns simulated per latent draw used
+#'   internally in \code{\link{predJointDistResp}} when simulation-based
+#'   predictions are used.
 #' @param seed Integer seed used to make the sequential selection procedure and
 #'   simulations reproducible.
+#' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint
+#'   item-response distribution is computed exactly. If \code{FALSE}, the distribution
+#'   is approximated by simulations. For MIRT models, \code{fullJoint = TRUE} is
+#'   ignored and simulation-based predictions are used.
 #' @param saveSteps Logical; if \code{TRUE}, the output from each step of
 #'   the sequential selection procedure is saved. If \code{FALSE} (default),
 #'   only the final results are returned.
@@ -70,30 +79,32 @@
 #'     in the order in which they were chosen.}
 #'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
 #'     end of the procedure.}
+#'   \item{\code{distLatent}}{Posterior distribution of the latent variable or
+#'     latent classes after the final adaptive update.}
 #'   \item{\code{outSteps}}{If \code{saveSteps = TRUE}, a list containing
 #'     intermediate results from each step of the sequential selection
 #'     procedure is returned.}
 #' }
 #'
-#' @import mirt
 #' @export
 
-dedaptiveIrt <- function(model = NULL,
-                         predJointSub = NULL,
-                         dataSub,
-                         funOfItems = list(sum),
-                         thres,
-                         costs,
-                         itemsExclude = NULL,
-                         nSimTheta = 1000,
-                         nSimItem = 10,
-                         seed = 131820,
-                         saveSteps = FALSE) {
+dedaptive <- function(model = NULL,
+                      predJointSub = NULL,
+                      dataSub,
+                      funOfItems = list(sum),
+                      thres,
+                      costs,
+                      itemsExclude = NULL,
+                      nSimLatent = 1000,
+                      nSimItem = 10,
+                      seed = 131820,
+                      fullJoint=FALSE,
+                      saveSteps = FALSE) {
 
   # (1) Preparation
   # Checks
 
-  checkIrtPredModel(model)
+  checkPredModel(model)
 
   if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
@@ -116,10 +127,27 @@ dedaptiveIrt <- function(model = NULL,
     stop("Lengths of 'costs[[1]]' (false positives) and 'costs[[2]]' (false negatives) must match 'funOfItems'.")
   }
 
+  if (!is.logical(fullJoint) || length(fullJoint) != 1L || is.na(fullJoint)) {
+    stop("'fullJoint' must be TRUE or FALSE.")
+  }
+
+  # Warning since for IRT model dedaptive selections based on the full joint distribution
+  # is not supplied
+  fullJointUse <- fullJoint
+
+  if (model$modelType == "irt" && isTRUE(fullJoint)) {
+    warning(
+      "'fullJoint = TRUE' is ignored for IRT models. ",
+      "Simulation-based predictions are performed.",
+      call. = FALSE
+    )
+    fullJointUse <- FALSE
+  }
+
   # Time stamp at the beginning of the procedure
   timeStamp1 <- Sys.time()
 
-  # Extract information from the IRT model
+  # Extract information from the model
   items <- model$items
 
   if(!is.null(itemsExclude)) {
@@ -141,19 +169,20 @@ dedaptiveIrt <- function(model = NULL,
 
   # Compute the initial joint distribution if not provided
   if (is.null(predJointSub)) {
-    predJointSub <- predJointDistRespIrt(
+    predJointSub <- predJointDistResp(
       model = model,
       dataSub = dataSub,
-      nSimTheta = nSimTheta,
+      nSimLatent = nSimLatent,
       nSimItem = nSimItem,
-      seed = seed
+      seed = seed,
+      fullJoint = fullJointUse
     )
   }
 
   # Extract only the joint distribution of item responses
   predJointSub <- predJointSub$jointDist
 
-  # Compute score functions and binary decisions for each simulated response pattern
+  # Compute score functions and binary decisions for each response pattern
   for (f in seq_along(funOfItems)) {
     # Scores (functions of item responses)
     predJointSub[[paste0("fun_", f)]] <-
@@ -175,7 +204,7 @@ dedaptiveIrt <- function(model = NULL,
   ## set of remaining (not yet selected) items
   itemsLeft <- itemsAllowed
   ## latent distribution from the last step
-  distThetaPast <- NULL
+  distLatentPast <- NULL
 
   ## output from every step
   if(saveSteps){outSteps<- list()}
@@ -317,18 +346,19 @@ dedaptiveIrt <- function(model = NULL,
       names(valItemLast) <- itemNameMinCost
 
       # Update the joint distribution of remaining items conditional on the last item
-      predJointSubTemp <- predJointDistRespIrt(
+      predJointSubTemp <- predJointDistResp(
         model = model,
         dataSub = dataSub,
-        nSimTheta = nSimTheta,
+        nSimLatent = nSimLatent,
         nSimItem = nSimItem,
         seed = seeds[stepCount],
         givenVal = valItemLast,
-        priorGrid = distThetaPast
+        priorGrid = distLatentPast,
+        fullJoint = fullJointUse
       )
 
-      # Use the posterior distribution of the latent variables as prior for next step
-      distThetaPast <- predJointSubTemp$postDistTheta
+      # Use the posterior latent distribution as prior for the next step
+      distLatentPast <- predJointSubTemp$postDistLatent
       predJointSubTemp <- predJointSubTemp$jointDist
 
       # Recompute scores and diagnoses for the remaining items
@@ -409,7 +439,7 @@ dedaptiveIrt <- function(model = NULL,
   }
   # Add joint distribution of not chosen items and distribution of latent variables
   out$distItems <- predJointSubTemp
-  out$distTheta <- distThetaPast
+  out$distLatent <- distLatentPast
 
   # Add the score functions, thresholds and costs as meta-data
   out$funOfItems <- funOfItems

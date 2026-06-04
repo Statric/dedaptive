@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitIrt.R
 \name{fitIrt}
 \alias{fitIrt}
-\title{Fit multidimensional graded Item Response Theory models for the use with \code{dedaptive}}
+\title{Fit multidimensional graded item response theory models for the use with \code{dedaptive}}
 \usage{
 fitIrt(
   items,
@@ -55,6 +55,8 @@ or convergence settings.}
 \value{
 A list with the following elements:
 \describe{
+  \item{\code{modelType}}{Character specfying the used model type ("irt", meta-data)}
+
   \item{\code{items}}{Character vector with the item names used in the model (meta-data).}
 
   \item{\code{formula}}{Original \code{formula} argument as supplied by the user (meta-data).

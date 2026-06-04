@@ -1,11 +1,12 @@
 #' Probabilistic predictions with fixed-item panels based on a Multidimensional Item Response Theory model
 #'
 #' @description
-#' \code{fixSelectionIrt()} performs probabilistic predictions for a fixed set
-#' of selected items based on a Multidimensional Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}} and
-#' probabilistic predictions from \code{\link{predJointDistRespIrt}}. In
-#' contrast to \code{\link{dedaptiveIrt}}, no adaptive selection is performed:
-#' a pre-specified set of items (\code{givenVar}) is used.
+#' \code{fixSelection()} performs probabilistic predictions for a fixed set
+#' of selected items from a fitted latent-variable model. Currently, Latent Class (LC)
+#' models fitted with \code{\link{fitLc}} and Multdimensional Item Response Theory
+#' (MIRT) models fitted with \code{\link{fitIrt}} are supported. In contrast to
+#' \code{\link{dedaptive}}, no adaptive selection is performed: a pre-specified set
+#' of items (\code{givenVar}) is used.
 #'
 #' @details
 #' The function computes the joint distribution of item responses conditional
@@ -14,17 +15,18 @@
 #' distributions of scores and decisions. The arguments \code{funOfItems} and
 #' \code{thres} must have the same length (one threshold per score function).
 #'
-#' @param model MIRT model object fitted with \code{\link{fitIrt}}.
-#' @param predJointSub Optional prediction of the joint distribution of item
-#'   responses for the current person as returned by
-#'   \code{\link{predJointDistRespIrt}} before conditioning on selected items.
+#' @param model Model object fitted with \code{\link{fitIrt}} or
+#'   \code{\link{fitLc}}.
+#' @param predJointSub Optional object containing the predicted distribution of
+#'   response patterns for the current person, as returned
+#'   by \code{\link{predJointDistResp}}.
 #' @param predJointSubCond Optional prediction of the joint distribution of
 #'   item responses for the current person already conditional on
 #'   \code{givenVar}. If supplied, it overrides \code{predJointSub} and no
 #'   further conditioning is performed.
 #' @param dataSub One-row data frame for the current person containing item
-#'   responses and, if applicable, predictor variables used in the latent
-#'   regression of the MIRT model.
+#'   responses and, if applicable, predictor variables considered in the latent regression
+#'   of the MIRT or LC model.
 #' @param funOfItems List of functions used to compute score(s) from the item
 #'   responses (e.g., \code{list(sum)} for a sum score over all items, or several functions
 #'   for multiple decisions).
@@ -35,12 +37,18 @@
 #'   treated as "selected" (fixed) and whose observed values in \code{dataSub}
 #'   are conditioned on. If \code{NULL}, predictions are based solely on the
 #'   predictor variables without conditioning on specific items.
-#' @param nSimTheta Number of latent variable draws used internally in
-#'   \code{\link{predJointDistRespIrt}}.
-#' @param nSimItem Number of response patterns simulated per latent draw used internally
-#' in \code{\link{predJointDistRespIrt}}.
+#' @param nSimLatent Number of latent variable or latent class draws used
+#'   internally in \code{\link{predJointDistResp}} when simulation-based
+#'   predictions are used.
+#' @param nSimItem Number of response patterns simulated per latent draw used
+#'   internally in \code{\link{predJointDistResp}} when simulation-based
+#'   predictions are used.
 #' @param seed Integer seed used to make the sequential selection procedure and
 #'   simulations reproducible.
+#' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint
+#'   item-response distribution is computed exactly. If \code{FALSE}, the distribution
+#'   is approximated by simulations. For MIRT models, \code{fullJoint = TRUE} is
+#'   ignored and simulation-based predictions are used.
 #'
 #' @return A list with components:
 #' \describe{
@@ -60,20 +68,22 @@
 #'
 #' @import mirt
 #' @export
-fixSelectionIrt <- function(model,
-                            predJointSub = NULL,
-                            predJointSubCond = NULL,
-                            dataSub,
-                            funOfItems = list(sum),
-                            thres,
-                            givenVar = NULL,
-                            nSimTheta = 500,
-                            nSimItem = 2,
-                            seed = 131820) {
+fixSelection <- function(model,
+                         predJointSub = NULL,
+                         predJointSubCond = NULL,
+                         dataSub,
+                         funOfItems = list(sum),
+                         thres,
+                         givenVar = NULL,
+                         nSimLatent = 500,
+                         nSimItem = 2,
+                         seed = 131820,
+                         fullJoint = FALSE
+) {
 
   # (1) Preparation
   # Checks
-  checkIrtPredModel(model)
+  checkPredModel(model)
 
   if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
@@ -111,13 +121,14 @@ fixSelectionIrt <- function(model,
 
     if (is.null(predJointSub)) {
       # No pre-computed joint distribution: compute it from the IRT model
-      predJointSub <- predJointDistRespIrt(
+      predJointSub <- predJointDistResp(
         model = model,
         dataSub = dataSub,
-        nSimTheta = nSimTheta,
+        nSimLatent = nSimLatent,
         nSimItem = nSimItem,
         seed = seed,
-        givenVal = givenVal
+        givenVal = givenVal,
+        fullJoint = fullJoint
       )
       predJointDistSub <- predJointSub$jointDist
     } else {

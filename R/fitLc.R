@@ -56,7 +56,7 @@
 #'     element contains a mapping from the original item labels to the ones used
 #'     in \code{\link[poLCA]{poLCA}}.}
 #'
-#'   \item{\code{fit}}{The fitted \code{\link[poLCA]{poLCA}}} model object returned by
+#'   \item{\code{fit}}{The fitted \code{\link[poLCA]{poLCA}} model object returned by
 #'     \code{\link[poLCA]{poLCA}}.}
 #'
 #'   \item{\code{coef}}{List containing prior class-membership regression coefficients

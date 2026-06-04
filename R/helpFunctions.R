@@ -8,9 +8,7 @@
 #'   grid. If \code{NULL}, names are generated as \code{F1}, \code{F2}, etc.
 #'
 #' @return A numeric matrix containing the checked theta grid.
-#' @export
-#' @examples # no example, since it is only a helper function
-
+#' @noRd
 checkThetaGridPred <- function(thetaGrid,
                                nFactors,
                                factorNames = NULL) {
@@ -58,7 +56,6 @@ checkThetaGridPred <- function(thetaGrid,
 #'   per latent factor and one row per grid point.
 #' @export
 #' @examples # no example, since it is only a helper function
-
 makeThetaGridPred <- function(nFactors,
                               thetaLim = c(-6, 6),
                               thetaQuadpts = NULL,
@@ -115,7 +112,7 @@ makeThetaGridPred <- function(nFactors,
   return(thetaGrid)
 }
 
-#' Get theta grid for prediction
+#' Get theta grid for prediction (helper function)
 #'
 #' @param fit Fitted \code{\link[mirt]{mirt}} model object.
 #' @param nFactors Integer; number of latent variables.
@@ -135,9 +132,7 @@ makeThetaGridPred <- function(nFactors,
 #'
 #' @return A numeric matrix containing the theta grid used for prediction.
 #'
-#' @export
-#' @examples # no example, since it is only a helper function$
-
+#' @noRd
 getThetaGridPred <- function(fit,
                              nFactors,
                              factorNames = NULL,
@@ -194,29 +189,106 @@ getThetaGridPred <- function(fit,
   )
 }
 
-#' Check fitted IRT model object for prediction functions (helper function)
+#' Convert factor to numeric variable (helper function)
 #'
-#' @param model Object to check. Usually a list returned by \code{\link{fitIrt}}.
+#' @param x Factor vector
+#'
+#' @return Numeric vector
+#'
+#' @export
+#' @examples # no example, since it is only a helper function
+facToNumeric <- function(x) as.numeric(as.character(x))
+
+#' Check fitted IRT or LC model object for prediction functions (helper function)
+#'
+#' @param model Object to check. Usually a list returned by \code{\link{fitIrt}}
+#' or \code{\link{fitLc}}.
 #'
 #' @return Invisibly returns \code{TRUE} if all required components are present.
 #' Otherwise, an informative error is returned.
 #' @export
 #' @examples # no example, since it is only a helper function
+checkPredModel <- function(model) {
 
-checkIrtPredModel <- function(model) {
-
-  if (!is.list(model)) {
-    stop("'model' must be an object returned by fitIrt().")
+  # Check if model is a list and contains modelType
+  if (!is.list(model) || is.null(model$modelType) ||
+      !(model$modelType %in% c("irt", "lc"))) {
+    stop("'model' must be an object returned by fitIrt() or fitLc().")
   }
 
-  requiredTop <- c(
-    "items",
-    "varLabels",
-    "coef",
-    "nFactors",
-    "thetaGridPred",
-    "itemProbs"
-  )
+  # Check if model$coef is a list
+  if (!is.list(model$coef)) {
+    stop("'model$coef' must be a list.")
+  }
+
+  # Check coefficients and additional entries in model
+  if (model$modelType == "irt") {
+    ## Coefficients For IRT model
+    requiredCoef <- c(
+      "paramItems",
+      "slopesItems",
+      "intItems",
+      "thetaCovPrior"
+    )
+
+    missingCoef <- requiredCoef[
+      vapply(requiredCoef, function(x) is.null(model$coef[[x]]), logical(1))
+    ]
+
+    if (length(missingCoef) > 0L) {
+      stop(
+        "'model$coef' is missing required component(s): ",
+        paste(missingCoef, collapse = ", "),
+        ". Please refit the model with fitIrt()."
+      )
+    }
+
+    ## Additional entries for IRT model
+    requiredTop <- c(
+      "items",
+      "varLabels",
+      "coef",
+      "nFactors",
+      "thetaGridPred",
+      "itemProbs"
+    )
+
+  } else {
+
+    ## Coefficients For LC model
+    if (is.null(model$formula)) {
+      if (is.null(model$coef$classPrior)) {
+        stop("'model$coef$classPrior' is missing.")
+      }
+    } else {
+      if (is.null(model$coef$paramReg)) {
+        stop("'model$coef$paramReg' is missing for latent class regression.")
+      }
+      if (is.null(model$covFormula)) {
+        stop("'model$covFormula' is missing for latent class regression.")
+      }
+    }
+
+    # if(is.null(model$formula)) {
+    #   if(is.null(model$coef$classPrior)) {
+    #     stop("'model$coef$classPrior' cannot be NULL if 'model$formula' is NULL")
+    #   }
+    # } else {
+    #   if(is.null(model$coef$paramReg)) {
+    #     stop("'model$coef$paramReg' cannot be NULL if 'model$formula' is not NULL")
+    #   }
+    # }
+
+    ## Additional entries for LC model
+    requiredTop <- c(
+      "items",
+      "varLabels",
+      "nClasses",
+      "fit",
+      "itemProbs",
+      "coef"
+    )
+  }
 
   missingTop <- requiredTop[
     vapply(requiredTop, function(x) is.null(model[[x]]), logical(1))
@@ -226,34 +298,480 @@ checkIrtPredModel <- function(model) {
     stop(
       "'model' is missing required component(s): ",
       paste(missingTop, collapse = ", "),
-      ". Please refit the model with fitIrt()."
+      "."
     )
   }
 
-  if (!is.list(model$coef)) {
-    stop("'model$coef' must be a list.")
+  if (!is.character(model$items) || length(model$items) == 0L) {
+    stop("'model$items' must be a non-empty character vector.")
   }
 
-  requiredCoef <- c(
-    "paramItems",
-    "slopesItems",
-    "intItems",
-    "thetaCovPrior"
-  )
+  if (!is.list(model$itemProbs)) {
+    stop("'model$itemProbs' must be a list.")
+  }
 
-  missingCoef <- requiredCoef[
-    vapply(requiredCoef, function(x) is.null(model$coef[[x]]), logical(1))
-  ]
-
-  if (length(missingCoef) > 0L) {
-    stop(
-      "'model$coef' is missing required component(s): ",
-      paste(missingCoef, collapse = ", "),
-      ". Please refit the model with fitIrt()."
-    )
+  if (!all(model$items %in% names(model$itemProbs))) {
+    stop("'model$itemProbs' must contain one element for every item in 'model$items'.")
   }
 
   invisible(TRUE)
+}
+
+#' Search best latent-variable models over varying latent dimensionality/classes
+#' (helper function)
+#'
+#' @description
+#' Helper used by \code{\link{fitIrtSearchLatent}} and
+#' \code{\link{fitLcSearchLatent}}. It fits several models with different numbers of
+#' latent variables or latent classes and selects the best model according to
+#' AIC or BIC. It uses the functions \code{\link{fitIrt}} or \code{\link{fitLc}}.
+#'
+#' @param items Character vector with the names of the columns in \code{data} containing
+#' the item responses. These columns are treated as ordered responses and used to
+#' fit the multidimensional graded IRT model.
+#' @param formula Either \code{NULL} (no latent regression), a character string
+#'  containing only the right-hand side of a regression formula
+#'  (e.g., \code{"age + sex"}), or a one-sided formula (e.g., \code{~ age + sex})
+#'  specifying the predictors for the latent regression.
+#' @param data A data frame containing the item responses specified in
+#'  \code{items} and, if \code{formula} is not \code{NULL}, all predictor
+#'  variables referenced in \code{formula}. Each row typically corresponds to
+#'  one person.
+#' @param nLatent Integer vector with the numbers of latent variables to search
+#'   over.
+#' @param aic Logical; if \code{TRUE}, the model with the lowest AIC is selected.
+#'   If \code{FALSE}, the model with the lowest BIC is selected.
+#' @param modelType Specification which model type should be used. Currently,
+#' either \code{"irt"} (based on \code{\link[mirt]{mirt}}) or \code{"lc"}
+#' (based on \code{\link[poLCA]{poLCA}}) are available.
+#'
+#' @param ... Further arguments passed to \code{\link{fitIrt}} or \code{\link{fitLc}}.
+#'
+#' @return Selected model object as in \code{\link{fitIrt}} or \code{\link{fitLc}}
+#' with an additional \code{search} component.
+#'
+#' @export
+#' @examples # no example, since it is only a helper function
+#'
+searchLatent <- function(items,
+                         formula = NULL,
+                         data,
+                         nLatent = 1:5,
+                         aic = FALSE,
+                         modelType = c("irt", "lc"),
+                         ...) {
+
+  # (1) Preparation
+  # Checks
+
+  ## Data
+  if (!is.data.frame(data)) {
+    stop("'data' must be a data.frame.")
+  }
+
+  ## Items
+  if (!is.character(items) || length(items) == 0L) {
+    stop("'items' must be a non-empty character vector.")
+  }
+
+  if (!all(items %in% names(data))) {
+    stop("All variables listed in 'items' must be columns in 'data'.")
+  }
+
+  ## Model type
+  modelType <- match.arg(modelType)
+
+  ## Range of the number of latent variables/classes
+  if (!is.numeric(nLatent) || length(nLatent) < 1L ||
+      any(is.na(nLatent)) || any(nLatent < 1) ||
+      any(nLatent != as.integer(nLatent))) {
+    stop("'nLatent' must be a positive integer vector.")
+  }
+
+  nLatent <- sort(unique(as.integer(nLatent)))
+
+  ## Criterion
+  if (!is.logical(aic) || length(aic) != 1L || is.na(aic)) {
+    stop("'aic' must be TRUE or FALSE.")
+  }
+
+  criterion <- if (isTRUE(aic)) "aic" else "bic"
+
+  ## Additional arguments
+  dots <- list(...)
+
+  if (modelType == "irt" && "model" %in% names(dots)) {
+    stop(
+      "Do not pass 'model' through '...'. ",
+      "The IRT model dimension is controlled by 'nLatent'."
+    )
+  }
+
+  if (modelType == "lc" && "nClasses" %in% names(dots)) {
+    stop(
+      "Do not pass 'nClasses' through '...'. ",
+      "The number of latent classes is controlled by 'nLatent'."
+    )
+  }
+
+  if (modelType == "irt" &&
+      "thetaGrid" %in% names(dots) &&
+      length(nLatent) > 1L) {
+    stop(
+      "'thetaGrid' can only be used with a single value of 'nLatent', ",
+      "because the grid dimension must match the number of latent variables."
+    )
+  }
+
+  # (2) Fit models
+
+  modelList <- vector("list", length(nLatent))
+  names(modelList) <- as.character(nLatent)
+
+  tabSearch <- data.frame(
+    nLatent = nLatent,
+    aic = NA_real_,
+    bic = NA_real_,
+    runTime = NA_real_,
+    stringsAsFactors = FALSE
+  )
+
+  for (i in seq_along(nLatent)) {
+
+    k <- nLatent[i]
+
+    time1 <- Sys.time()
+
+    if (modelType == "irt") {
+
+      modelFit <- do.call(
+        fitIrt,
+        c(
+          list(
+            items = items,
+            formula = formula,
+            data = data,
+            model = k
+          ),
+          dots
+        )
+      )
+
+      aicValue <- as.numeric(mirt::extract.mirt(modelFit$fit, "AIC"))
+      bicValue <- as.numeric(mirt::extract.mirt(modelFit$fit, "BIC"))
+
+    } else if (modelType == "lc") {
+
+      modelFit <- do.call(
+        fitLc,
+        c(
+          list(
+            items = items,
+            formula = formula,
+            data = data,
+            nClasses = k
+          ),
+          dots
+        )
+      )
+
+      aicValue <- as.numeric(modelFit$fit$aic)
+      bicValue <- as.numeric(modelFit$fit$bic)
+    }
+
+    runTime <- difftime(Sys.time(), time1, units = "secs")[[1]]
+
+    tabSearch$aic[i] <- aicValue
+    tabSearch$bic[i] <- bicValue
+    tabSearch$runTime[i] <- runTime
+
+    modelList[[as.character(k)]] <- modelFit
+  }
+
+  # (3) Select best model
+
+  critValues <- tabSearch[[criterion]]
+
+  if (all(is.na(critValues))) {
+    stop("All fitted models have missing ", toupper(criterion), " values.")
+  }
+
+  bestId <- which(critValues <= min(critValues, na.rm = TRUE))
+  bestId <- bestId[1L]
+
+  bestNLatent <- tabSearch$nLatent[bestId]
+
+  tabSearch$selected <- FALSE
+  tabSearch$selected[bestId] <- TRUE
+
+  bestModel <- modelList[[as.character(bestNLatent)]]
+
+  # (4) Add search output to selected model
+
+  bestModel$search <- list(
+    table = tabSearch,
+    models = modelList,
+    criterion = criterion,
+    bestNLatent = bestNLatent,
+    bestValue = tabSearch[[criterion]][bestId],
+    modelType = modelType
+  )
+
+  return(bestModel)
+}
+
+#' Select best model from a latent-model search object (helper function)
+#'
+#' @description
+#' \code{selectBestSearchModel()} re-selects the best model from an object
+#' returned by  \code{\link{searchLatent}}, \code{\link{fitIrtSearchLatent}},
+#' or \code{\link{fitLcSearchLatent}}. The function does not refit any models.
+#' It uses the stored AIC/BIC table and the stored fitted models in the
+#' \code{search} component.
+#'
+#' @param modelSearch Model object returned by \code{\link{searchLatent}},
+#'   \code{\link{fitIrtSearchLatent}}, or \code{\link{fitLcSearchLatent}}.
+#'   The object must contain a \code{search} component.
+#' @param aic Logical; if \code{TRUE}, the model with the lowest AIC is selected.
+#'   If \code{FALSE}, the model with the lowest BIC is selected.
+#'
+#' @return The selected model object. The returned object has the same structure
+#'   as the  \code{modelSearch} object, with an updated \code{search} component. The
+#'   \code{search$table} component contains an updated \code{selected} column,
+#'   and \code{search$criterion}, \code{search$bestNLatent}, and
+#'   \code{search$bestValue} are updated according to the chosen criterion.
+#'
+#' @export
+selectBestSearchModel <- function(modelSearch,
+                                  aic = FALSE) {
+
+  # (1) Checks
+
+  if (!is.list(modelSearch)) {
+    stop("'modelSearch' must be a model object returned by searchLatent().")
+  }
+
+  if (is.null(modelSearch$search)) {
+    stop("'modelSearch' must contain a 'search' component.")
+  }
+
+  if (is.null(modelSearch$search$table)) {
+    stop("'modelSearch$search$table' is missing.")
+  }
+
+  if (is.null(modelSearch$search$models)) {
+    stop("'modelSearch$search$models' is missing.")
+  }
+
+  if (!is.logical(aic) || length(aic) != 1L || is.na(aic)) {
+    stop("'aic' must be TRUE or FALSE.")
+  }
+
+  tabSearch <- modelSearch$search$table
+  modelList <- modelSearch$search$models
+
+  requiredCols <- c("nLatent", "aic", "bic")
+
+  if (!all(requiredCols %in% names(tabSearch))) {
+    stop(
+      "'modelSearch$search$table' must contain the columns: ",
+      paste(requiredCols, collapse = ", "), "."
+    )
+  }
+
+  if (!is.list(modelList) || length(modelList) == 0L) {
+    stop("'modelSearch$search$models' must be a non-empty list.")
+  }
+
+  criterion <- if (isTRUE(aic)) "aic" else "bic"
+
+
+  # (2) Select best model
+
+  critValues <- tabSearch[[criterion]]
+
+  bestId <- which(critValues <= min(critValues, na.rm = TRUE))
+  bestId <- bestId[1L]
+
+  bestNLatent <- tabSearch$nLatent[bestId]
+
+  tabSearch$selected <- FALSE
+  tabSearch$selected[bestId] <- TRUE
+
+
+  # (3) Extract selected model
+
+  modelName <- as.character(bestNLatent)
+
+  if (modelName %in% names(modelList)) {
+    bestModel <- modelList[[modelName]]
+  } else if (length(modelList) >= bestId) {
+    bestModel <- modelList[[bestId]]
+  } else {
+    stop("Could not find the selected model in 'modelSearch$search$models'.")
+  }
+
+
+  # (4) Avoid recursive search objects
+
+  modelList <- lapply(modelList, function(x) {
+    x$search <- NULL
+    x
+  })
+
+  bestModel$search <- modelSearch$search
+  bestModel$search$table <- tabSearch
+  bestModel$search$models <- modelList
+  bestModel$search$criterion <- criterion
+  bestModel$search$bestNLatent <- bestNLatent
+  bestModel$search$bestValue <- tabSearch[[criterion]][bestId]
+
+  return(bestModel)
+}
+
+#' Compute exact full joint response distribution from an latent class model (helper function)
+#'
+#' @description
+#' Function used by predJointDistRespLc() when fullJoint = TRUE.
+#' It enumerates all possible response patterns and computes their exact
+#' probabilities under the latent class (LC) model. The computation is based on
+#' publicly available R code (XX) from the study of XX.
+#'
+#' @param classProb Numeric vector of class probabilities. These are either
+#' prior class probabilities P(C = k) or posterior class probabilities
+#' P(C = k | observed responses) if responses have already been conditioned on.
+#' @param itemProbs List of item probability matrices. Each element corresponds
+#' to one item and has one row per latent class and one column per response
+#' category.
+#' @param varLabels List of original item response labels.
+#' @param items Character vector of item names.
+#' @param givenValAll Optional named vector of already observed item responses.
+#'
+#' @return Data frame with columns item1, ..., itemJ, freq.
+#'
+#' @noRd
+fullJointDistRespLc <- function(classProb,
+                                itemProbs,
+                                varLabels,
+                                items,
+                                givenValAll = NULL) {
+
+  nClasses <- length(classProb)
+
+  if (any(!is.finite(classProb)) ||
+      any(classProb < 0) ||
+      sum(classProb) <= 0) {
+    stop("'classProb' must contain valid nonnegative class probabilities.")
+  }
+
+  classProb <- classProb / sum(classProb)
+
+  if (!is.null(givenValAll)) {
+    if (is.null(names(givenValAll)) ||
+        !all(names(givenValAll) %in% items)) {
+      stop("Names of 'givenValAll' must match item names.")
+    }
+  }
+
+  givenItems <- if (is.null(givenValAll)) character(0) else names(givenValAll)
+  unknownItems <- setdiff(items, givenItems)
+
+  # Enumerate response patterns for unknown items only.
+  # If no responses are known, this is the full joint distribution.
+  # If responses are known, this is the full conditional distribution
+  # over the remaining items.
+  if (length(unknownItems) == 0L) {
+
+    patternUnknown <- data.frame(.dummy = 1L)
+    patternUnknown <- patternUnknown[, 0, drop = FALSE]
+
+  } else {
+
+    # Number of possible patterns
+    nPatterns <- prod(vapply(varLabels[unknownItems], length, numeric(1)))
+
+    patternUnknown <- expand.grid(
+      varLabels[unknownItems],
+      KEEP.OUT.ATTRS = FALSE,
+      stringsAsFactors = FALSE
+    )
+
+    names(patternUnknown) <- unknownItems
+  }
+
+
+  # Insert known and unknown responses into the original item order.
+  patternAll <- data.frame(
+    matrix(NA, nrow = nrow(patternUnknown), ncol = length(items)),
+    stringsAsFactors = FALSE
+  )
+
+  names(patternAll) <- items
+
+  for (j in items) {
+
+    if (j %in% givenItems) {
+      patternAll[[j]] <- givenValAll[[j]]
+    } else {
+      patternAll[[j]] <- patternUnknown[[j]]
+    }
+  }
+
+  # Compute exact response-pattern probabilities.
+  # If givenValAll is supplied, classProb is already P(C | Y_observed),
+  # so we multiply only over the unknown items.
+  freq <- numeric(nrow(patternAll))
+
+  for (k in seq_len(nClasses)) {
+
+    prob_k <- rep(classProb[k], nrow(patternAll))
+
+    for (j in unknownItems) {
+
+      probs <- as.matrix(itemProbs[[j]])
+      varLabels_j <- varLabels[[j]]
+
+      # Ensure columns correspond to stored response labels.
+      if (!is.null(colnames(probs)) &&
+          all(as.character(varLabels_j) %in% colnames(probs))) {
+        probs <- probs[, as.character(varLabels_j), drop = FALSE]
+      }
+
+      # Match response values to item-probability columns.
+      # First try exact character matching.
+      respCol <- match(
+        as.character(patternAll[[j]]),
+        as.character(varLabels_j)
+      )
+
+      prob_k <- prob_k * probs[k, respCol]
+    }
+
+    freq <- freq + prob_k
+  }
+
+  jointDist <- patternAll
+  jointDist$freq <- freq
+
+  jointDist <- jointDist[jointDist$freq > 0, , drop = FALSE]
+
+  if (sum(jointDist$freq) <= 0) {
+    stop("The computed full joint distribution has total probability 0.")
+  }
+
+  jointDist$freq <- jointDist$freq / sum(jointDist$freq)
+
+  # Make item values.
+  facToNumeric <- function(x) as.numeric(as.character(x))
+
+  jointDist[, items] <- lapply(
+    jointDist[, items, drop = FALSE],
+    facToNumeric
+  )
+
+  rownames(jointDist) <- NULL
+
+  return(jointDist)
 }
 
 #' Cost-based binary classifier (helper function)
@@ -480,5 +998,3 @@ classMultBinDiag <- function(probDiag,
 
   return(predDiag)
 }
-
-

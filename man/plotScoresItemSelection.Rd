@@ -3,7 +3,7 @@
 \name{plotScoresItemSelection}
 \alias{plotScoresItemSelection}
 \title{Plot joint and marginal distributions of scores based on predictions of a subset of items
-and a fitted Multidimensional Item Response Theory Model}
+and a fitted latent variable model}
 \usage{
 plotScoresItemSelection(
   result,
@@ -28,8 +28,8 @@ plotScoresItemSelection(
 )
 }
 \arguments{
-\item{result}{List returned by \code{\link{dedaptiveIrt}} or
-\code{\link{fixSelectionIrt}}, containing at least \code{distFun} and
+\item{result}{List returned by \code{\link{dedaptive}} or
+\code{\link{fixSelection}}, containing at least \code{distFun} and
 \code{thres}.}
 
 \item{whichScores}{Integer vector of length 2 indicating which two scores
@@ -82,9 +82,9 @@ Creates a color-coded scatter plot (joint distribution) of two scores
 above and to the right. Thresholds are indicated by reference lines and
 the probabilities are shown as well.
 
-The function assumes that \code{result} comes from \code{\link{dedaptiveIrt}}
-or \code{\link{fixSelectionIrt}} (based on a fitted Multidimensional Item Response
-Theory model) and contains elements \code{distFun} and
+The function assumes that \code{result} comes from \code{\link{dedaptive}}
+or \code{\link{fixSelection}} (based on a fitted Multidimensional Item Response
+Theory or latent class model) and contains elements \code{distFun} and
 \code{thres}. Via the argument \code{whichScores}, you can choose which two score
 functions (and corresponding decisions/thresholds) to visualize. By default,
 the first two scores are used.
