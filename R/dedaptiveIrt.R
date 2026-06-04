@@ -180,9 +180,9 @@ dedaptiveIrt <- function(model = NULL,
   ## output from every step
   if(saveSteps){outSteps<- list()}
 
-  c <- 0
+  stepCount <- 0
   while (costRed && length(itemsLeft) > 0) {
-    c <- c + 1
+    stepCount <- stepCount + 1
 
     # (2) Expected costs given past measurements
 
@@ -295,12 +295,12 @@ dedaptiveIrt <- function(model = NULL,
     # Termination condition: stop if no cost reduction is achieved
     costRed <- diffExpCost < 0
     if(saveSteps){
-      outSteps[[c]]<- list(dist=predJointSubTemp,
-                           expCostsPast=expCostsPast,
-                           expCostPros=expCostPros,
-                           expCostProsPerLevel=expCostProsPerLevel,
-                           itemNameMinCost=itemNameMinCost,
-                           diffExpCost=diffExpCost)
+      outSteps[[stepCount]] <- list(dist=predJointSubTemp,
+                                    expCostsPast=expCostsPast,
+                                    expCostPros=expCostPros,
+                                    expCostProsPerLevel=expCostProsPerLevel,
+                                    itemNameMinCost=itemNameMinCost,
+                                    diffExpCost=diffExpCost)
     }
     if (costRed) {
 
@@ -322,7 +322,7 @@ dedaptiveIrt <- function(model = NULL,
         dataSub = dataSub,
         nSimTheta = nSimTheta,
         nSimItem = nSimItem,
-        seed = seeds[c],
+        seed = seeds[stepCount],
         givenVal = valItemLast,
         priorGrid = distThetaPast
       )
@@ -343,9 +343,9 @@ dedaptiveIrt <- function(model = NULL,
       }
 
       # Remove columns of already selected items from the joint distribution
-      predJointSubTemp <- predJointSubTemp[, -which(colnames(predJointSubTemp)
-                                                    %in% itemsChosen),
-        drop = FALSE
+      predJointSubTemp <- predJointSubTemp[, !(colnames(predJointSubTemp) %in%
+                                                 itemsChosen),
+                                           drop = FALSE
       ]
     }
   }

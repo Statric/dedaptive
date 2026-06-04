@@ -219,7 +219,7 @@ checkIrtPredModel <- function(model) {
   )
 
   missingTop <- requiredTop[
-    !vapply(requiredTop, function(x) !is.null(model[[x]]), logical(1))
+    vapply(requiredTop, function(x) is.null(model[[x]]), logical(1))
   ]
 
   if (length(missingTop) > 0L) {
@@ -242,7 +242,7 @@ checkIrtPredModel <- function(model) {
   )
 
   missingCoef <- requiredCoef[
-    !vapply(requiredCoef, function(x) !is.null(model$coef[[x]]), logical(1))
+    vapply(requiredCoef, function(x) is.null(model$coef[[x]]), logical(1))
   ]
 
   if (length(missingCoef) > 0L) {

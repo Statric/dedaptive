@@ -111,7 +111,6 @@ fixSelectionIrt <- function(model,
 
     if (is.null(predJointSub)) {
       # No pre-computed joint distribution: compute it from the IRT model
-      set.seed(seed)
       predJointSub <- predJointDistRespIrt(
         model = model,
         dataSub = dataSub,
@@ -206,7 +205,7 @@ fixSelectionIrt <- function(model,
   if (!is.null(predJointSubCond)) {
     out$distTheta <- predJointSubCond$postDistTheta
   } else {
-    out$distTheta <- predJointSub$postDistTheta
+    out$distTheta <- predJointSub$postDistTheta # prior if predJointSub is used
   }
 
   # Add the score functions and thresholds

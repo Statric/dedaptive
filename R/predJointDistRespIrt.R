@@ -207,9 +207,9 @@ predJointDistRespIrt <- function(model,
     ## initialize likelihood
     likelihood <- rep(1, nrow(thetaGrid))
 
-    for (j in seq_along(givenRespPattern)) {
+    for (j in seq_len(ncol(givenRespPattern))) {
       ## response of item j (in column-major order; same as original)
-      response <- givenRespPattern[j]
+      response <- givenRespPattern[1, j]
 
       ## labels for item j
       varLabels_j <- varLabels[[j]]
@@ -235,7 +235,7 @@ predJointDistRespIrt <- function(model,
 
     # sample latent variables from posterior
     set.seed(seed)
-    simIds <- sample(1:nrow(thetaGrid),
+    simIds <- sample(seq_len(nrow(thetaGrid)),
                      size = nSimTheta,
                      replace = TRUE,
                      prob = postDistTheta)
@@ -256,7 +256,7 @@ predJointDistRespIrt <- function(model,
 
   # matrix with repeated theta values
   if (is.vector(thetaSim)) {
-    thetaSimRep <- rep(thetaSim, nSimItem)
+    thetaSimRep <- matrix(rep(thetaSim, nSimItem), ncol = 1L)
   } else {
     thetaSimRep <- matrix(
       rep(t(thetaSim), nSimItem),
