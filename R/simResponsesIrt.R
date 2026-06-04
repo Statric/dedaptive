@@ -1,14 +1,16 @@
-#' Simulate item responses from a fitted Multidimensional Item Response Theory model
+#' Simulate item responses from a fitted latent variable model
 #'
 #' @description
-#' \code{simResponsesIrt()} simulates item response patterns from a Multidimensional
-#' Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}, using the
-#' probabilistic machinery of \code{\link{predJointDistRespIrt}}.
+#' \code{simResponsesLatentModel()} simulates item response patterns from a Multidimensional
+#' Item Response Theory (MIRT) or Latent Class (LT) model fitted with
+#' \code{\link{fitIrt}} respectively \code{\link{fitLc}}, using the
+#' probabilistic machinery of \code{\link{predJointDistResp}}.
 #'
 #' @details
-#' If the MIRT model includes a latent regression (\code{model$formula} not \code{NULL}),
-#' \code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}.
-#' For each row in \code{dataPred}, one response pattern is simulated.
+#' If the MIRT or LC model includes a latent regression (\code{model$formula} not \code{NULL}),
+#' \code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}
+#' respectively \code{\link{fitLc}}.For each row in \code{dataPred}, one response
+#' pattern is simulated.
 #'
 #' If the model has no latent regression (\code{model$formula} is \code{NULL}) and
 #' \code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
@@ -23,10 +25,10 @@
 #' @return A data frame with predictors and simulated responses.
 #' @import mirt
 #' @export
-simResponsesIrt <- function(model,
-                            dataPred = NULL,
-                            nSim = NULL,
-                            seed = 1) {
+simResponsesLatentModel <- function(model,
+                                    dataPred = NULL,
+                                    nSim = NULL,
+                                    seed = 1) {
 
   # 1) Prepare
   if (!is.list(model) || is.null(model$items) || is.null(model$fit)) {
@@ -85,10 +87,10 @@ simResponsesIrt <- function(model,
     dataSub <- dataPred[i, , drop = FALSE]
     thisSeed <- as.integer(rowSeeds[i])
 
-    simOut <- predJointDistRespIrt(
+    simOut <- predJointDistResp(
       model     = model,
       dataSub   = dataSub,
-      nSimTheta = 1,
+      nSimLatent = 1,
       nSimItem  = 1,
       seed      = thisSeed
     )
