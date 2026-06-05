@@ -2,7 +2,7 @@
 % Please edit documentation in R/predJointDistRespIrt.R
 \name{predJointDistRespIrt}
 \alias{predJointDistRespIrt}
-\title{Probabilistic predictions of joint item responses from an Item Response Theory model}
+\title{Probabilistic predictions of joint item responses from an Multidimensional Item Response Theory model}
 \usage{
 predJointDistRespIrt(
   model,
@@ -58,15 +58,15 @@ A list with components:
 }
 \description{
 \code{predJointDistRespIrt()} performs probabilistic predictions of item
-responses based on a Multidimensional Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}.
-The method can incorporate predictors (via a latent regression, if specified) and
-optionally already observed responses for a subset of items.
+responses based on a Multidimensional Item Response Theory (MIRT) model fitted
+with \code{\link{fitIrt}}. The method can incorporate predictors (via a latent
+regression, if specified) and optionally already observed responses for a subset of items.
 
 The predictions are obtained with the following steps:
 \enumerate{
   \item Predict the distribution of the latent variables (possibly
   conditional on predictors via the latent regression).
-  \item If \code{givenVal} is supplied, update the distribution of the latent 
+  \item If \code{givenVal} is supplied, update the distribution of the latent
   variables conditional on the observed item responses.
   \item Draw samples of latent variables from this distribution.
   \item For each sampled latent variable, simulate item response patterns

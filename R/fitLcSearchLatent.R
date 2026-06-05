@@ -1,7 +1,8 @@
 #' Search latent class models over varying numbers of latent classes
 #'
-#' \code{fitLcSearchLatent()} fits several Latent Class (LC) models
-#' with different numbers of latent classes and selects the best model according to AIC or BIC.
+#' \code{fitLcSearchLatent()} fits several Latent Class (LC) models with different
+#' numbers of latent classes and selects the best model according to Akaike
+#' information criterion (AIC) or Bayesian Informationcriterion (BIC).
 #' The selected model is returned in the same format as \code{\link{fitLc}},
 #' with an additional \code{search} component containing all fitted models and
 #' the model-selection table. The function is based on the helper function \code{searchLatent}.

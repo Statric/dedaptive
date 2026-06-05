@@ -2,7 +2,7 @@
 #'
 #' @description
 #' \code{simResponsesLatentModel()} simulates item response patterns from a Multidimensional
-#' Item Response Theory (MIRT) or Latent Class (LT) model fitted with
+#' Item Response Theory (MIRT) or Latent Class (LC) model fitted with
 #' \code{\link{fitIrt}} respectively \code{\link{fitLc}}, using the
 #' probabilistic machinery of \code{\link{predJointDistResp}}.
 #'
@@ -16,7 +16,7 @@
 #' \code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
 #' response patterns are simulated.
 #'
-#' @param model MIRT model fitted with \code{\link{fitIrt}}.
+#' @param model MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitIrt}}
 #' @param dataPred Optional data frame with predictors for latent regression.
 #' @param nSim Number of simulated response patterns when \code{dataPred} is
 #'   \code{NULL} and no regression is used.

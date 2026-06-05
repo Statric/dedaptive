@@ -2,7 +2,7 @@
 % Please edit documentation in R/fixSelection.R
 \name{fixSelection}
 \alias{fixSelection}
-\title{Probabilistic predictions with fixed-item panels based on a Multidimensional Item Response Theory model}
+\title{Probabilistic predictions with fixed-item panels based on a latent-variable model}
 \usage{
 fixSelection(
   model,
@@ -12,8 +12,8 @@ fixSelection(
   funOfItems = list(sum),
   thres,
   givenVar = NULL,
-  nSimLatent = 500,
-  nSimItem = 2,
+  nSimLatent = 1000,
+  nSimItem = 10,
   seed = 131820,
   fullJoint = FALSE
 )
@@ -79,6 +79,8 @@ A list with components:
     in the order in which they were chosen.}
   \item{\code{distItems}}{Joint distribution of the not chosen items at the
     end of the procedure.}
+  \item{\code{distLatent}}{Posterior distribution of the latent variable or
+    latent classes after the final adaptive update.}
 }
 }
 \description{

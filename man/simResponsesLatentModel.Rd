@@ -7,7 +7,7 @@
 simResponsesLatentModel(model, dataPred = NULL, nSim = NULL, seed = 1)
 }
 \arguments{
-\item{model}{MIRT model fitted with \code{\link{fitIrt}}.}
+\item{model}{MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitIrt}}}
 
 \item{dataPred}{Optional data frame with predictors for latent regression.}
 
@@ -21,7 +21,7 @@ A data frame with predictors and simulated responses.
 }
 \description{
 \code{simResponsesLatentModel()} simulates item response patterns from a Multidimensional
-Item Response Theory (MIRT) or Latent Class (LT) model fitted with
+Item Response Theory (MIRT) or Latent Class (LC) model fitted with
 \code{\link{fitIrt}} respectively \code{\link{fitLc}}, using the
 probabilistic machinery of \code{\link{predJointDistResp}}.
 }

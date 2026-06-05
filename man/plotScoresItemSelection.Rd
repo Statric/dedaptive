@@ -83,8 +83,8 @@ above and to the right. Thresholds are indicated by reference lines and
 the probabilities are shown as well.
 
 The function assumes that \code{result} comes from \code{\link{dedaptive}}
-or \code{\link{fixSelection}} (based on a fitted Multidimensional Item Response
-Theory or latent class model) and contains elements \code{distFun} and
+or \code{\link{fixSelection}} (based on a fitted multidimensional item response
+theory or latent class model) and contains elements \code{distFun} and
 \code{thres}. Via the argument \code{whichScores}, you can choose which two score
 functions (and corresponding decisions/thresholds) to visualize. By default,
 the first two scores are used.

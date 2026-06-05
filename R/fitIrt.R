@@ -8,7 +8,7 @@
 #' Technically, \code{fitIrt()} is a wrapper around \code{\link[mirt]{mirt}}:
 #' it prepares the data, sets up an optional latent regression, and stores some
 #' additional information (e.g., item labels) needed later by functions from \code{dedaptive}.
-#' If you plan to use an IRT model with \code{dedaptive}, you must always fit
+#' If you plan to use an MIRT model with \code{dedaptive}, you must always fit
 #' it via \code{fitIrt()} rather than calling \code{\link[mirt]{mirt}} directly.
 #'
 #' @details
@@ -33,12 +33,12 @@
 #' a user-supplied \code{thetaGrid}, a regular grid defined by \code{thetaLim}
 #' or \code{thetaQuadpts}, the internal theta grid from the fitted
 #' \code{\link[mirt]{mirt}} object when available, and finally a default regular
-#' grid. This prediction grid is used other functions of \code{dedaptive}
+#' grid. This prediction grid is used in other functions of \code{dedaptive}
 #' to approximate posterior distributions of the latent variables.
 #'
 #' @param items Character vector with the names of the columns in \code{data} containing
 #' the item responses. These columns are treated as ordered responses and used to
-#' fit the multidimensional graded IRT model.
+#' fit the graded MIRT model.
 #' @param formula Either \code{NULL} (no latent regression), a character string
 #'  containing only the right-hand side of a regression formula
 #'  (e.g., \code{"age + sex"}), or a one-sided formula (e.g., \code{~ age + sex})

@@ -4,15 +4,15 @@
 #' \code{screenMental} is a fully simulated data set with sex, age, and PHQ-9/GAD-7
 #' item responses that follow the dependency structure learned from the data set
 #' used in the publication introducing the dedaptive testing framework (Wyss et al., 2026).
-#' The data set was generated using the function \code{\link{simResponsesLatentModel}}
+#' The data set was generated using the function \code{\link{simResponsesLatentModel}}.
 #'
 #' This data set can be used to demonstrate the functions \code{\link{fitIrt}} and \code{\link{fitLc}},
 #' \code{\link{predJointDistResp}}, \code{\link{fixSelection}} and \code{\link{dedaptive}}.
 #'
 #' @details
 #' The original data stems from a study investigating internet-based cognitive
-#' behavioral therapy for social anxiety (Šipka et al., 2025). A multidimensional
-#' Item Response Theory (IRT) model was trained on the nine items of the Patient
+#' behavioral therapy for social anxiety (Šipka et al., 2025). A Multidimensional
+#' Item Response Theory (MIRT) model was trained on the nine items of the Patient
 #' Health Questionnaire-9 (PHQ-9) and the seven items of the Generalized Anxiety
 #' Disorder-7 (GAD-7) scale. The model assumed two latent variables (all items
 #' loading on both latent variables) and a latent regression with effects of sex and age on the
@@ -73,7 +73,7 @@
 #' disorder: a randomized full factorial trial. \emph{Psychotherapy and Psychosomatics},
 #' 94(1), 40–59.
 #'
-#' Wyss, P., Steiner, M., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2025).
+#' Wyss, P., Steiner, M., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2026).
 #' Decision-oriented adaptive testing for efficient screening across mental disorders.
 #' Manuscript in preparation.
 #'

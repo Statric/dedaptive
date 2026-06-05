@@ -42,7 +42,7 @@ latent variables from a previous step (typically the
 
 \item{fullJoint}{Logical; for LC models, if \code{TRUE}, the full joint
 item-response distribution is computed exactly. If \code{FALSE}, the
-distribution is approximated by simulation. For IRT models,
+distribution is approximated by simulation. For MIRT models,
 \code{fullJoint = TRUE} is ignored and simulation-based prediction is used.}
 }
 \value{
@@ -64,15 +64,15 @@ A list with components:
 \code{predJointDistResp()} is a generic wrapper for probabilistic prediction
 of joint item-response distributions. It uses model-specific prediction functions
 based on the model type (\code{model$modelType}). Currently, Latent Class (LC)
-and Item Response Theory (IRT) model are supported.
+and Multidimensional Item Response Theory (MIRT) model are supported.
 
 If \code{model$modelType == "lc"} (LC model), the function calls
 \code{\link{predJointDistRespLc}}. In this case, the joint response
 distribution can either be computed exactly by setting \code{fullJoint = TRUE}
 or approximated by simulation by setting \code{fullJoint = FALSE}.
 
-If \code{model$modelType == "irt"} (IRT model), the function calls
-\code{\link{predJointDistRespIrt}}. For IRT models, \code{fullJoint = TRUE}
+If \code{model$modelType == "irt"} (MIRT model), the function calls
+\code{\link{predJointDistRespIrt}}. For MIRT models, \code{fullJoint = TRUE}
 is ignored.
 
 Simulation-based predictions are obtained with the following steps:

@@ -1,15 +1,15 @@
 #' Fit latent class models for use with \code{dedaptive}
 #'
 #' @description
-#' The function , \code{fitLatentClass()} fits an unrestricted Latent Class (LC) model
+#' The function \code{fitLc()} fits an unrestricted Latent Class (LC) model
 #' for categorical item responses and returns a model object that can be used for predictions
-#' and item selection within \code{dedaptive} library.
+#' and item selections within the \code{dedaptive} library.
 #'
-#' Technically, \code{fitLatentClass()} is a wrapper around \code{\link[poLCA]{poLCA}}:
+#' Technically, \code{fitLc()} is a wrapper around \code{\link[poLCA]{poLCA}}:
 #' it prepares the data, sets up an optional latent class regression, and stores
 #' additional information (e.g., item labels) needed later by functions from \code{dedaptive}.
 #' If you plan to use an LC model with \code{dedaptive}, you must always fit
-#' it via \code{fitLatentClass()} rather than calling  \code{\link[poLCA]{poLCA}} directly.
+#' it via \code{fitLc()} rather than calling  \code{\link[poLCA]{poLCA}} directly.
 #'
 #' @details
 #' The function expects a set of item responses and, optionally, predictors for
@@ -59,7 +59,7 @@
 #'   \item{\code{fit}}{The fitted \code{\link[poLCA]{poLCA}} model object returned by
 #'     \code{\link[poLCA]{poLCA}}.}
 #'
-#'   \item{\code{coef}}{List containing prior class-membership regression coefficients
+#'   \item{\code{coef}}{List containing prior class-membership probabilities
 #'   (\code{NULL} if \code{formula} is not \code{NULL}) and regression coefficients
 #'   (\code{NULL} if \code{formula} is \code{NULL}).}
 #'

@@ -17,11 +17,11 @@ Numeric vector of prior latent class probabilities. The vector has
 }
 \description{
 The function \code{predClassPriorLc()} computes the prior latent class probabilities for one
-observation from a latent class model fitted with predClassPriorLc \code{fitLc()}.
+observation from a latent class model fitted with \code{\link{fitLc}}.
 
 If the model was fitted without covariates, the function returns the fixed
-class proportions. If the model was fitted with a latent class regression, 
-the function returns subject-specific prior class probabilities using the 
-multinomial-logit parameterization used by \code{\link[poLCA]{poLCA}} . Class 1 
+class proportions. If the model was fitted with a latent class regression,
+the function returns subject-specific prior class probabilities using the
+multinomial-logit parameterization used by \code{\link[poLCA]{poLCA}}. Class 1
 is the reference class and its linear predictor is fixed to zero.
 }

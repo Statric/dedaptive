@@ -195,8 +195,7 @@ getThetaGridPred <- function(fit,
 #'
 #' @return Numeric vector
 #'
-#' @export
-#' @examples # no example, since it is only a helper function
+#' @noRd
 facToNumeric <- function(x) as.numeric(as.character(x))
 
 #' Check fitted IRT or LC model object for prediction functions (helper function)
@@ -206,8 +205,8 @@ facToNumeric <- function(x) as.numeric(as.character(x))
 #'
 #' @return Invisibly returns \code{TRUE} if all required components are present.
 #' Otherwise, an informative error is returned.
-#' @export
-#' @examples # no example, since it is only a helper function
+#'
+#' @noRd
 checkPredModel <- function(model) {
 
   # Check if model is a list and contains modelType
@@ -324,11 +323,12 @@ checkPredModel <- function(model) {
 #' Helper used by \code{\link{fitIrtSearchLatent}} and
 #' \code{\link{fitLcSearchLatent}}. It fits several models with different numbers of
 #' latent variables or latent classes and selects the best model according to
-#' AIC or BIC. It uses the functions \code{\link{fitIrt}} or \code{\link{fitLc}}.
+#' Akaike information criterion (AIC) or Bayesian Information criterion (BIC).
+#' It uses the functions \code{\link{fitIrt}} or \code{\link{fitLc}}.
 #'
 #' @param items Character vector with the names of the columns in \code{data} containing
-#' the item responses. These columns are treated as ordered responses and used to
-#' fit the multidimensional graded IRT model.
+#' the item responses. These columns are used to fit the multidimensional graded
+#' item response theory or unrestricted latent class model.
 #' @param formula Either \code{NULL} (no latent regression), a character string
 #'  containing only the right-hand side of a regression formula
 #'  (e.g., \code{"age + sex"}), or a one-sided formula (e.g., \code{~ age + sex})
@@ -520,7 +520,7 @@ searchLatent <- function(items,
   return(bestModel)
 }
 
-#' Select best model from a latent-model search object (helper function)
+#' Select best model from a latent-model search object
 #'
 #' @description
 #' \code{selectBestSearchModel()} re-selects the best model from an object
@@ -542,6 +542,7 @@ searchLatent <- function(items,
 #'   \code{search$bestValue} are updated according to the chosen criterion.
 #'
 #' @export
+#' @examples # no example so far
 selectBestSearchModel <- function(modelSearch,
                                   aic = FALSE) {
 

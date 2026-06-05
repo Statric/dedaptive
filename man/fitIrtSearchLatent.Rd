@@ -2,7 +2,7 @@
 % Please edit documentation in R/fitIrtSearchLatent.R
 \name{fitIrtSearchLatent}
 \alias{fitIrtSearchLatent}
-\title{Search item response theory models over varying numbers of latent variables}
+\title{Search multidimensional item response theory models over varying numbers of latent variables}
 \usage{
 fitIrtSearchLatent(
   items,
@@ -51,9 +51,10 @@ A list object with the same structure as returned by
   }
 }
 \description{
-\code{fitIrtSearchLatent()} fits several Item Response Theory (IRT) models 
-with different numbers of latent variables and selects the best model according to AIC or BIC.
-The selected model is returned in the same format as \code{\link{fitIrt}},
+\code{fitIrtSearchLatent()} fits several Item Response Theory (IRT) or Multidimensional
+IRT (MIRT) models with different numbers of latent variables and selects the
+best model according to Akaike information criterion (AIC) or Bayesian Information
+criterion (BIC). The selected model is returned in the same format as \code{\link{fitIrt}},
 with an additional \code{search} component containing all fitted models and
 the model-selection table. The function is based on the helper function \code{\link{searchLatent}}.
 }

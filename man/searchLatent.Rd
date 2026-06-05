@@ -17,8 +17,8 @@ searchLatent(
 }
 \arguments{
 \item{items}{Character vector with the names of the columns in \code{data} containing
-the item responses. These columns are treated as ordered responses and used to
-fit the multidimensional graded IRT model.}
+the item responses. These columns are used to fit the multidimensional graded
+item response theory or unrestricted latent class model.}
 
 \item{formula}{Either \code{NULL} (no latent regression), a character string
 containing only the right-hand side of a regression formula
@@ -50,7 +50,8 @@ with an additional \code{search} component.
 Helper used by \code{\link{fitIrtSearchLatent}} and
 \code{\link{fitLcSearchLatent}}. It fits several models with different numbers of
 latent variables or latent classes and selects the best model according to
-AIC or BIC. It uses the functions \code{\link{fitIrt}} or \code{\link{fitLc}}.
+Akaike information criterion (AIC) or Bayesian Information criterion (BIC).
+It uses the functions \code{\link{fitIrt}} or \code{\link{fitLc}}.
 }
 \examples{
 # no example, since it is only a helper function

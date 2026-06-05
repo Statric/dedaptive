@@ -1,16 +1,16 @@
-#' Probabilistic predictions of joint item responses from an Item Response Theory model
+#' Probabilistic predictions of joint item responses from an Multidimensional Item Response Theory model
 #'
 #' @description
 #' \code{predJointDistRespIrt()} performs probabilistic predictions of item
-#' responses based on a Multidimensional Item Response Theory (MIRT) model fitted with \code{\link{fitIrt}}.
-#' The method can incorporate predictors (via a latent regression, if specified) and
-#' optionally already observed responses for a subset of items.
+#' responses based on a Multidimensional Item Response Theory (MIRT) model fitted
+#' with \code{\link{fitIrt}}. The method can incorporate predictors (via a latent
+#' regression, if specified) and optionally already observed responses for a subset of items.
 #'
 #' The predictions are obtained with the following steps:
 #' \enumerate{
 #'   \item Predict the distribution of the latent variables (possibly
 #'   conditional on predictors via the latent regression).
-#'   \item If \code{givenVal} is supplied, update the distribution of the latent 
+#'   \item If \code{givenVal} is supplied, update the distribution of the latent
 #'   variables conditional on the observed item responses.
 #'   \item Draw samples of latent variables from this distribution.
 #'   \item For each sampled latent variable, simulate item response patterns
@@ -208,7 +208,7 @@ predJointDistRespIrt <- function(model,
     likelihood <- rep(1, nrow(thetaGrid))
 
     for (j in seq_len(ncol(givenRespPattern))) {
-      ## response of item j 
+      ## response of item j
       response <- givenRespPattern[1, j]
 
       ## labels for item j
@@ -221,7 +221,7 @@ predJointDistRespIrt <- function(model,
             min(abs(as.numeric(varLabels_j) - response))
         )
         respCol <- respCol[1]
-        
+
         ## item category probabilities conditional on latent variable
         probs <- itemProbs[[j]][, respCol]
 
@@ -289,7 +289,7 @@ predJointDistRespIrt <- function(model,
   freqTable$freq <- freqTable$freq / sum(freqTable$freq)
 
   colnames(freqTable) <- c(items, "freq")
-  
+
   freqTable[, items] <- lapply(
     freqTable[, items, drop = FALSE],
     facToNumeric

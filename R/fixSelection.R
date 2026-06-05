@@ -1,4 +1,4 @@
-#' Probabilistic predictions with fixed-item panels based on a Multidimensional Item Response Theory model
+#' Probabilistic predictions with fixed-item panels based on a latent-variable model
 #'
 #' @description
 #' \code{fixSelection()} performs probabilistic predictions for a fixed set
@@ -64,6 +64,8 @@
 #'     in the order in which they were chosen.}
 #'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
 #'     end of the procedure.}
+#'   \item{\code{distLatent}}{Posterior distribution of the latent variable or
+#'     latent classes after the final adaptive update.}
 #' }
 #'
 #' @import mirt
@@ -75,8 +77,8 @@ fixSelection <- function(model,
                          funOfItems = list(sum),
                          thres,
                          givenVar = NULL,
-                         nSimLatent = 500,
-                         nSimItem = 2,
+                         nSimLatent = 1000,
+                         nSimItem = 10,
                          seed = 131820,
                          fullJoint = FALSE
 ) {
@@ -214,9 +216,9 @@ fixSelection <- function(model,
   out$distItems <- predJointDistSub
 
   if (!is.null(predJointSubCond)) {
-    out$distTheta <- predJointSubCond$postDistTheta
+    out$distLatent <- predJointSubCond$postdistLatent
   } else {
-    out$distTheta <- predJointSub$postDistTheta # prior if predJointSub is used
+    out$distLatent <- predJointSub$postdistLatent # prior if predJointSub is used
   }
 
   # Add the score functions and thresholds

@@ -2,7 +2,7 @@
 % Please edit documentation in R/dedaptive.R
 \name{dedaptive}
 \alias{dedaptive}
-\title{DEcision-oriented aDAPTIVE (dedaptive) testing based on latent-variable models.}
+\title{DEcision-oriented aDAPTIVE (dedaptive) testing based on a latent-variable model}
 \usage{
 dedaptive(
   model = NULL,
@@ -23,10 +23,10 @@ dedaptive(
 \item{model}{Model object fitted with \code{\link{fitIrt}} or
 \code{\link{fitLc}}.}
 
-\item{predJointSub}{Optional object containing the predicted distribution of
-response patterns for the current person, as returned
-by \code{\link{predJointDistResp}}. If \code{NULL}, this distribution
-is computed inside the function before any item is selected.}
+\item{predJointSub}{Optional object containing the predicted prior distribution
+of response patterns for the current person, as returned by \code{\link{predJointDistResp}}.
+If \code{NULL}, this distribution is computed inside the function before any
+item is selected.}
 
 \item{dataSub}{One-row data frame for the current person containing item
 responses and, if applicable, predictor variables considered in the latent regression
@@ -100,7 +100,7 @@ A list with components:
 \code{dedaptive()} performs DEcision-oriented aDAPTIVE (dedaptive) testing
 based on probabilistic predictions from a fitted latent-variable model.
 Currently, Latent Class (LC) models fitted with \code{\link{fitLc}}
-Mand ultdimensional Item Response Theory (MIRT) models fitted with
+and Multdimensional Item Response Theory (MIRT) models fitted with
 \code{\link{fitIrt}} are supported.
 For a given person, items are selected sequentially to minimize expected total
 costs of misclassification and measurement.

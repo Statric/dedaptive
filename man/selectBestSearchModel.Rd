@@ -2,7 +2,7 @@
 % Please edit documentation in R/helpFunctions.R
 \name{selectBestSearchModel}
 \alias{selectBestSearchModel}
-\title{Select best model from a latent-model search object (helper function)}
+\title{Select best model from a latent-model search object}
 \usage{
 selectBestSearchModel(modelSearch, aic = FALSE)
 }
@@ -27,4 +27,7 @@ returned by  \code{\link{searchLatent}}, \code{\link{fitIrtSearchLatent}},
 or \code{\link{fitLcSearchLatent}}. The function does not refit any models.
 It uses the stored AIC/BIC table and the stored fitted models in the
 \code{search} component.
+}
+\examples{
+# no example so far
 }
