@@ -308,7 +308,8 @@ dedaptive <- function(model = NULL,
 
       # Identify the item with minimal expected costs
       itemMinCosts <- which(expCostPros <= min(expCostPros))
-      itemMinCosts <- itemMinCosts[1]
+      set.seed(seeds[stepCount]+1)
+      itemMinCosts <- itemMinCosts[sample(1:length(itemMinCosts))]
       minExpCost <- as.numeric(expCostPros[itemMinCosts])
       itemNameMinCost <- names(expCostPros)[itemMinCosts]
 

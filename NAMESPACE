@@ -2,6 +2,7 @@
 
 export(classMultBinDiag)
 export(dedaptive)
+export(fcClassCostFct)
 export(fcClassFct)
 export(fitIrt)
 export(fitIrtSearchLatent)

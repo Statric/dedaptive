@@ -812,6 +812,46 @@ fcClassFct <- function(prob,
   return(zHat)
 }
 
+#' Cost-based binary classifier and expected misclassification costs (helper function)
+#'
+#' @param prob Probability of higher class.
+#' @param missCosts Vector of misclassification costs (costs for false positive,
+#' costs for false negative).
+#' @param class1 Name of lower class.
+#' @param class2 name of higher class.
+#'
+#' @return classifier and expected misclassification costs
+#' @export
+#'
+#' @examples # no example, since it is only a helper function
+#'
+fcClassCostFct <- function(prob,
+                           missCosts,
+                           class1 = 0,
+                           class2 = 1) {
+
+  zHat <- fcClassFct(
+    prob = prob,
+    missCosts = missCosts,
+    class1 = class1,
+    class2 = class2
+  )
+
+  cFp <- missCosts[1]
+  cFn <- missCosts[2]
+
+  expCost <- ifelse(
+    zHat == class2,
+    cFp * (1 - prob),  # predict positive: false-positive risk
+    cFn * prob         # predict negative: false-negative risk
+  )
+
+  return(list(
+    zHat = zHat,
+    expCost = expCost
+  ))
+}
+
 #' Compute conditional joint distribution (helper function)
 #'
 #' @param jointDist table of the joint distribution.
@@ -928,6 +968,7 @@ classMultBinDiag <- function(probDiag,
                              cFp,
                              cFn,
                              probName = "freq") {
+
   # Checks
   if (length(cFp) != length(cFn)) {
     stop("'cFp' and 'cFn' must have the same length.")
@@ -937,65 +978,45 @@ classMultBinDiag <- function(probDiag,
     stop("'probName' must be a column in 'probDiag'.")
   }
 
-  # Define diagnosis and classifiers names
   diagNames <- colnames(probDiag)[colnames(probDiag) != probName]
-  predDiagNames <- paste("predDiag", 1:length(cFp), sep = "_")
+  predDiagNames <- paste("predDiag", seq_along(cFp), sep = "_")
 
   if (length(cFp) != length(diagNames)) {
     stop("Lengths of 'cFp' and 'cFn' must match the number of diagnosis columns.")
   }
 
-  # all combinations of diagnoses and predicted diagnoses
-  gridDiag <- expand.grid(rep(list(c(0, 1)), length(cFp) * 2))
-  colnames(gridDiag) <- c(diagNames, predDiagNames)
+  # Normalize probabilities
+  w <- probDiag[[probName]]
 
-  gridDiag <- plyr::join(gridDiag, probDiag, by = diagNames)
-
-  posComb <- apply(probDiag[, diagNames, drop = FALSE], 1,
-                   function(x) paste(x, collapse = "_"))
-
-  gridDiagIn            <- gridDiag
-  gridDiagIn$diagAll    <- apply(gridDiagIn[, diagNames, drop = FALSE], 1,
-                                 function(x) paste(x, collapse = "_"))
-  gridDiagIn$predAll    <- apply(gridDiagIn[, predDiagNames, drop = FALSE], 1,
-                                 function(x) paste(x, collapse = "_"))
-
-  gridDiag <- gridDiag[
-    gridDiagIn$diagAll %in% posComb & gridDiagIn$predAll %in% posComb,
-  ]
-
-  gridDiag <- stats::na.omit(gridDiag)
-
-  # Compute costs for every diagnosis separately for all combinations
-  for (f in seq_along(cFp)) {
-    gridDiag[[paste0("costs_", f)]] <-
-      cFp[f] * (gridDiag[[diagNames[f]]] == 0) *
-      (gridDiag[[paste0("predDiag_", f)]] == 1) +
-      cFn[f] * (gridDiag[[diagNames[f]]] == 1) *
-      (gridDiag[[paste0("predDiag_", f)]] == 0)
+  if (any(!is.finite(w)) || any(w < 0) || sum(w) <= 0) {
+    stop("'probName' must contain valid nonnegative probabilities.")
   }
 
-  # Compute costs over all diagnoses and the expected costs for every combination
-  gridDiag[["costs"]]   <- rowSums(gridDiag[, grepl("cost", colnames(gridDiag)),
-                                            drop = FALSE])
-  gridDiag$expCosts     <- gridDiag$costs * gridDiag[[probName]]
+  w <- w / sum(w)
 
-  formAg <- stats::as.formula(
-    paste0("expCosts ~ ", paste(predDiagNames, collapse = "+"))
-  )
+  # Marginal probabilities per decision
+  D <- as.matrix(probDiag[, diagNames, drop = FALSE])
 
-  tabCostClass <- stats::aggregate(formAg, data = gridDiag, FUN = sum)
+  p1 <- colSums(D * w)
 
-  expCostClass <- min(tabCostClass$expCosts)
+  # Apply the binary classifier to every decision
+  outList <- lapply(seq_along(p1), function(k) {
+    fcClassCostFct(
+      prob = p1[k],
+      missCosts = c(cFp[k], cFn[k]),
+      class1 = 0,
+      class2 = 1
+    )
+  })
 
-  predDiag <- tabCostClass[
-    which(tabCostClass$expCosts <= expCostClass),
-    grepl("^predDiag", colnames(tabCostClass)),
-    drop = FALSE
-  ]
+  # Extract the predicted class and expected costs per decision
+  predDiag <- vapply(outList, function(x) x$zHat, numeric(1))
+  expCosts <- vapply(outList, function(x) x$expCost, numeric(1))
 
-  predDiag <- predDiag[1, , drop = FALSE]
-  predDiag$expCost <- expCostClass
+  # Build output
+  out <- as.data.frame(as.list(predDiag))
+  colnames(out) <- predDiagNames
+  out$expCost <- sum(expCosts)
 
-  return(predDiag)
+  return(out)
 }
