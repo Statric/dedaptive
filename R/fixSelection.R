@@ -3,7 +3,7 @@
 #' @description
 #' \code{fixSelection()} performs probabilistic predictions for a fixed set
 #' of selected items from a fitted latent-variable model. Currently, Latent Class (LC)
-#' models fitted with \code{\link{fitLc}} and Multdimensional Item Response Theory
+#' models fitted with \code{\link{fitLc}} and Multidimensional Item Response Theory
 #' (MIRT) models fitted with \code{\link{fitIrt}} are supported. In contrast to
 #' \code{\link{dedaptive}}, no adaptive selection is performed: a pre-specified set
 #' of items (\code{givenVar}) is used.
@@ -43,8 +43,8 @@
 #' @param nSimItem Number of response patterns simulated per latent draw used
 #'   internally in \code{\link{predJointDistResp}} when simulation-based
 #'   predictions are used.
-#' @param seed Integer seed used to make the sequential selection procedure and
-#'   simulations reproducible.
+#' @param seed Integer seed used to make simulation-based predictions
+#'   reproducible.
 #' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint
 #'   item-response distribution is computed exactly. If \code{FALSE}, the distribution
 #'   is approximated by simulations. For MIRT models, \code{fullJoint = TRUE} is
@@ -60,12 +60,16 @@
 #'     and run time per selected item (\code{runTimePerItem}).}
 #'   \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
 #'   and decisions (based on  \code{thres}).}
-#'   \item{\code{chosen}}{Character vector with the names of the selected items
-#'     in the order in which they were chosen.}
-#'   \item{\code{distItems}}{Joint distribution of the not chosen items at the
-#'     end of the procedure.}
-#'   \item{\code{distLatent}}{Posterior distribution of the latent variable or
-#'     latent classes after the final adaptive update.}
+#'   \item{\code{chosen}}{Character vector with the names of the
+#'     pre-specified selected items.}
+#'   \item{\code{distLatent}}{Prior or posterior joint distribution of
+#'     the latent variables (MIRT), or latent class membership probabilities
+#'     (LC), depending on the available information. Returns \code{NULL}
+#'     when a supplied prior joint item response distribution is
+#'     conditioned internally, because the corresponding posterior
+#'     latent distribution is not updated.}
+#'   \item{\code{distItems}}{Predicted joint distribution of item
+#'     responses, conditional on the selected items (if any).}
 #' }
 #'
 #' @import mirt
@@ -86,6 +90,9 @@ fixSelection <- function(model,
   # (1) Preparation
   # Checks
   checkPredModel(model)
+
+  # Record whether a prior joint distribution was supplied
+  predJointSubProvided <- !is.null(predJointSub)
 
   if (!is.data.frame(dataSub) || nrow(dataSub) != 1L) {
     stop("'dataSub' must be a one-row data frame.")
@@ -122,7 +129,7 @@ fixSelection <- function(model,
   if (is.null(predJointSubCond)) {
 
     if (is.null(predJointSub)) {
-      # No pre-computed joint distribution: compute it from the IRT model
+      # No precomputed joint distribution: compute it from the latent-variable model
       predJointSub <- predJointDistResp(
         model = model,
         dataSub = dataSub,
@@ -212,13 +219,23 @@ fixSelection <- function(model,
   out$pred$runTime <- difftime(timeStamp2, timeStamp1, units = "secs")[[1]]
   out$pred$runTimePerItem <-  out$pred$runTime
 
-  # Add joint distribution of not chosen items and latent variables
+  # Add joint distribution of item responses and latent variables
   out$distItems <- predJointDistSub
 
   if (!is.null(predJointSubCond)) {
-    out$distLatent <- predJointSubCond$postdistLatent
+    # Precomputed conditional distribution
+    out$distLatent <- predJointSubCond$postDistLatent
+
+  } else if (!is.null(givenVar) &&
+             length(givenVar) > 0L &&
+             isTRUE(predJointSubProvided)) {
+    # Prior joint distribution was conditioned internally,
+    # but the latent posterior was not updated
+    out$distLatent <- NULL
+
   } else {
-    out$distLatent <- predJointSub$postdistLatent # prior if predJointSub is used
+    # Distribution computed internally, or prior prediction
+    out$distLatent <- predJointSub$postDistLatent
   }
 
   # Add the score functions and thresholds
