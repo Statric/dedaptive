@@ -60,7 +60,7 @@ The data set was simulated as follows:
       \item b)  Fit kernel density estimates for the age distribution separately
         for male and female individuals.
       \item c)  Fit a multidimensional IRT model on PHQ-9 and GAD-7 item responses
-        using \code{\link{fitIrt}}.
+        using \code{\link{fitIrt}} (included as \code{\link{modelScreenMental}}).
     }
   \item Simulation of a synthetic data set of 652 persons:
     \itemize{
