@@ -80,6 +80,7 @@ simResponsesLatentModel <- function(model,
   # Row-specific seeds
   set.seed(seed)
   rowSeeds <- sample.int(.Machine$integer.max, size = nRows, replace = FALSE)
+  rowSeeds[rowSeeds == .Machine$integer.max] <- .Machine$integer.max - 1L
 
   # 2) Helper function for simulation per row
 

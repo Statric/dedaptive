@@ -1020,3 +1020,23 @@ classMultBinDiag <- function(probDiag,
 
   return(out)
 }
+
+#' Expected misclassification costs from marginal decision probabilities
+#' (helper function)
+#'
+#' @param p Vector (one value per decision) or matrix (rows = conditions,
+#'   columns = decisions) of probabilities P(diag_k = 1).
+#' @param cFp Vector of costs of false positives (for every decision).
+#' @param cFn Vector of costs of false negatives (for every decision).
+#'
+#' @return Vector of expected costs summed over decisions, one value per row
+#' @export
+#'
+#' @examples # no example, since it is only a helper function
+expCostDiag <- function(p, cFp, cFn) {
+  p <- matrix(p, ncol = length(cFp))
+  costs <- vapply(seq_along(cFp), function(k)
+    fcClassCostFct(p[, k], missCosts = c(cFp[k], cFn[k]))$expCost,
+    numeric(nrow(p)))
+  rowSums(matrix(costs, nrow = nrow(p)))
+}

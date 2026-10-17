@@ -191,7 +191,7 @@ fixSelection <- function(model,
   for (f in seq_along(funOfItems)) {
     # True score computed from all responses in dataSub
     out$pred[[paste0("trueMean_", f)]] <-
-      funOfItems[[f]](dataSub[, items])
+      funOfItems[[f]](unlist(dataSub[, items, drop = FALSE]))
 
     # True decision based on the true score and threshold
     out$pred[[paste0("diag_", f)]] <-

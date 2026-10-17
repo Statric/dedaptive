@@ -161,6 +161,7 @@ dedaptive <- function(model = NULL,
   # Generate individual seeds
   set.seed(seed)
   seeds <- sample.int(.Machine$integer.max, nResp)
+  seeds[seeds == .Machine$integer.max] <- .Machine$integer.max - 1L
 
   # Extract cost parameters
   cFp <- costs[[1]]  # false positive costs for each decision
@@ -209,25 +210,22 @@ dedaptive <- function(model = NULL,
   ## output from every step
   if(saveSteps){outSteps<- list()}
 
+  # Names of the decision columns
+  diagCols <- paste0("diag_", seq_along(funOfItems))
+
+  # Set counter
   stepCount <- 0
   while (costRed && length(itemsLeft) > 0) {
     stepCount <- stepCount + 1
 
     # (2) Expected costs given past measurements
 
-    # Compute joint distribution of diagnoses
-    probDiagPast <- stats::aggregate(
-      stats::as.formula(
-        paste0("freq ~ ",
-               paste(paste("diag", seq_along(funOfItems), sep = "_"),
-                     collapse = "+"))
-      ),
-      data = predJointSubTemp,
-      FUN = sum
-    )
+    # Probabilities of the response patterns and decision matrix
+    w <- predJointSubTemp$freq / sum(predJointSubTemp$freq)
+    D <- as.matrix(predJointSubTemp[, diagCols, drop = FALSE])
 
     # Expected misclassification costs given the current state (no new item)
-    expCostsPast <- classMultBinDiag(probDiagPast, costs[[1]], costs[[2]])$expCost
+    expCostsPast <- expCostDiag(colSums(D * w), cFp, cFn)
 
     # (3) Expected costs when adding each of the remaining items
 
@@ -244,64 +242,27 @@ dedaptive <- function(model = NULL,
 
       for (iItem in seq_along(itemsLeft)) {
         m <- itemsLeft[iItem]
+        yM <- predJointSubTemp[[m]]
 
-        # Extract possible response levels for item m
-        levelM <- sort(unique(predJointSubTemp[[m]]))
+        # P(Y_m = l) for every level l (sorted)
+        probM <- rowsum(w, yM)[, 1]
 
-        # expected costs conditional on each level of item m
-        expCostM <- numeric(length(levelM))
+        # P(diag_k = 1 | Y_m = l): rows = levels, columns = decisions
+        probDiagM <- rowsum(D * w, yM) / probM
 
-        # probabilities P(Y_m = l)
-        probM <- numeric(length(levelM))
-
-        for (iLevel in seq_along(levelM)) {
-          l <- levelM[iLevel]
-
-          # Probability P(Y_m = l) under the current joint distribution
-          probMl <- sum(predJointSubTemp$freq[predJointSubTemp[[m]] == l])
-
-          if (probMl > 0) {
-
-            # Conditional joint distribution given Y_m = l
-            jointMlCond <- multiMultinomCondFromJoint(predJointSubTemp, m, l)
-            probMl <- jointMlCond$probValue
-            jointMlCond <- jointMlCond$cond
-
-            # Joint distribution of diagnoses conditional on Y_m = l
-            probDiagMl <- stats::aggregate(
-              stats::as.formula(
-                paste0("freq ~ ",
-                       paste(paste("diag", seq_along(funOfItems), sep = "_"),
-                             collapse = "+"))
-              ),
-              data = jointMlCond,
-              FUN = sum
-            )
-
-            # Expected misclassification costs in this conditional distribution
-            expCostsMl <- classMultBinDiag(probDiagMl, costs[[1]], costs[[2]])$expCost
-
-          } else {
-            # If P(Y_m = l) = 0, the corresponding cost contribution is 0
-            expCostsMl <- 0
-          }
-          # Add P(Ym=l) and expected costs to vector
-          probM[iLevel] <- probMl
-          expCostM[iLevel] <- expCostsMl
-        }
+        # Expected misclassification costs conditional on each level
+        expCostM <- expCostDiag(probDiagM, cFp, cFn)
 
         # Table with probabilities and expected costs for item m
         costTabM <- cbind(probM, expCostM)
-        rownames(costTabM) <- levelM
-        if(saveSteps){
-          expCostProsPerLevel[[m]]<- costTabM
+        rownames(costTabM) <- names(probM)
+        if (saveSteps) {
+          expCostProsPerLevel[[m]] <- costTabM
         }
 
         # Expected total cost when including item m (including measurement cost)
-        exCostsM <- sum(costTabM[, 1] * costTabM[, 2]) + cM
-        expCostPros[iItem] <- exCostsM
+        expCostPros[iItem] <- sum(probM * expCostM) + cM
       }
-
       names(expCostPros) <- itemsLeft
 
       # (4) Termination and item selection rules
@@ -309,7 +270,7 @@ dedaptive <- function(model = NULL,
       # Identify the item with minimal expected costs
       itemMinCosts <- which(expCostPros <= min(expCostPros))
       set.seed(seeds[stepCount]+1)
-      itemMinCosts <- itemMinCosts[sample(1:length(itemMinCosts))]
+      itemMinCosts <- itemMinCosts[sample(seq_along(itemMinCosts), 1)]
       minExpCost <- as.numeric(expCostPros[itemMinCosts])
       itemNameMinCost <- names(expCostPros)[itemMinCosts]
 
@@ -406,7 +367,7 @@ dedaptive <- function(model = NULL,
   # Compute true score values and decisions based on all item responses
   for (f in seq_along(funOfItems)) {
     out$pred[[paste0("trueMean_", f)]] <-
-      funOfItems[[f]](dataSub[, items])
+      funOfItems[[f]](unlist(dataSub[, items, drop = FALSE]))
 
     out$pred[[paste0("diag_", f)]] <-
       ifelse(out$pred[[paste0("trueMean_", f)]] >= thres[f], 1, 0)

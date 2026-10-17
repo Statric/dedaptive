@@ -2,6 +2,7 @@
 
 export(classMultBinDiag)
 export(dedaptive)
+export(expCostDiag)
 export(fcClassCostFct)
 export(fcClassFct)
 export(fitIrt)

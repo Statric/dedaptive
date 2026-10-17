@@ -56,11 +56,14 @@ predClassPriorLc <- function(model,
       )
     }
 
-    # Align rows of paramReg with columns of modelMat if names are available.
-    if (!is.null(rownames(paramReg)) &&
-        all(colnames(modelMat) %in% rownames(paramReg))) {
-      paramReg <- paramReg[colnames(modelMat), , drop = FALSE]
+    # Align rows of paramReg with columns of modelMat by name.
+    if (!setequal(colnames(modelMat), rownames(paramReg))) {
+      stop("Predictors in 'dataSub' do not match the latent class regression of 'model' ",
+           "(design matrix: ", paste(colnames(modelMat), collapse = ", "),
+           "; coefficients: ", paste(rownames(paramReg), collapse = ", "), ").")
     }
+    paramReg <- paramReg[colnames(modelMat), , drop = FALSE]
+
 
     # Linear predictors.
     # Class 1 is the reference class, so its linear predictor is 0.

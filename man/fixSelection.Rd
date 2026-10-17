@@ -56,8 +56,8 @@ predictions are used.}
 internally in \code{\link{predJointDistResp}} when simulation-based
 predictions are used.}
 
-\item{seed}{Integer seed used to make the sequential selection procedure and
-simulations reproducible.}
+\item{seed}{Integer seed used to make simulation-based predictions
+reproducible.}
 
 \item{fullJoint}{Logical; for LC models, if \code{TRUE}, the full joint
 item-response distribution is computed exactly. If \code{FALSE}, the distribution
@@ -75,18 +75,22 @@ A list with components:
     and run time per selected item (\code{runTimePerItem}).}
   \item{\code{distFun}}{Predicted distribution of the scores (computed with  \code{funOfItems})
   and decisions (based on  \code{thres}).}
-  \item{\code{chosen}}{Character vector with the names of the selected items
-    in the order in which they were chosen.}
-  \item{\code{distItems}}{Joint distribution of the not chosen items at the
-    end of the procedure.}
-  \item{\code{distLatent}}{Posterior distribution of the latent variable or
-    latent classes after the final adaptive update.}
+  \item{\code{chosen}}{Character vector with the names of the
+    pre-specified selected items.}
+  \item{\code{distLatent}}{Prior or posterior joint distribution of
+    the latent variables (MIRT), or latent class membership probabilities
+    (LC), depending on the available information. Returns \code{NULL}
+    when a supplied prior joint item response distribution is
+    conditioned internally, because the corresponding posterior
+    latent distribution is not updated.}
+  \item{\code{distItems}}{Predicted joint distribution of item
+    responses, conditional on the selected items (if any).}
 }
 }
 \description{
 \code{fixSelection()} performs probabilistic predictions for a fixed set
 of selected items from a fitted latent-variable model. Currently, Latent Class (LC)
-models fitted with \code{\link{fitLc}} and Multdimensional Item Response Theory
+models fitted with \code{\link{fitLc}} and Multidimensional Item Response Theory
 (MIRT) models fitted with \code{\link{fitIrt}} are supported. In contrast to
 \code{\link{dedaptive}}, no adaptive selection is performed: a pre-specified set
 of items (\code{givenVar}) is used.

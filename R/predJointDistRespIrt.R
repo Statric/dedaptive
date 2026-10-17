@@ -121,15 +121,49 @@ predJointDistRespIrt <- function(model,
       ## formula of latent regression model
       formReg <- covFormula
 
-      ## design matrix and prior mean
+      ## design matrix
       modelMat <- stats::model.matrix(formReg, dataSub)
+
+      ## align coefficients with the columns of the design matrix
+      regCoef <- as.matrix(regCoef)
+      if (!setequal(colnames(modelMat), rownames(regCoef))) {
+        stop("Predictors in 'dataSub' do not match the latent regression of 'model' ",
+             "(design matrix: ", paste(colnames(modelMat), collapse = ", "),
+             "; coefficients: ", paste(rownames(regCoef), collapse = ", "), ").")
+      }
+      regCoef <- regCoef[colnames(modelMat), , drop = FALSE]
+
+      ## prior mean
       thetaMeanPrior <- as.numeric(modelMat %*% regCoef)
+
     }
   }
 
   # (3) Simulate latent variables
-  ## (3a) Simulate from prior
-  if (is.null(givenVal)) {
+  if (is.null(givenVal) && !is.null(priorGrid)) {
+
+    ## (3a) No new responses, but a latent distribution from a previous step:
+    ## sample from this distribution
+    distPast <- priorGrid$dist
+    thetaGrid <- distPast[, -ncol(distPast), drop = FALSE]
+    probPast <- distPast[, ncol(distPast)]
+
+    if (nrow(thetaGrid) != nrow(thetaGridPred)) {
+      stop("'priorGrid' must use the same theta grid as 'model$thetaGridPred'.")
+    }
+
+    set.seed(seed)
+    simIds <- sample(seq_len(nrow(thetaGrid)),
+                     size = nSimLatent,
+                     replace = TRUE,
+                     prob = probPast)
+    thetaSim <- thetaGrid[simIds, , drop = FALSE]
+
+    # distribution and conditioned responses stay unchanged
+    outList$postDistLatent <- priorGrid
+
+  } else if (is.null(givenVal)) {
+    ## (3b) Simulate from prior
 
     if (length(thetaMeanPrior) <= 1) {
       set.seed(seed)
@@ -155,7 +189,7 @@ predJointDistRespIrt <- function(model,
 
   } else {
 
-    ## (3b) Known responses: approximate posterior of latent variables on a grid
+    ## (3c) Known responses: approximate posterior of latent variables on a grid
     # matrix with given response pattern (NA for unknown items)
     givenRespPattern <- matrix(NA, ncol = length(items), nrow = 1)
     colnames(givenRespPattern) <- items
@@ -168,21 +202,14 @@ predJointDistRespIrt <- function(model,
 
       ## prior density without responses
       if (length(thetaMeanPrior) <= 1) {
-        priorDens <- function(theta) {
-          stats::dnorm(theta,
-                       mean = thetaMeanPrior,
-                       sd = sqrt(thetaCovPrior))
-        }
+        priorDistTheta <- stats::dnorm(thetaGrid[, 1],
+                                       mean = thetaMeanPrior,
+                                       sd = sqrt(as.numeric(thetaCovPrior)))
       } else {
-        priorDens <- function(theta) {
-          mvtnorm::dmvnorm(theta,
-                           mean = thetaMeanPrior,
-                           sigma = thetaCovPrior)
-        }
+        priorDistTheta <- mvtnorm::dmvnorm(thetaGrid,
+                                           mean = thetaMeanPrior,
+                                           sigma = thetaCovPrior)
       }
-
-      ## prior density on all grid points
-      priorDistTheta <- apply(thetaGrid, 1, priorDens)
 
     } else {
       ## use approximation from previous step
@@ -193,11 +220,7 @@ predJointDistRespIrt <- function(model,
       thetaGrid <- priorGrid[, -ncol(priorGrid), drop = FALSE]
       priorDistTheta <- priorGrid[,  ncol(priorGrid)]
 
-      if (!isTRUE(all.equal(
-        as.matrix(thetaGrid),
-        as.matrix(thetaGridPred),
-        check.attributes = FALSE
-      ))) {
+      if (nrow(thetaGrid) != nrow(thetaGridPred)) {
         stop("'priorGrid' must use the same theta grid as 'model$thetaGridPred'.")
       }
     }
@@ -274,6 +297,11 @@ predJointDistRespIrt <- function(model,
                            Theta = thetaSimRep,
                            itemtype = "graded")
   colnames(respSim) <- items
+
+  # map simulated category codes (0, ..., K-1) to the observed labels
+  for (j in items) {
+    respSim[, j] <- as.numeric(varLabels[[j]])[respSim[, j] + 1]
+  }
 
   # Consider the known values (if any)
   if (!is.null(outList$postDistLatent$givenVal)) {
