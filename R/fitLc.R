@@ -175,7 +175,8 @@ fitLc<- function(items,
   }
 
   covFormula <- stats::as.formula(
-    paste0(lhs, rhs)
+    paste0(lhs, rhs),
+    env = NULL
   )
 
   varReg <- all.vars(covFormula)

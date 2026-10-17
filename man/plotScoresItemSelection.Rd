@@ -74,7 +74,9 @@ for the min/max labels to the right of the color bar.}
 }
 \value{
 Produces a plot of the joint and marginal distributions of two scores.
-It invisibly returns a list containing the marginals and probabilities for the selected scores.
+It invisibly returns a list with components \code{marginal1} and
+\code{marginal2} (marginal distributions of the two scores) and \code{prob}
+(probabilities that the scores are at or above their thresholds).
 }
 \description{
 Creates a color-coded scatter plot (joint distribution) of two scores

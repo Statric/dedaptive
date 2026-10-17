@@ -7,7 +7,7 @@
 simResponsesLatentModel(model, dataPred = NULL, nSim = NULL, seed = 1)
 }
 \arguments{
-\item{model}{MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitIrt}}}
+\item{model}{MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitLc}}}
 
 \item{dataPred}{Optional data frame with predictors for latent regression.}
 

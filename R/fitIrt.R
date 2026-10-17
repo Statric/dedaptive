@@ -175,9 +175,11 @@ fitIrt <- function(items,
     # accept both character and formula
     if (inherits(formula, "formula")) {
       covFormula <- formula
+      environment(covFormula) <- NULL
     } else if (is.character(formula) && length(formula) == 1L) {
       covFormula <- stats::as.formula(
-        if (grepl("~", formula, fixed = TRUE)) formula else paste0("~", formula)
+        if (grepl("~", formula, fixed = TRUE)) formula else paste0("~", formula),
+        env = NULL
       )
     } else {
       stop("'formula' must be NULL, a one-sided formula, or a single character string.")
@@ -195,7 +197,7 @@ fitIrt <- function(items,
   # Add formula to the output
   modelOut["covFormula"] <- list(covFormula)
 
-  # (3) Fit MIRT model and extract quantitites needed for predictions
+  # (3) Fit MIRT model and extract quantities needed for predictions
   fit <- mirt::mirt(
     data    = data[, items, drop = FALSE],
     formula = covFormula,

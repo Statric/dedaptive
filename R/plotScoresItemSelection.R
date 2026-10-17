@@ -45,7 +45,9 @@
 #'
 #' @return
 #' Produces a plot of the joint and marginal distributions of two scores.
-#' It invisibly returns a list containing the marginals and probabilities for the selected scores.
+#' It invisibly returns a list with components \code{marginal1} and
+#' \code{marginal2} (marginal distributions of the two scores) and \code{prob}
+#' (probabilities that the scores are at or above their thresholds).
 #' @importFrom graphics layout par abline text rect segments axis
 #' @export
 plotScoresItemSelection <- function(result,
@@ -71,15 +73,15 @@ plotScoresItemSelection <- function(result,
   # (1) Basic checks
 
   if (!is.list(result) || is.null(result$distFun)) {
-    stop("`result` must be a list returned by dedaptiveIrt() or fixSelectionIrt(), ",
+    stop("`result` must be a list returned by dedaptive() or fixSelection(), ",
          "containing element `distFun`.", call. = FALSE)
   }
 
   distFun <- result$distFun
 
   if (is.null(result$thres)) {
-    stop("`result$thres` is missing. Make sure dedaptiveIrt()/fixSelectionIrt() ",
-         "store thresholds as `result$thres`.", call. = FALSE)
+    stop("`result$thres` is missing. `result` must be a list returned by ",
+         "dedaptive() or fixSelection().", call. = FALSE)
   }
   thresAll <- result$thres
 
@@ -135,6 +137,13 @@ plotScoresItemSelection <- function(result,
   layoutMatrix <- matrix(c(2, 0,
                            1, 3),
                          nrow = 2, byrow = TRUE)
+  # Save graphical parameters and restore them on exit
+  oldPar <- par(no.readonly = TRUE)
+  on.exit({
+    layout(1)
+    par(oldPar)
+  }, add = TRUE)
+
   layout(layoutMatrix,
          widths  = c(4, 1.5),
          heights = c(1.5, 4))
@@ -252,6 +261,12 @@ plotScoresItemSelection <- function(result,
   axis(1)
   abline(h = thresUsed[2], col = probTextCol, lwd = 2, lty = 2)
 
-  layout(1)
+  # 6) Return marginals and probabilities invisibly
+
+  invisible(list(
+    marginal1 = marg1,
+    marginal2 = marg2,
+    prob = stats::setNames(c(prob1, prob2), funCols)
+  ))
 
 }

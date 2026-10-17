@@ -283,7 +283,6 @@ checkPredModel <- function(model) {
       "items",
       "varLabels",
       "nClasses",
-      "fit",
       "itemProbs",
       "coef"
     )

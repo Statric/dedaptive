@@ -16,7 +16,7 @@
 #' \code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
 #' response patterns are simulated.
 #'
-#' @param model MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitIrt}}
+#' @param model MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitLc}}
 #' @param dataPred Optional data frame with predictors for latent regression.
 #' @param nSim Number of simulated response patterns when \code{dataPred} is
 #'   \code{NULL} and no regression is used.
@@ -31,9 +31,7 @@ simResponsesLatentModel <- function(model,
                                     seed = 1) {
 
   # 1) Prepare
-  if (!is.list(model) || is.null(model$items) || is.null(model$fit)) {
-    stop("'model' must be an object returned by fitIrt().")
-  }
+  checkPredModel(model)
 
   if (is.null(dataPred) && is.null(nSim)) {
     stop("If 'dataPred' is NULL, 'nSim' must be supplied.")
