@@ -64,7 +64,6 @@ predClassPriorLc <- function(model,
     }
     paramReg <- paramReg[colnames(modelMat), , drop = FALSE]
 
-
     # Linear predictors.
     # Class 1 is the reference class, so its linear predictor is 0.
     linPred <- c(0, as.numeric(modelMat %*% paramReg))

@@ -14,19 +14,26 @@ Authors@R: c(
       role = "ctb"
     )
   )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
+Description: Implements DEcision-oriented aDAPTIVE (dedaptive) testing. Items are
+    selected sequentially to minimize the expected costs of misclassification
+    for one or more binary decisions (e.g., thresholds on sum scores) plus a
+    cost per administered item. Predictions are based on multidimensional item
+    response theory models (via 'mirt') or latent class models (via 'poLCA'),
+    optionally with a latent regression on covariates.
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
 URL: https://github.com/Statric/dedaptive
 BugReports: https://github.com/Statric/dedaptive/issues
-Imports: 
+Imports:
+    graphics,
+    grDevices,
     MASS,
+    mirt,
     mvtnorm,
     plyr,
-    poLCA
+    poLCA,
+    stats
 RoxygenNote: 7.3.3
 Depends: 
-    R (>= 3.5),
-    mirt
+    R (>= 3.5)

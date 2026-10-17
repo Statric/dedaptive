@@ -36,16 +36,18 @@
 #' @param priorGrid Optional list representing an approximated distribution of
 #' the latent variables from a previous step (typically the
 #'   \code{postDistLatent} element from an earlier call to
-#'   \code{predJointDistRespIrt}). If \code{NULL}, the prior multivariate
+#'   \code{predJointDistRespIrt}). If \code{givenVal} is \code{NULL}, latent
+#'   variables are sampled from this distribution and the responses in
+#'   \code{priorGrid$givenVal} are kept. If \code{NULL}, the prior multivariate
 #'   distribution of the latent variables implied by the MIRT model (and latent
 #'   regression, if specified) is used.
 #'
 #' @return A list with components:
 #' \describe{
-#'   \item{\code{postDistLatent}}{If \code{givenVal} is not \code{NULL}, a list
-#'     with components \code{dist} (matrix containing grid points of the latent
-#'     variables and their posterior probabilities) and \code{givenVal} (all
-#'     item responses that have been conditioned on).}
+#'   \item{\code{postDistLatent}}{If \code{givenVal} or \code{priorGrid} is
+#'     not \code{NULL}, a list with components \code{dist} (matrix containing
+#'     grid points of the latent variables and their probabilities) and
+#'     \code{givenVal} (all item responses that have been conditioned on).}
 #'   \item{\code{sim}}{Data frame containing all simulated response patterns
 #'     generated from the MIRT model given the simulated latent variables.}
 #'   \item{\code{jointDist}}{Data frame containing the approximated joint
@@ -109,7 +111,7 @@ predJointDistRespIrt <- function(model,
 
   # (2) Prior distribution of latent variables
 
-  if (is.null(givenVal) || is.null(priorGrid)) {
+  if (is.null(priorGrid)) {
 
     # prior mean of latent variables
     if (is.null(model$formula)) {

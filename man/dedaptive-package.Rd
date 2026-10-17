@@ -3,11 +3,14 @@
 \docType{package}
 \name{dedaptive-package}
 \alias{dedaptive-package}
-\title{dedaptive: Decision-oriented adaptive testing based on Multidimensional Item Response Theory}
+\title{dedaptive: Decision-oriented adaptive testing based on latent variable models}
 \description{
-This package implements DEcision-oriented aDAPTIVE (dedaptive) testing
-using Multidimensional Item Response Theory (MIRT) models for graded (ordinal)
-responses fitted with \code{\link[mirt]{mirt}}.
+This package implements DEcision-oriented aDAPTIVE (dedaptive) testing.
+Items are selected sequentially to minimize the expected costs of
+misclassification plus the costs of administering items. Predictions are
+based on Multidimensional Item Response Theory (MIRT) models for graded
+(ordinal) responses fitted with \code{\link[mirt]{mirt}}, or on Latent
+Class (LC) models fitted with \code{\link[poLCA]{poLCA}}.
 }
 \seealso{
 Useful links:
