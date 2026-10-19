@@ -46,9 +46,9 @@ the unknown items. If \code{FALSE}, the distribution is approximated by
 simulation. The number of response patterns grows exponentially with the
 number of unknown items (e.g., \eqn{4^J} for \eqn{J} items with four
 response categories), so the exact computation is only feasible for small
-item sets: Psychogyiopoulos et al. (2025) report memory issues for more than
-about 15 items, and with four response categories. For MIRT models,
-\code{fullJoint = TRUE} is ignored and simulation-based prediction is used.}
+item sets (Psychogyiopoulos et al., 2025, report memory issues for more than
+about 15 items). For MIRT models, \code{fullJoint = TRUE} is ignored and
+simulation-based prediction is used.}
 }
 \value{
 A list with components:

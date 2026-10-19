@@ -58,9 +58,11 @@
 #' @param seed Integer seed used to make the sequential selection procedure and
 #'   simulations reproducible.
 #' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint
-#'   item-response distribution is computed exactly. If \code{FALSE}, the distribution
-#'   is approximated by simulations. For MIRT models, \code{fullJoint = TRUE} is
-#'   ignored and simulation-based predictions are used.
+#'   item-response distribution is computed exactly. If \code{FALSE}, the
+#'   distribution is approximated by simulation. The exact computation is only
+#'   feasible for small item sets (see \code{\link{predJointDistResp}}). For
+#'   MIRT models, \code{fullJoint = TRUE} is ignored and simulation-based
+#'   predictions are used.
 #' @param saveSteps Logical; if \code{TRUE}, the output from each step of
 #'   the sequential selection procedure is saved. If \code{FALSE} (default),
 #'   only the final results are returned.

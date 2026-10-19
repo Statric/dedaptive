@@ -40,14 +40,15 @@ distribution from a previous step (typically the
   \code{predJointDistRespLc}). If \code{NULL}, prior latent class probabilities
   implied by the LC model (and latent regression, if specified) are used.}
 
-\item{fullJoint}{Logical; if \code{TRUE}, the full joint item-response
+\item{fullJoint}{Logical; for LC models, if \code{TRUE}, the full joint item-response
 distribution is computed exactly by enumerating all response patterns of
 the unknown items. If \code{FALSE}, the distribution is approximated by
 simulation. The number of response patterns grows exponentially with the
 number of unknown items (e.g., \eqn{4^J} for \eqn{J} items with four
 response categories), so the exact computation is only feasible for small
-item sets: Psychogyiopoulos et al. (2025) report memory issues for more than
-about 15 items, and with four response categories.}
+item sets (Psychogyiopoulos et al., 2025, report memory issues for more than
+about 15 items). For MIRT models, \code{fullJoint = TRUE} is ignored and
+simulation-based prediction is used.}
 }
 \value{
 A list with components:

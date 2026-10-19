@@ -46,9 +46,11 @@
 #' @param seed Integer seed used to make simulation-based predictions
 #'   reproducible.
 #' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint
-#'   item-response distribution is computed exactly. If \code{FALSE}, the distribution
-#'   is approximated by simulations. For MIRT models, \code{fullJoint = TRUE} is
-#'   ignored and simulation-based predictions are used.
+#'   item-response distribution is computed exactly. If \code{FALSE}, the
+#'   distribution is approximated by simulation. The exact computation is only
+#'   feasible for small item sets (see \code{\link{predJointDistResp}}). For
+#'   MIRT models, \code{fullJoint = TRUE} is ignored and simulation-based
+#'   predictions are used.
 #'
 #' @return A list with components:
 #' \describe{
