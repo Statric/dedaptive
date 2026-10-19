@@ -83,8 +83,10 @@ Active components in internet-based cognitive-behavioral therapy for social anxi
 disorder: a randomized full factorial trial. \emph{Psychotherapy and Psychosomatics},
 94(1), 40–59.
 
-Wyss, P., Steiner, M., Lopes, R., Šipka, D., Berger, T., & Krause, A. (2026).
-Decision-oriented adaptive testing for efficient screening across mental disorders.
-Manuscript in preparation.
+Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+(2026). \emph{Decision-oriented adaptive testing for efficient screening of
+comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+symptoms in individuals seeking treatment for social anxiety}
+[Manuscript in preparation].
 }
 \keyword{datasets}

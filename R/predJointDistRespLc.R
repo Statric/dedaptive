@@ -2,9 +2,14 @@
 #'
 #' @description
 #' \code{predJointDistRespLc()} performs probabilistic predictions of item responses
-#' based on a Latent Class (LC) model fitted with \code{\link{fitLc}}.
-#' The method can incorporate predictors (via a latent class regression, if specified) and
-#' optionally already observed responses for a subset of items.
+#' based on a Latent Class (LC) model fitted with \code{\link{fitLc}} (based on the
+#' package \pkg{poLCA}; Linzer & Lewis, 2011). The approach of deriving the joint
+#' distribution of item responses from an unrestricted LC model is inspired by the
+#' publicly available R code of Psychogyiopoulos et al. (2025; \url{https://osf.io/g5hz7/}).
+#'
+#' The method can incorporate predictors (via a latent class regression, if specified)
+#' and optionally already observed responses for a subset of items. These predictions
+#' form the basis of decision-oriented adaptive testing (Wyss et al., 2026).
 #'
 #' The function either computes the full joint distribution of item responses or
 #' approximates it via simulations. Simulation-based predictions are obtained
@@ -17,12 +22,12 @@
 #'   \item Draw samples of latent classes given these probabilities.
 #'   \item For each sampled latent class, simulate item response patterns
 #'   from the LC model, assuming local independence of items given the
-#'   latent classes
+#'   latent classes.
 #'   \item Approximate the joint distribution of item responses by aggregating
 #'   the simulated response patterns.
 #' }
 #'
-#' @param model A LC model fitted with \code{\link{fitLc}}.
+#' @param model An LC model fitted with \code{\link{fitLc}}.
 #' @param dataSub One-row data frame with the predictor variables of one
 #' observation used in the latent regression (if specified in \code{model}).
 #' @param nSimLatent Integer; number of simulated latent class draws.
@@ -38,15 +43,23 @@
 #' distribution from a previous step (typically the
 #'   \code{postDistLatent} element from an earlier call to
 #'   \code{predJointDistRespLc}). If \code{NULL}, prior latent class probabilities
-#'   implied by the LC model (and latent regression, if specified) is used.
+#'   implied by the LC model (and latent regression, if specified) are used.
 #' @param fullJoint Logical; if \code{TRUE}, the full joint item-response
 #'   distribution is computed exactly by enumerating response patterns. If
 #'   \code{FALSE}, the distribution is approximated by simulation.
+#' @param fullJoint Logical; if \code{TRUE}, the full joint item-response
+#'   distribution is computed exactly by enumerating all response patterns of
+#'   the unknown items. If \code{FALSE}, the distribution is approximated by
+#'   simulation. The number of response patterns grows exponentially with the
+#'   number of unknown items (e.g., \eqn{4^J} for \eqn{J} items with four
+#'   response categories), so the exact computation is only feasible for small
+#'   item sets: Psychogyiopoulos et al. (2025) report memory issues for more than
+#'   about 15 items, and with four response categories.
 #'
 #' @return A list with components:
 #' \describe{
 #'   \item{\code{postDistLatent}}{If \code{givenVal} is not \code{NULL}, a list
-#'     with components \code{dist} (matrix containing the latent classes and 
+#'     with components \code{dist} (matrix containing the latent classes and
 #'     their posterior probabilities) and \code{givenVal} (all
 #'     item responses that have been conditioned on).}
 #'   \item{\code{sim}}{Data frame containing all simulated response patterns
@@ -57,7 +70,41 @@
 #'     frequency (approximated probability).}
 #' }
 #'
-#' @import poLCA
+#' @references
+#' Linzer, D. A., & Lewis, J. B. (2011). poLCA: An R package for polytomous
+#' variable latent class analysis. \emph{Journal of Statistical Software},
+#' \emph{42}(10), 1–29. \doi{10.18637/jss.v042.i10}
+#'
+#' Psychogyiopoulos, A., Smits, N., & van der Ark, L. A. (2025). A novel CAT
+#' method for QoL screening: Proof-of-principle study with comparisons to
+#' standard methods. \emph{Quality of Life Research}, \emph{34}(10), 2787–2795.
+#' \doi{10.1007/s11136-025-04035-5}
+#'
+#' Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+#' (2026). \emph{Decision-oriented adaptive testing for efficient screening of
+#' comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+#' symptoms in individuals seeking treatment for social anxiety}
+#' [Manuscript in preparation].
+#'
+#' @examples
+#' data(screenMental)
+#' data(modelScreenMental)
+#'
+#' # Standardize age as in the model (mean and SD of the original data)
+#' ageStandParam <- modelScreenMental$ageStandParam
+#' screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+#'
+#' # Fit an LC model
+#' items <- modelScreenMental$items
+#' modelLc <- fitLc(items = items, formula = "sex + ageStand",
+#'                  data = screenMental[-1, ], nClasses = 3,
+#'                  nrep = 10, verbose = FALSE)
+#'
+#' # Predicted joint distribution given two observed items
+#' pred <- predJointDistRespLc(modelLc, screenMental[1, ],
+#'                             givenVal = c(phq1 = 2, gad1 = 1))
+#' head(pred$jointDist)
+#'
 #' @export
 #'
 predJointDistRespLc <- function(model,

@@ -63,7 +63,8 @@ A list with the following elements:
     This is \code{NULL} if no latent regression was specified.}
 
   \item{\code{covFormula}}{Parsed one-sided formula used internally for the
-    latent regression. This is \code{NULL} if no latent regression was specified.}
+    latent regression, stored without environment. This is \code{NULL} if no
+    latent regression was specified.}
 
   \item{\code{thetaLim}}{User-supplied lower and upper limits of the prediction
     grid for the latent variables, or \code{NULL} if no limits were supplied.}
@@ -76,7 +77,9 @@ A list with the following elements:
     item.}
 
   \item{\code{fit}}{The fitted \code{\link[mirt]{mirt}} model object returned by
-    \code{\link[mirt]{mirt}}.}
+    \code{\link[mirt]{mirt}}. It contains the data used for fitting. All
+    prediction functions of \code{dedaptive} work without it, hence it can be
+    removed (\code{model$fit <- NULL}), e.g., before sharing the model.}
 
   \item{\code{factorNames}}{Character vector with the names of the latent
     variables in the fitted model.}
@@ -110,9 +113,10 @@ The function \code{fitIrt()} fits Multidimensional Item Response Theory (MIRT)
 models for graded (ordinal) responses and returns a model object that can be used
 for predictions and item selection within the \code{dedaptive} library.
 
-Technically, \code{fitIrt()} is a wrapper around \code{\link[mirt]{mirt}}:
-it prepares the data, sets up an optional latent regression, and stores some
-additional information (e.g., item labels) needed later by functions from \code{dedaptive}.
+Technically, \code{fitIrt()} is a wrapper around \code{\link[mirt]{mirt}}
+(Chalmers, 2012): it prepares the data, sets up an optional latent regression,
+and stores some additional information (e.g., item labels) needed later by
+functions from \code{dedaptive}.
 If you plan to use an MIRT model with \code{dedaptive}, you must always fit
 it via \code{fitIrt()} rather than calling \code{\link[mirt]{mirt}} directly.
 }
@@ -142,7 +146,26 @@ grid. This prediction grid is used in other functions of \code{dedaptive}
 to approximate posterior distributions of the latent variables.
 }
 \examples{
-\dontrun{
-# Will follow
+data(screenMental)
+data(modelScreenMental)
+
+# Standardize age as in the model (mean and SD of the original data)
+ageStandParam <- modelScreenMental$ageStandParam
+screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+
+items <- modelScreenMental$items
+
+\donttest{
+# Two-dimensional MIRT model with latent regression on sex and age
+# (takes about half a minute)
+model <- fitIrt(items = items, formula = "sex + ageStand",
+                data = screenMental, model = 2)
+model$coef$paramReg
 }
+
+}
+\references{
+Chalmers, R. P. (2012). mirt: A multidimensional item response theory
+package for the R environment. \emph{Journal of Statistical Software},
+\emph{48}(6), 1–29. \doi{10.18637/jss.v048.i06}
 }

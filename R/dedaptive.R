@@ -86,6 +86,37 @@
 #'     procedure is returned.}
 #' }
 #'
+#' @references
+#' Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+#' (2026). \emph{Decision-oriented adaptive testing for efficient screening of
+#' comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+#' symptoms in individuals seeking treatment for social anxiety}
+#' [Manuscript in preparation].
+#'
+#' @examples
+#' data(screenMental)
+#' data(modelScreenMental)
+#'
+#' # Standardize age as in the model (mean and SD of the original data)
+#' ageStandParam <- modelScreenMental$ageStandParam
+#' screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+#'
+#' # Score functions: PHQ-9 and GAD-7 sum scores (items in the order of model$items)
+#' funSumScores <- list(function(x) sum(x[1:9]), function(x) sum(x[10:16]))
+#'
+#' # Costs: false positives, false negatives (per decision), measurement per item
+#' costs <- list(c(0.5, 0.5), c(0.5, 0.5), 0.05)
+#'
+#' res <- dedaptive(
+#'   model      = modelScreenMental,
+#'   dataSub    = screenMental[1, ],
+#'   funOfItems = funSumScores,
+#'   thres      = c(10, 10),
+#'   costs      = costs
+#' )
+#' res$chosen
+#' res$pred
+#'
 #' @export
 
 dedaptive <- function(model = NULL,

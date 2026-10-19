@@ -7,15 +7,37 @@
 #' If the model was fitted without covariates, the function returns the fixed
 #' class proportions. If the model was fitted with a latent class regression,
 #' the function returns subject-specific prior class probabilities using the
-#' multinomial-logit parameterization used by \code{\link[poLCA]{poLCA}}. Class 1
-#' is the reference class and its linear predictor is fixed to zero.
+#' multinomial-logit parameterization used by \code{\link[poLCA]{poLCA}}
+#' (Linzer & Lewis, 2011). Class 1 is the reference class and its linear
+#' predictor is fixed to zero.
 #'
-#' @param model A latent class model fitted with \code{fitLc()}.
+#' @param model A latent class model fitted with \code{\link{fitLc}}.
 #' @param dataSub One-row data frame with predictor variables for one subject.
 #' @return Numeric vector of prior latent class probabilities. The vector has
-#'   length \code{model$nClasses} and names `class1`, `class2`, ...
+#'   length \code{model$nClasses} and names \code{class1}, \code{class2}, ...
 #'
-#' @import poLCA
+#' @references
+#' Linzer, D. A., & Lewis, J. B. (2011). poLCA: An R package for polytomous
+#' variable latent class analysis. \emph{Journal of Statistical Software},
+#' \emph{42}(10), 1–29. \doi{10.18637/jss.v042.i10}
+#'
+#' @examples
+#' data(screenMental)
+#' data(modelScreenMental)
+#'
+#' # Standardize age as in the model (mean and SD of the original data)
+#' ageStandParam <- modelScreenMental$ageStandParam
+#' screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+#'
+#' # Fit an LC model
+#' items <- modelScreenMental$items
+#' modelLc <- fitLc(items = items, formula = "sex + ageStand",
+#'                  data = screenMental[-1, ], nClasses = 3,
+#'                  nrep = 10, verbose = FALSE)
+#'
+#' # Prior class probabilities for the first person
+#' predClassPriorLc(modelLc, screenMental[1, ])
+#'
 #' @export
 
 predClassPriorLc <- function(model,

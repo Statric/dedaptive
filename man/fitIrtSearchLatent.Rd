@@ -43,7 +43,8 @@ A list object with the same structure as returned by
   \describe{
     \item{\code{table}}{Data frame with number of latent variables, AIC, BIC,
       runtime, and selected-model indicator.}
-    \item{\code{models}}{List of all fitted models.}
+    \item{\code{models}}{List of all fitted models. Each model contains its
+      \code{fit} object with the data used for fitting.}
     \item{\code{criterion}}{Selection criterion, either \code{"aic"} or
       \code{"bic"}.}
     \item{\code{bestNLatent}}{Number of latent variables of the selected
@@ -51,16 +52,35 @@ A list object with the same structure as returned by
   }
 }
 \description{
-\code{fitIrtSearchLatent()} fits several Item Response Theory (IRT) or Multidimensional
-IRT (MIRT) models with different numbers of latent variables and selects the
-best model according to Akaike information criterion (AIC) or Bayesian Information
-criterion (BIC). The selected model is returned in the same format as \code{\link{fitIrt}},
-with an additional \code{search} component containing all fitted models and
-the model-selection table. The function is based on the helper function \code{\link{searchLatent}}.
+#' \code{fitIrtSearchLatent()} fits several Item Response Theory (IRT) or Multidimensional
+IRT (MIRT) models with \code{\link{fitIrt}} (based on the package \pkg{mirt};
+Chalmers, 2012) with different numbers of latent variables and selects the
+best model according to the Akaike Information Criterion (AIC) or the Bayesian
+Information Criterion (BIC). The selected model is returned in the same format
+as \code{\link{fitIrt}} with an additional \code{search} component containing
+all fitted models and the model-selection table. The function is based on the
+helper function \code{\link{searchLatent}}.
 }
 \examples{
-\dontrun{
-# Will follow
+data(screenMental)
+data(modelScreenMental)
+
+# Standardize age as in the model (mean and SD of the original data)
+ageStandParam <- modelScreenMental$ageStandParam
+screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+
+items <- modelScreenMental$items
+
+\donttest{
+# Select between one and two latent variables (BIC)
+model <- fitIrtSearchLatent(items = items, formula = "sex + ageStand",
+                            data = screenMental, nLatent = 1:2)
+model$search$table
 }
 
+}
+\references{
+Chalmers, R. P. (2012). mirt: A multidimensional item response theory
+package for the R environment. \emph{Journal of Statistical Software},
+\emph{48}(6), 1–29. \doi{10.18637/jss.v048.i06}
 }

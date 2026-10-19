@@ -8,6 +8,7 @@
 #' Class (LC) models fitted with \code{\link[poLCA]{poLCA}}.
 #'
 #' @import mirt
+#' @import poLCA
 #' @importFrom graphics layout par abline text rect segments axis
 #' @keywords internal
 "_PACKAGE"

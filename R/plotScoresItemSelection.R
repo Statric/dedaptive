@@ -48,7 +48,29 @@
 #' It invisibly returns a list with components \code{marginal1} and
 #' \code{marginal2} (marginal distributions of the two scores) and \code{prob}
 #' (probabilities that the scores are at or above their thresholds).
-#' @importFrom graphics layout par abline text rect segments axis
+#'
+#' @examples
+#' data(screenMental)
+#' data(modelScreenMental)
+#'
+#' # Standardize age as in the model (mean and SD of the original data)
+#' ageStandParam <- modelScreenMental$ageStandParam
+#' screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+#'
+#' funSumScores <- list(function(x) sum(x[1:9]), function(x) sum(x[10:16]))
+#'
+#' res <- dedaptive(
+#'   model      = modelScreenMental,
+#'   dataSub    = screenMental[1, ],
+#'   funOfItems = funSumScores,
+#'   thres      = c(10, 10),
+#'   costs      = list(c(0.5, 0.5), c(0.5, 0.5), 0.05)
+#' )
+#'
+#' plotScoresItemSelection(res,
+#'                         xlab = "PHQ-9 sum score",
+#'                         ylab = "GAD-7 sum score")
+#'
 #' @export
 plotScoresItemSelection <- function(result,
                                     whichScores  = c(1, 2),

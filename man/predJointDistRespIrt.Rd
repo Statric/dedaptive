@@ -2,7 +2,7 @@
 % Please edit documentation in R/predJointDistRespIrt.R
 \name{predJointDistRespIrt}
 \alias{predJointDistRespIrt}
-\title{Probabilistic predictions of joint item responses from an Multidimensional Item Response Theory model}
+\title{Probabilistic predictions of joint item responses from a Multidimensional Item Response Theory model}
 \usage{
 predJointDistRespIrt(
   model,
@@ -61,8 +61,11 @@ A list with components:
 \description{
 \code{predJointDistRespIrt()} performs probabilistic predictions of item
 responses based on a Multidimensional Item Response Theory (MIRT) model fitted
-with \code{\link{fitIrt}}. The method can incorporate predictors (via a latent
-regression, if specified) and optionally already observed responses for a subset of items.
+with \code{\link{fitIrt}} (based on the package \pkg{mirt}; Chalmers, 2012).
+The method can incorporate predictors (via a latent regression, if specified)
+and optionally already observed responses for a subset of items. These
+predictions form the basis of decision-oriented adaptive testing
+(Wyss et al., 2026).
 
 The predictions are obtained with the following steps:
 \enumerate{
@@ -77,4 +80,37 @@ The predictions are obtained with the following steps:
   \item Approximate the joint distribution of item responses
   based on the simulated response patterns.
 }
+}
+\examples{
+data(screenMental)
+data(modelScreenMental)
+
+# Standardize age as in the model (mean and SD of the original data)
+ageStandParam <- modelScreenMental$ageStandParam
+screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+
+dataSub <- screenMental[1, ]
+
+# Posterior after the first item
+step1 <- predJointDistRespIrt(modelScreenMental, dataSub,
+                              givenVal = c(phq1 = 2))
+
+# Sequential update with a second item, using the posterior as prior
+step2 <- predJointDistRespIrt(modelScreenMental, dataSub,
+                              givenVal = c(gad1 = 1),
+                              priorGrid = step1$postDistLatent)
+step2$postDistLatent$givenVal
+head(step2$jointDist)
+
+}
+\references{
+Chalmers, R. P. (2012). mirt: A multidimensional item response theory
+package for the R environment. \emph{Journal of Statistical Software},
+\emph{48}(6), 1–29. \doi{10.18637/jss.v048.i06}
+
+Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+(2026). \emph{Decision-oriented adaptive testing for efficient screening of
+comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+symptoms in individuals seeking treatment for social anxiety}
+[Manuscript in preparation].
 }

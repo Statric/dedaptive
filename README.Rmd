@@ -309,18 +309,20 @@ These plots illustrate how the predicted score distributions and classification 
 
 ## 5. Simulating a data set
 
-The function `simResponsesLatentModel` simulates item responses based on a fitted MIRT or LC model, optionally conditional on predictor variables through a latent regression. This function was also used to generate the simulated data set `screenMental` included in the package, using models fitted to the original clinical data analyzed in Wyss et al. (2026).
+The function `simResponsesLatentModel` simulates item responses based on a fitted MIRT or LC model, optionally conditional on predictor variables through a latent regression. This function was also used to generate the simulated data set `screenMental` included in the package, using a MIRT model fitted to the original clinical data analyzed in Wyss et al. (2026). This model is included in the package as `modelScreenMental` (without the original data).
 
-In the following, we illustrate how to generate a new synthetic data set based on `screenMental`. We first fit a MIRT model to the entire data set using the same model specification as in Section 2.
+
+In the following, we illustrate how to generate a new synthetic data set with this model.
 
 ```{r}
-# Fit the MIRT model to the full data set
-modelAllData <- fitIrt(
-  model   = 2,
-  items   = itemsAll,
-  formula = whichFormula,
-  data    = screenMental
-)
+# Load the model used to generate screenMental
+data(modelScreenMental)
+```
+
+The model uses sex and standardized age as predictors. Age was standardized with the mean and standard deviation of age in the original data, which are stored in the model.
+
+```{r}
+modelScreenMental$ageStandParam
 ```
 
 Given this model, we can simulate item responses for specified predictor values. The function generates one response pattern for each row of `dataPred`.
@@ -329,7 +331,7 @@ Given this model, we can simulate item responses for specified predictor values.
 ```{r}
 # Example: Woman and man with different standardized ages
 simResponsesLatentModel(
-  model    = modelAllData,
+  model    = modelScreenMental,
   dataPred = data.frame(
     ageStand = c(-1, 1),
     sex      = c(1, 0)
@@ -444,7 +446,8 @@ dataSim$age[dataSim$age < 18]<- 18
 # Show first rows
 head(dataSim, 3)
 ```
-Of note, we also rounded age to the nearest year (1-year resolution) and set all ages below 18 to 18. Finally, we standardize age using the mean and standard deviation of the original `screenMental` data set and simulate item responses conditional on sex and age using the function `simResponsesLatentModel`. 
+
+Of note, we also rounded age to the nearest year (1-year resolution) and set all ages below 18 to 18, as was done when simulating `screenMental` (the original study included only adults aged 18 or older). Finally, we standardize age using the mean and standard deviation of age in the original data (stored in `modelScreenMental$ageStandParam`) and simulate item responses conditional on sex and age using the function `simResponsesLatentModel`.
 
 ```{r}
 # Standardize the age (mean and SD from screenMental)
@@ -452,7 +455,7 @@ dataSim$ageStand<- (dataSim$age-mean(screenMental$age))/sd(screenMental$age)
 
 # Simulate item responses given sex and age
 dataSim <- simResponsesLatentModel(
-  model    = modelAllData,
+  model    = modelScreenMental,
   dataPred = dataSim,
   seed     = 13
 )
@@ -463,7 +466,7 @@ dataSim$ageStand<- NULL
 head(dataSim,3)
 ```
 
-The resulting `dataSim` is a fully simulated dataset containing sex, age, and PHQ-9/GAD-7 item responses. It approximately preserves the distributions and dependencies represented by the fitted models without directly reusing individual-level observations from `screenMental`.
+The resulting `dataSim` is a fully simulated data set containing sex, age, and PHQ-9/GAD-7 item responses. It approximately preserves the distributions and dependencies represented by the fitted models without directly reusing individual-level observations from `screenMental`.
 
 
 <sub>Logo of dedaptive is generated with ChatGPT (OpenAI).</sub>

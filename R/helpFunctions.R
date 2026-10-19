@@ -635,7 +635,7 @@ selectBestSearchModel <- function(modelSearch,
 #' Function used by predJointDistRespLc() when fullJoint = TRUE.
 #' It enumerates all possible response patterns and computes their exact
 #' probabilities under the latent class (LC) model. The computation is based on
-#' publicly available R code (XX) from the study of XX.
+#' the publicly available R code of Psychogyiopoulos et al. (2025)
 #'
 #' @param classProb Numeric vector of class probabilities. These are either
 #' prior class probabilities P(C = k) or posterior class probabilities

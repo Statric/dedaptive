@@ -44,9 +44,6 @@ package’s main functionalities throughout this workflow
 
 ``` r
 library(dedaptive)
-#> Loading required package: mirt
-#> Loading required package: stats4
-#> Loading required package: lattice
 data(screenMental)
 head(screenMental, 3)
 #>   sex age id phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1 gad2 gad3 gad4
@@ -352,8 +349,8 @@ predShortVersion <- fixSelection(
 predShortVersion$pred
 #>   predMean_1 predMean_2 prob_1 prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1     6.8265     3.6517 0.1314  9e-04          9      0          3      0
-#>   nItems              combItems  runTime runTimePerItem
-#> 1      4 phq1, phq2, gad1, gad2 0.121567       0.121567
+#>   nItems              combItems    runTime runTimePerItem
+#> 1      4 phq1, phq2, gad1, gad2 0.07613015     0.07613015
 ```
 
 The resulting object `predShortVersion$pred` contains predicted and true
@@ -399,7 +396,7 @@ predDedaptive$pred
 #>   predMean_1 predMean_2 prob_1 prob_2 trueMean_1 diag_1 trueMean_2 diag_2
 #> 1     5.3741     3.6204 0.1156 0.0049          9      0          3      0
 #>   nItems combItems   runTime runTimePerItem
-#> 1      1      gad2 0.5511851      0.2755926
+#> 1      1      gad2 0.2006621      0.1003311
 
 # Show the selected items and their observed responses
 dataSub[, predDedaptive$chosen, drop = FALSE]
@@ -479,21 +476,27 @@ panel and an individualized, decision-oriented adaptive selection.
 The function `simResponsesLatentModel` simulates item responses based on
 a fitted MIRT or LC model, optionally conditional on predictor variables
 through a latent regression. This function was also used to generate the
-simulated data set `screenMental` included in the package, using models
-fitted to the original clinical data analyzed in Wyss et al. (2026).
+simulated data set `screenMental` included in the package, using a MIRT
+model fitted to the original clinical data analyzed in Wyss et
+al. (2026). This model is included in the package as `modelScreenMental`
+(without the original data).
 
 In the following, we illustrate how to generate a new synthetic data set
-based on `screenMental`. We first fit a MIRT model to the entire data
-set using the same model specification as in Section 2.
+with this model.
 
 ``` r
-# Fit the MIRT model to the full data set
-modelAllData <- fitIrt(
-  model   = 2,
-  items   = itemsAll,
-  formula = whichFormula,
-  data    = screenMental
-)
+# Load the model used to generate screenMental
+data(modelScreenMental)
+```
+
+The model uses sex and standardized age as predictors. Age was
+standardized with the mean and standard deviation of age in the original
+data, which are stored in the model.
+
+``` r
+modelScreenMental$ageStandParam
+#>     mean       sd 
+#> 32.05215 11.11774
 ```
 
 Given this model, we can simulate item responses for specified predictor
@@ -503,7 +506,7 @@ values. The function generates one response pattern for each row of
 ``` r
 # Example: Woman and man with different standardized ages
 simResponsesLatentModel(
-  model    = modelAllData,
+  model    = modelScreenMental,
   dataPred = data.frame(
     ageStand = c(-1, 1),
     sex      = c(1, 0)
@@ -511,11 +514,11 @@ simResponsesLatentModel(
   seed = 13
 )
 #>   ageStand sex phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1 gad2 gad3 gad4
-#> 1       -1   1    1    0    0    1    1    1    0    0    0    2    0    0    1
-#> 2        1   0    2    1    0    1    0    3    2    0    0    3    3    2    3
+#> 1       -1   1    1    0    0    1    0    0    0    0    0    2    1    0    1
+#> 2        1   0    3    2    1    2    1    3    3    1    0    3    2    2    3
 #>   gad5 gad6 gad7
 #> 1    0    1    0
-#> 2    0    0    2
+#> 2    0    1    2
 ```
 
 The same function can be used with an LC model fitted using fitLc,
@@ -625,7 +628,7 @@ legend("topright",
 
 <div class="figure">
 
-<img src="man/figures/README-unnamed-chunk-16-1.png" alt="Fig. 4 Estimated age distributions by sex" width="100%" />
+<img src="man/figures/README-unnamed-chunk-17-1.png" alt="Fig. 4 Estimated age distributions by sex" width="100%" />
 <p class="caption">
 
 Fig. 4 Estimated age distributions by sex
@@ -650,9 +653,11 @@ head(dataSim, 3)
 ```
 
 Of note, we also rounded age to the nearest year (1-year resolution) and
-set all ages below 18 to 18. Finally, we standardize age using the mean
-and standard deviation of the original `screenMental` data set and
-simulate item responses conditional on sex and age using the function
+set all ages below 18 to 18, as was done when simulating `screenMental`
+(the original study included only adults aged 18 or older). Finally, we
+standardize age using the mean and standard deviation of age in the
+original data (stored in `modelScreenMental$ageStandParam`) and simulate
+item responses conditional on sex and age using the function
 `simResponsesLatentModel`.
 
 ``` r
@@ -661,7 +666,7 @@ dataSim$ageStand<- (dataSim$age-mean(screenMental$age))/sd(screenMental$age)
 
 # Simulate item responses given sex and age
 dataSim <- simResponsesLatentModel(
-  model    = modelAllData,
+  model    = modelScreenMental,
   dataPred = dataSim,
   seed     = 13
 )
@@ -671,16 +676,16 @@ dataSim$ageStand<- NULL
 
 head(dataSim,3)
 #>   sex age phq1 phq2 phq3 phq4 phq5 phq6 phq7 phq8 phq9 gad1 gad2 gad3 gad4 gad5
-#> 1   0  53    1    0    0    1    1    0    0    0    0    2    0    0    0    0
-#> 2   1  35    2    1    0    1    0    3    2    0    0    3    3    2    3    0
-#> 3   1  36    0    1    1    1    1    2    2    2    0    1    1    2    1    0
+#> 1   0  53    1    0    0    1    0    0    0    0    0    2    0    0    0    0
+#> 2   1  35    3    2    1    3    2    3    3    1    0    3    3    2    3    0
+#> 3   1  36    1    1    2    1    1    3    2    2    0    1    1    1    1    0
 #>   gad6 gad7
 #> 1    1    0
-#> 2    0    2
+#> 2    1    2
 #> 3    1    1
 ```
 
-The resulting `dataSim` is a fully simulated dataset containing sex,
+The resulting `dataSim` is a fully simulated data set containing sex,
 age, and PHQ-9/GAD-7 item responses. It approximately preserves the
 distributions and dependencies represented by the fitted models without
 directly reusing individual-level observations from `screenMental`.

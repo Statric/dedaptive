@@ -5,11 +5,12 @@
 #' for categorical item responses and returns a model object that can be used for predictions
 #' and item selections within the \code{dedaptive} library.
 #'
-#' Technically, \code{fitLc()} is a wrapper around \code{\link[poLCA]{poLCA}}:
-#' it prepares the data, sets up an optional latent class regression, and stores
-#' additional information (e.g., item labels) needed later by functions from \code{dedaptive}.
+#' Technically, \code{fitLc()} is a wrapper around \code{\link[poLCA]{poLCA}}
+#' (Linzer & Lewis, 2011): it prepares the data, sets up an optional latent class
+#' regression, and stores additional information (e.g., item labels) needed later
+#' by functions from \code{dedaptive}.
 #' If you plan to use an LC model with \code{dedaptive}, you must always fit
-#' it via \code{fitLc()} rather than calling  \code{\link[poLCA]{poLCA}} directly.
+#' it via \code{fitLc()} rather than calling \code{\link[poLCA]{poLCA}} directly.
 #'
 #' @details
 #' The function expects a set of item responses and, optionally, predictors for
@@ -23,20 +24,20 @@
 #' @param formula Either \code{NULL} (no latent regression), a character string
 #'  containing only the right-hand side of a regression formula
 #'  (e.g., \code{"age + sex"}), or a one-sided formula (e.g., \code{~ age + sex})
-#'  specifying the predictors specifying predictors for latent class membership.
+#'  specifying the predictors for latent class membership.
 #' @param data A data frame containing the item responses specified in
 #'  \code{items} and, if \code{formula} is not \code{NULL}, all predictor
 #'  variables referenced in \code{formula}. Each row typically corresponds to
 #'  one person.
-#' @param nClasses An Integer specfying the number of latent classes.
+#' @param nClasses An Integer specifying the number of latent classes.
 #' @param ...  Additional arguments passed to \code{\link[poLCA]{poLCA}} such as
-#' \code{nrep} (number of random starts), \code{maxiter} (Maximum number of EM iteration)
+#' \code{nrep} (number of random starts), \code{maxiter} (maximum number of EM iterations)
 #' or \code{verbose}.
 #'
 #' @return
 #' A list with the following elements:
 #' \describe{
-#'   \item{\code{modelType}}{Character specfying the used model type ("lc", meta-data)}
+#'   \item{\code{modelType}}{Character specifying the used model type ("lc", meta-data)}
 #'
 #'   \item{\code{items}}{Character vector with the item names used in the model (meta-data).}
 #'
@@ -44,7 +45,7 @@
 #'     This is \code{NULL} if no latent class regression was specified.}
 #'
 #'   \item{\code{covFormula}}{Parsed formula used internally for the
-#'     latent class regression. This is \code{NULL} if no latent regression was specified.}
+#'     latent class regression, stored without environment.}
 #'
 #'   \item{\code{nClasses}}{Number of latent classes.}
 #'
@@ -57,7 +58,9 @@
 #'     in \code{\link[poLCA]{poLCA}}.}
 #'
 #'   \item{\code{fit}}{The fitted \code{\link[poLCA]{poLCA}} model object returned by
-#'     \code{\link[poLCA]{poLCA}}.}
+#'     \code{\link[poLCA]{poLCA}}. It contains the data used for fitting. All
+#'     prediction functions of \code{dedaptive} work without it, hence it can be
+#'     removed (\code{model$fit <- NULL}), e.g., before sharing the model.}
 #'
 #'   \item{\code{coef}}{List containing prior class-membership probabilities
 #'   (\code{NULL} if \code{formula} is not \code{NULL}) and regression coefficients
@@ -68,11 +71,27 @@
 #'     per response category.}
 #' }
 #'
+#' @references
+#' Linzer, D. A., & Lewis, J. B. (2011). poLCA: An R package for polytomous
+#' variable latent class analysis. \emph{Journal of Statistical Software},
+#' \emph{42}(10), 1–29. \doi{10.18637/jss.v042.i10}
+#'
 #' @examples
-#' \dontrun{
-#' # Will follow
-#' }
-#' @import poLCA
+#' data(screenMental)
+#' data(modelScreenMental)
+#'
+#' # Standardize age as in the model (mean and SD of the original data)
+#' ageStandParam <- modelScreenMental$ageStandParam
+#' screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+#'
+#' items <- modelScreenMental$items
+#'
+#' # Latent class model with three classes and covariates sex and age
+#' model <- fitLc(items = items, formula = "sex + ageStand",
+#'                data = screenMental, nClasses = 3,
+#'                nrep = 10, verbose = FALSE)
+#' model$coef$paramReg
+#'
 #' @importFrom stats as.formula
 #' @export
 

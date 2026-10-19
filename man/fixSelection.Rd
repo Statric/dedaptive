@@ -102,3 +102,32 @@ on the selected items (if provided) and then applies score functions
 distributions of scores and decisions. The arguments \code{funOfItems} and
 \code{thres} must have the same length (one threshold per score function).
 }
+\examples{
+data(screenMental)
+data(modelScreenMental)
+
+# Standardize age as in the model (mean and SD of the original data)
+ageStandParam <- modelScreenMental$ageStandParam
+screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+
+# Score functions: PHQ-9 and GAD-7 sum scores (items in the order of model$items)
+funSumScores <- list(function(x) sum(x[1:9]), function(x) sum(x[10:16]))
+
+# Predictions based on the short forms PHQ-2 and GAD-2
+res <- fixSelection(
+  model      = modelScreenMental,
+  dataSub    = screenMental[1, ],
+  funOfItems = funSumScores,
+  thres      = c(10, 10),
+  givenVar   = c("phq1", "phq2", "gad1", "gad2")
+)
+res$pred
+
+}
+\references{
+Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+(2026). \emph{Decision-oriented adaptive testing for efficient screening of
+comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+symptoms in individuals seeking treatment for social anxiety}
+[Manuscript in preparation].
+}

@@ -7,7 +7,7 @@
 simResponsesLatentModel(model, dataPred = NULL, nSim = NULL, seed = 1)
 }
 \arguments{
-\item{model}{MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitLc}}}
+\item{model}{MIRT model fitted with \code{\link{fitIrt}} or LC model fitted with \code{\link{fitLc}}.}
 
 \item{dataPred}{Optional data frame with predictors for latent regression.}
 
@@ -23,15 +23,37 @@ A data frame with predictors and simulated responses.
 \code{simResponsesLatentModel()} simulates item response patterns from a Multidimensional
 Item Response Theory (MIRT) or Latent Class (LC) model fitted with
 \code{\link{fitIrt}} respectively \code{\link{fitLc}}, using the
-probabilistic machinery of \code{\link{predJointDistResp}}.
+probabilistic machinery of \code{\link{predJointDistResp}}. The function was
+used to generate the data set \code{\link{screenMental}} with the model
+\code{\link{modelScreenMental}} (Wyss et al., 2026).
 }
 \details{
 If the MIRT or LC model includes a latent regression (\code{model$formula} not \code{NULL}),
 \code{dataPred} must contain all predictor variables used in \code{\link{fitIrt}}
-respectively \code{\link{fitLc}}.For each row in \code{dataPred}, one response
+respectively \code{\link{fitLc}}. For each row in \code{dataPred}, one response
 pattern is simulated.
 
 If the model has no latent regression (\code{model$formula} is \code{NULL}) and
 \code{dataPred} is \code{NULL}, then \code{nSim} must be supplied and \code{nSim}
 response patterns are simulated.
+}
+\examples{
+data(modelScreenMental)
+
+# Simulate item responses for a woman and a man
+# (ageStand = -1 / 1: one standard deviation below / above the mean age)
+simResponsesLatentModel(
+  model    = modelScreenMental,
+  dataPred = data.frame(sex = c(1, 0), ageStand = c(-1, 1)),
+  seed     = 13
+)
+
+
+}
+\references{
+Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+(2026). \emph{Decision-oriented adaptive testing for efficient screening of
+comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+symptoms in individuals seeking treatment for social anxiety}
+[Manuscript in preparation].
 }

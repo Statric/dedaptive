@@ -2,16 +2,22 @@
 #'
 #' @description
 #' \code{predJointDistResp()} is a generic wrapper for probabilistic prediction
-#' of joint item-response distributions. It uses model-specific prediction functions
-#' based on the model type (\code{model$modelType}). Currently, Latent Class (LC)
-#' and Multidimensional Item Response Theory (MIRT) model are supported.
+#' of joint item-response distributions, which form the basis of
+#' decision-oriented adaptive testing (Wyss et al., 2026). It uses model-specific
+#' prediction functions based on the model type (\code{model$modelType}).
+#' Currently, Latent Class (LC) and Multidimensional Item Response Theory (MIRT)
+#' models are supported.
 #'
-#' If \code{model$modelType == "lc"} (LC model), the function calls
-#' \code{\link{predJointDistRespLc}}. In this case, the joint response
-#' distribution can either be computed exactly by setting \code{fullJoint = TRUE}
-#' or approximated by simulation by setting \code{fullJoint = FALSE}.
+#' If \code{model$modelType == "lc"} (LC model fitted with \code{\link{fitLc}},
+#' based on the package \pkg{poLCA}; Linzer & Lewis, 2011), the function calls
+#' \code{\link{predJointDistRespLc}} (inspired by the publicly available R code of
+#' Psychogyiopoulos et al., 2025, \url{https://osf.io/g5hz7/}).
+#' In this case, the joint response distribution can either be computed exactly
+#' by setting \code{fullJoint = TRUE} or approximated by simulation by setting
+#' \code{fullJoint = FALSE}.
 #'
-#' If \code{model$modelType == "irt"} (MIRT model), the function calls
+#' If \code{model$modelType == "irt"} (MIRT model fitted with \code{\link{fitIrt}},
+#' based on the package \pkg{mirt}; Chalmers, 2012), the function calls
 #' \code{\link{predJointDistRespIrt}}. For MIRT models, \code{fullJoint = TRUE}
 #' is ignored.
 #'
@@ -46,9 +52,14 @@
 #'   \code{postDistLatent} element from an earlier call to \code{predJointDistResp}).
 #'   If \code{NULL}, the prior latent variable distribution implied by the LC or
 #'   MIRT model (and latent regression, if specified) is used.
-#' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint
-#'   item-response distribution is computed exactly. If \code{FALSE}, the
-#'   distribution is approximated by simulation. For MIRT models,
+#' @param fullJoint Logical; for LC models, if \code{TRUE}, the full joint item-response
+#'   distribution is computed exactly by enumerating all response patterns of
+#'   the unknown items. If \code{FALSE}, the distribution is approximated by
+#'   simulation. The number of response patterns grows exponentially with the
+#'   number of unknown items (e.g., \eqn{4^J} for \eqn{J} items with four
+#'   response categories), so the exact computation is only feasible for small
+#'   item sets: Psychogyiopoulos et al. (2025) report memory issues for more than
+#'   about 15 items, and with four response categories. For MIRT models,
 #'   \code{fullJoint = TRUE} is ignored and simulation-based prediction is used.
 #'
 #' @return A list with components:
@@ -64,6 +75,44 @@
 #'     response pattern; the last column \code{freq} contains its relative
 #'     frequency (approximated probability).}
 #' }
+#'
+#' @references
+#' Chalmers, R. P. (2012). mirt: A multidimensional item response theory
+#' package for the R environment. \emph{Journal of Statistical Software},
+#' \emph{48}(6), 1–29. \doi{10.18637/jss.v048.i06}
+#'
+#' Linzer, D. A., & Lewis, J. B. (2011). poLCA: An R package for polytomous
+#' variable latent class analysis. \emph{Journal of Statistical Software},
+#' \emph{42}(10), 1–29. \doi{10.18637/jss.v042.i10}
+#'
+#' Psychogyiopoulos, A., Smits, N., & van der Ark, L. A. (2025). A novel CAT
+#' method for QoL screening: Proof-of-principle study with comparisons to
+#' standard methods. \emph{Quality of Life Research}, \emph{34}(10), 2787–2795.
+#' \doi{10.1007/s11136-025-04035-5}
+#'
+#' Wyss, P., Steiner, M. D., Lopes, R. C. T., Šipka, D., Berger, T., & Krause, A.
+#' (2026). \emph{Decision-oriented adaptive testing for efficient screening of
+#' comorbid mental health conditions: Proof-of-concept for depressive and anxiety
+#' symptoms in individuals seeking treatment for social anxiety}
+#' [Manuscript in preparation].
+#'
+#' @examples
+#' data(screenMental)
+#' data(modelScreenMental)
+#'
+#' # Standardize age as in the model (mean and SD of the original data)
+#' ageStandParam <- modelScreenMental$ageStandParam
+#' screenMental$ageStand <- (screenMental$age - ageStandParam[["mean"]]) / ageStandParam[["sd"]]
+#'
+#' # Predicted joint distribution of all item responses for the first person
+#' dataSub <- screenMental[1, ]
+#' pred <- predJointDistResp(modelScreenMental, dataSub)
+#' head(pred$jointDist)
+#'
+#' # Conditional on the observed responses to two items
+#' pred2 <- predJointDistResp(modelScreenMental, dataSub,
+#'                            givenVal = c(phq1 = 2, gad1 = 1))
+#' head(pred2$jointDist)
 #'
 #' @export
 #'
