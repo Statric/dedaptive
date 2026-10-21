@@ -30,6 +30,8 @@
 #'  variables referenced in \code{formula}. Each row typically corresponds to
 #'  one person.
 #' @param nClasses An Integer specifying the number of latent classes.
+#' @param seed Optional integer seed for the random starting values of
+#'   \code{\link[poLCA]{poLCA}}. If \code{NULL} (default), no seed is set.
 #' @param ...  Additional arguments passed to \code{\link[poLCA]{poLCA}} such as
 #' \code{nrep} (number of random starts), \code{maxiter} (maximum number of EM iterations)
 #' or \code{verbose}.
@@ -96,10 +98,11 @@
 #' @export
 
 fitLc<- function(items,
-                  formula = NULL,
-                  data,
-                  nClasses,
-                  ...) {
+                 formula = NULL,
+                 data,
+                 nClasses,
+                 seed = NULL,
+                 ...) {
 
   # (1) Preparation
   # Checks
@@ -206,6 +209,11 @@ fitLc<- function(items,
   modelOut["covFormula"] <- list(covFormula)
 
   # (3) Fit latent class model and extract quantities needed for predictions
+
+  # Seed for the random starting values of poLCA (if supplied)
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
 
   # Model training
   fit <- poLCA::poLCA(

@@ -4,7 +4,7 @@
 \alias{fitLc}
 \title{Fit latent class models for use with \code{dedaptive}}
 \usage{
-fitLc(items, formula = NULL, data, nClasses, ...)
+fitLc(items, formula = NULL, data, nClasses, seed = NULL, ...)
 }
 \arguments{
 \item{items}{Character vector with the names of the columns in \code{data} containing
@@ -21,6 +21,9 @@ variables referenced in \code{formula}. Each row typically corresponds to
 one person.}
 
 \item{nClasses}{An Integer specifying the number of latent classes.}
+
+\item{seed}{Optional integer seed for the random starting values of
+\code{\link[poLCA]{poLCA}}. If \code{NULL} (default), no seed is set.}
 
 \item{...}{Additional arguments passed to \code{\link[poLCA]{poLCA}} such as
 \code{nrep} (number of random starts), \code{maxiter} (maximum number of EM iterations)
