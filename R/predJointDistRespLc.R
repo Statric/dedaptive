@@ -219,12 +219,12 @@ predJointDistRespLc <- function(model,
       ## labels for item j
       varLabels_j <- varLabels[[j]]
 
-      ## find closest category
+      ## find closest category (for ties the higher one)
       respCol <- which(
         abs(as.numeric(varLabels_j) - response) <=
           min(abs(as.numeric(varLabels_j) - response))
       )
-      respCol <- respCol[1]
+      respCol <- respCol[length(respCol)]
 
       ## item category probabilities conditional on latent variable
       probs <- as.matrix(itemProbs[[j]])

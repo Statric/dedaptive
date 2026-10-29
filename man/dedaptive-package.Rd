@@ -23,6 +23,11 @@ Useful links:
 \author{
 \strong{Maintainer}: Patric Wyss \email{patric.wyss@fhnw.ch}
 
+Authors:
+\itemize{
+  \item Patric Wyss \email{patric.wyss@fhnw.ch}
+}
+
 Other contributors:
 \itemize{
   \item Markus Steiner \email{markus.steiner@fhnw.ch} [contributor]

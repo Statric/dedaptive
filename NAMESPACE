@@ -23,11 +23,13 @@ export(selectBestSearchModel)
 export(simResponsesLatentModel)
 import(mirt)
 import(poLCA)
-importFrom(graphics,abline)
-importFrom(graphics,axis)
-importFrom(graphics,layout)
-importFrom(graphics,par)
-importFrom(graphics,rect)
-importFrom(graphics,segments)
-importFrom(graphics,text)
+importFrom(graphics,
+  abline,
+  axis,
+  layout,
+  par,
+  rect,
+  segments,
+  text
+)
 importFrom(stats,as.formula)
